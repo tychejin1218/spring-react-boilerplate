@@ -2,7 +2,7 @@
 
 Spring Boot 백엔드 API 서비스
 
-- **Java 17** / **Spring Boot 4.0.2** / **Gradle 9.3.0**
+- **Java 17** / **Spring Boot 4.0.9** / **Gradle 9.3.0**
 - **DB**: MySQL 8.0+ (AWS RDS Aurora) - Read/Write 분리 (`LazyConnectionDataSourceProxy`)
 - **ORM/Query**: JPA + QueryDSL 5.1.0 + MyBatis 3.0.5
 - **캐시**: Redis (AWS ElastiCache)

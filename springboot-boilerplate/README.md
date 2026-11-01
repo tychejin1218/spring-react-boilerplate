@@ -10,7 +10,7 @@ JWT 인증, Redis 캐시, JPA/QueryDSL/MyBatis 다중 데이터 접근, Read/Wri
 
 | 분류 | 기술 |
 |------|------|
-| 언어 / 프레임워크 | Java 17, Spring Boot 4.0.2 |
+| 언어 / 프레임워크 | Java 17, Spring Boot 4.0.9 |
 | 빌드 | Gradle 9.3.0 |
 | 데이터베이스 | MySQL 8.0+ (AWS RDS Aurora, Read/Write 분리) |
 | ORM / 쿼리 | JPA + QueryDSL 5.1.0 + MyBatis 3.0.5 |
