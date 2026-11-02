@@ -7,10 +7,7 @@ export interface PresignedUrlResponse {
   objectUrl: string;
 }
 
-export const getPresignedUrl = (
-  fileName: string,
-  contentType: string,
-): Promise<ApiResponse<PresignedUrlResponse>> =>
+export const getPresignedUrl = (fileName: string, contentType: string): Promise<ApiResponse<PresignedUrlResponse>> =>
   api
     .get<ApiResponse<PresignedUrlResponse>>('/files/presigned-url', {
       params: { fileName, contentType },

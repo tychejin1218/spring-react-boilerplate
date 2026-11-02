@@ -35,36 +35,13 @@ const TodoItem = ({ todo, onComplete, onDelete, onUpload }: Props) => {
         disabled={todo.completed}
         className="size-4 cursor-pointer accent-blue-600 disabled:cursor-default"
       />
-      {todo.imageUrl && (
-        <img
-          src={todo.imageUrl}
-          alt="첨부 이미지"
-          className="size-10 rounded object-cover"
-        />
-      )}
-      <span
-        className={`flex-1 text-sm ${todo.completed ? 'text-gray-400 line-through' : 'text-gray-800'}`}
-      >
-        {todo.title}
-      </span>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={(e) => void handleFileChange(e)}
-        className="hidden"
-      />
-      <button
-        onClick={() => fileInputRef.current?.click()}
-        disabled={uploading}
-        className="text-xs text-gray-400 hover:text-blue-500 disabled:opacity-40"
-      >
+      {todo.imageUrl && <img src={todo.imageUrl} alt="첨부 이미지" className="size-10 rounded object-cover" />}
+      <span className={`flex-1 text-sm ${todo.completed ? 'text-gray-400 line-through' : 'text-gray-800'}`}>{todo.title}</span>
+      <input ref={fileInputRef} type="file" accept="image/*" onChange={(e) => void handleFileChange(e)} className="hidden" />
+      <button onClick={() => fileInputRef.current?.click()} disabled={uploading} className="text-xs text-gray-400 hover:text-blue-500 disabled:opacity-40">
         {uploading ? '...' : '사진'}
       </button>
-      <button
-        onClick={() => onDelete(todo.id)}
-        className="text-xs text-red-400 hover:text-red-600"
-      >
+      <button onClick={() => onDelete(todo.id)} className="text-xs text-red-400 hover:text-red-600">
         삭제
       </button>
     </li>

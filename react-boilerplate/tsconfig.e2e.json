@@ -8,6 +8,8 @@
     "noEmit": true,
     "skipLibCheck": true,
     "verbatimModuleSyntax": true,
-    "erasableSyntaxOnly": true
+    "erasableSyntaxOnly": true,
+    "types": ["node"]
   },
+  "include": ["e2e", "playwright.config.ts"]
 }

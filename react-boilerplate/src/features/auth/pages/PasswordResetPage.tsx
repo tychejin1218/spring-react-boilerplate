@@ -61,10 +61,7 @@ const PasswordResetPage = () => {
         {success ? (
           <div className="text-center">
             <p className="mb-4 text-sm text-green-600">비밀번호가 성공적으로 변경되었습니다.</p>
-            <Link
-              to="/"
-              className="inline-block w-full rounded bg-blue-600 py-2 text-center text-sm font-medium text-white hover:bg-blue-700"
-            >
+            <Link to="/" className="inline-block w-full rounded bg-blue-600 py-2 text-center text-sm font-medium text-white hover:bg-blue-700">
               로그인하기
             </Link>
           </div>
@@ -96,11 +93,7 @@ const PasswordResetPage = () => {
 
             {error && <p className="text-sm text-red-500">{error}</p>}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="rounded bg-blue-600 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-            >
+            <button type="submit" disabled={loading} className="rounded bg-blue-600 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
               {loading ? '변경 중...' : '비밀번호 변경'}
             </button>
           </form>

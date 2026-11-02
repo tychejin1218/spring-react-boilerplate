@@ -42,9 +42,7 @@ const PasswordResetRequestPage = () => {
           </div>
         ) : (
           <>
-            <p className="mb-4 text-center text-sm text-gray-500">
-              가입한 이메일을 입력하면 비밀번호 재설정 링크를 보내드립니다.
-            </p>
+            <p className="mb-4 text-center text-sm text-gray-500">가입한 이메일을 입력하면 비밀번호 재설정 링크를 보내드립니다.</p>
 
             <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-4">
               <div className="flex flex-col gap-1">

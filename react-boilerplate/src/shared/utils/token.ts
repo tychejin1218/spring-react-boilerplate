@@ -9,9 +9,7 @@ const decodePayload = (token: string): JwtPayload => {
 };
 
 /** JWT payload에서 sub(email) 추출 */
-export const parseEmailFromToken = (token: string): string =>
-  decodePayload(token).sub ?? '';
+export const parseEmailFromToken = (token: string): string => decodePayload(token).sub ?? '';
 
 /** JWT payload에서 role 추출 */
-export const parseRoleFromToken = (token: string): string =>
-  decodePayload(token).role ?? 'ROLE_USER';
+export const parseRoleFromToken = (token: string): string => decodePayload(token).role ?? 'ROLE_USER';

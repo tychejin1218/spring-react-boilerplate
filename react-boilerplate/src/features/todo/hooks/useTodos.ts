@@ -1,13 +1,7 @@
 import { useCallback } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { todoKeys } from '@/shared/apis/queryKeys';
-import {
-  deleteTodo,
-  getTodos,
-  patchTodoComplete,
-  patchTodoImage,
-  postTodo,
-} from '@/features/todo/apis/todoApi';
+import { deleteTodo, getTodos, patchTodoComplete, patchTodoImage, postTodo } from '@/features/todo/apis/todoApi';
 import { getPresignedUrl, uploadToPresignedUrl } from '@/shared/apis/fileApi';
 import type { CreateTodoRequest, TodoListParams } from '@/features/todo/types/todo';
 
@@ -22,8 +16,7 @@ export const useCreateTodo = (params: TodoListParams) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: CreateTodoRequest) => postTodo(data),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: todoKeys.list(params).queryKey }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: todoKeys.list(params).queryKey }),
     onError: (error) => console.error('[useCreateTodo] 할 일 추가 실패:', error),
   });
 };
@@ -32,8 +25,7 @@ export const useCompleteTodo = (params: TodoListParams) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => patchTodoComplete(id),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: todoKeys.list(params).queryKey }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: todoKeys.list(params).queryKey }),
     onError: (error) => console.error('[useCompleteTodo] 할 일 완료 처리 실패:', error),
   });
 };
@@ -42,8 +34,7 @@ export const useDeleteTodo = (params: TodoListParams) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => deleteTodo(id),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: todoKeys.list(params).queryKey }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: todoKeys.list(params).queryKey }),
     onError: (error) => console.error('[useDeleteTodo] 할 일 삭제 실패:', error),
   });
 };

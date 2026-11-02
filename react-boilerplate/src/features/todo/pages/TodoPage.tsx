@@ -1,11 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import {
-  useTodos,
-  useCreateTodo,
-  useCompleteTodo,
-  useDeleteTodo,
-  useUploadTodoImage,
-} from '@/features/todo/hooks/useTodos';
+import { useTodos, useCreateTodo, useCompleteTodo, useDeleteTodo, useUploadTodoImage } from '@/features/todo/hooks/useTodos';
 import TodoItem from '@/features/todo/components/TodoItem';
 import type { TodoFilter, TodoListParams, TodoSort } from '@/features/todo/types/todo';
 
@@ -23,10 +17,7 @@ const TodoPage = () => {
   const [sort, setSort] = useState<TodoSort>('id');
   const [page, setPage] = useState(0);
 
-  const params = useMemo<TodoListParams>(
-    () => ({ page, size: PAGE_SIZE, status: filter, sort }),
-    [page, filter, sort],
-  );
+  const params = useMemo<TodoListParams>(() => ({ page, size: PAGE_SIZE, status: filter, sort }), [page, filter, sort]);
 
   const { data: pageData, isLoading } = useTodos(params);
   const createTodo = useCreateTodo(params);
@@ -83,20 +74,14 @@ const TodoPage = () => {
               key={tab.value}
               onClick={() => handleFilterChange(tab.value)}
               className={`px-4 py-2 text-sm font-medium transition-colors ${
-                filter === tab.value
-                  ? 'border-b-2 border-blue-600 text-blue-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                filter === tab.value ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               {tab.label}
             </button>
           ))}
         </div>
-        <select
-          value={sort}
-          onChange={handleSortChange}
-          className="mb-1 rounded border border-gray-200 px-2 py-1 text-xs text-gray-600 focus:outline-none"
-        >
+        <select value={sort} onChange={handleSortChange} className="mb-1 rounded border border-gray-200 px-2 py-1 text-xs text-gray-600 focus:outline-none">
           <option value="id">최신순</option>
           <option value="title">제목순</option>
         </select>
@@ -104,9 +89,7 @@ const TodoPage = () => {
 
       {isLoading && <p className="text-sm text-gray-400">불러오는 중...</p>}
 
-      {!isLoading && todos.length === 0 && (
-        <p className="text-sm text-gray-400">할 일이 없습니다. 추가해보세요!</p>
-      )}
+      {!isLoading && todos.length === 0 && <p className="text-sm text-gray-400">할 일이 없습니다. 추가해보세요!</p>}
 
       <ul className="flex flex-col gap-2">
         {todos.map((todo) => (

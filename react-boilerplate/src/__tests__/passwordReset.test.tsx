@@ -1,16 +1,15 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { http, HttpResponse } from 'msw';
+import { http } from 'msw';
+import { env } from '@/app/config/env';
 import { server } from '@/mocks/server';
-import { err } from '@/mocks/response';
 import PasswordResetRequestPage from '@/features/auth/pages/PasswordResetRequestPage';
 import PasswordResetPage from '@/features/auth/pages/PasswordResetPage';
 
-const BASE = 'http://localhost:9091/api';
+const BASE = env.VITE_API_BASE_URL;
 
-const renderWithRouter = (ui: React.ReactElement, { initialEntries = ['/'] } = {}) =>
-  render(<MemoryRouter initialEntries={initialEntries}>{ui}</MemoryRouter>);
+const renderWithRouter = (ui: React.ReactElement, { initialEntries = ['/'] } = {}) => render(<MemoryRouter initialEntries={initialEntries}>{ui}</MemoryRouter>);
 
 // ---------------------------------------------------------------------------
 // PasswordResetRequestPage
@@ -71,7 +70,7 @@ describe('PasswordResetRequestPage', () => {
   it('로딩 중 버튼이 비활성화된다', async () => {
     server.use(
       http.post(`${BASE}/auth/password/reset-request`, () => {
-        return new Promise<HttpResponse>(() => {
+        return new Promise<never>(() => {
           // 응답을 보내지 않아 로딩 상태를 유지
         });
       }),

@@ -5,8 +5,7 @@ const BASE = env.VITE_API_BASE_URL;
 
 const encoder = new TextEncoder();
 
-const sseEvent = (name: string, data: unknown) =>
-  encoder.encode(`event: ${name}\ndata: ${JSON.stringify(data)}\n\n`);
+const sseEvent = (name: string, data: unknown) => encoder.encode(`event: ${name}\ndata: ${JSON.stringify(data)}\n\n`);
 
 export const notificationHandlers = [
   http.get(`${BASE}/notifications/subscribe`, () => {

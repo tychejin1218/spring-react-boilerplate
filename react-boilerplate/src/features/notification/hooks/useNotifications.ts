@@ -27,13 +27,10 @@ export const useNotifications = () => {
 
     (async () => {
       try {
-        const response = await fetch(
-          `${env.VITE_API_BASE_URL}/notifications/subscribe`,
-          {
-            headers: { Authorization: `Bearer ${accessToken}` },
-            signal: controller.signal,
-          },
-        );
+        const response = await fetch(`${env.VITE_API_BASE_URL}/notifications/subscribe`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+          signal: controller.signal,
+        });
 
         const reader = response.body?.getReader();
         if (!reader) return;
