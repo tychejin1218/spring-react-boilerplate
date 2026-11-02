@@ -38,6 +38,7 @@ spring-react-boilerplate/
 
 - FE 규칙: [react-boilerplate/CLAUDE.md](react-boilerplate/CLAUDE.md)
 - BE 규칙: [springboot-boilerplate/CLAUDE.md](springboot-boilerplate/CLAUDE.md)
+- 전체 동작 설명 (인증, 캐시, 알림, 파일 업로드 흐름): [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
 ## 공통 규칙
 

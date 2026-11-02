@@ -12,6 +12,10 @@ spring-react-boilerplate/
 └── react-boilerplate/        # React 프론트엔드 앱
 ```
 
+## 전체 동작 설명
+
+구성 요소, 요청 처리 순서, 인증, 캐시, 알림, 파일 업로드, 환경 설정은 [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) 에 정리되어 있다.
+
 ## 프로젝트 소개
 
 | 프로젝트 | 설명 | 문서 |
@@ -23,7 +27,7 @@ spring-react-boilerplate/
 
 ## 로컬 개발 환경
 
-### 1. 인프라 실행 (MySQL + Redis)
+### 1. 인프라 실행 (MySQL, Redis, MinIO, MailHog)
 
 ```bash
 cd springboot-boilerplate
