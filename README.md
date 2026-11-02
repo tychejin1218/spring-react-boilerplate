@@ -38,6 +38,15 @@ docker-compose up -d
 
 ---
 
+## CI
+
+GitHub Actions 워크플로(`.github/workflows/`)가 PR 과 `main` 푸시에서 변경된 프로젝트의 품질 게이트를 실행합니다.
+`be-ci.yml` 은 `springboot-boilerplate/**` 변경 시 MySQL/Redis 서비스 컨테이너를 띄워 `./gradlew checkstyleMain pmdMain` 과 `./gradlew test -Pcoverage`(JaCoCo 최소 50%)를 실행하고 커버리지 리포트를 아티팩트로 올립니다.
+`fe-ci.yml` 은 `react-boilerplate/**` 변경 시 ESLint, Prettier, `tsc`, Vitest, `build:prd` 를 실행하고 별도 job 에서 Playwright E2E(chromium, MSW 모드)를 실행합니다.
+같은 브랜치에서 새 실행이 시작되면 진행 중인 이전 실행은 자동으로 취소됩니다.
+
+---
+
 ## 개발 방식 (Claude Code)
 
 FE와 BE를 함께 다루면 모노레포 루트에서, 한쪽만 다루면 해당 프로젝트 디렉토리에서 Claude Code를 실행합니다.

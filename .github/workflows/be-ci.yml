@@ -1,0 +1,103 @@
+# BE CI: springboot-boilerplate 변경 시 정적 분석 + 테스트(커버리지) 실행
+name: BE CI
+
+on:
+  pull_request:
+    paths:
+      - "springboot-boilerplate/**"
+      - ".github/workflows/be-ci.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "springboot-boilerplate/**"
+      - ".github/workflows/be-ci.yml"
+
+# 같은 ref 에서 새 실행이 시작되면 진행 중인 이전 실행을 취소한다
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: springboot-boilerplate
+
+jobs:
+  build:
+    name: Checkstyle / PMD / Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    # @SpringBootTest 는 local 프로파일로 MySQL(3306) / Redis(6379) 에 실제 접속한다.
+    # 환경변수는 springboot-boilerplate/docker-compose.yml 의 mysql 서비스와 동일하게 맞춘다.
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: boilerplate_db
+          MYSQL_USER: boilerplate
+          MYSQL_PASSWORD: boilerplate
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7.0
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+
+      - name: Set up Gradle (캐시 포함)
+        uses: gradle/actions/setup-gradle@v4
+
+      # services 에서는 docker-entrypoint-initdb.d 볼륨 마운트가 불가하므로
+      # 컨테이너 안의 mysql 클라이언트로 docker/init.sql 을 직접 실행해 테이블을 생성한다.
+      - name: Initialize MySQL schema (docker/init.sql)
+        run: |
+          docker exec -i ${{ job.services.mysql.id }} \
+            mysql -uroot -proot --default-character-set=utf8mb4 boilerplate_db < docker/init.sql
+
+      - name: Checkstyle + PMD
+        run: ./gradlew checkstyleMain pmdMain --no-daemon
+
+      - name: Test (JaCoCo 리포트 + 최소 커버리지 검증)
+        run: ./gradlew test -Pcoverage --no-daemon
+
+      - name: Upload JaCoCo report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: springboot-boilerplate/build/jacoco/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: springboot-boilerplate/build/reports/tests/
+          if-no-files-found: ignore
+          retention-days: 7

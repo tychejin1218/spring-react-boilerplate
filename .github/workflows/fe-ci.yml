@@ -1,0 +1,107 @@
+# FE CI: react-boilerplate 변경 시 린트 / 포맷 / 타입 / 단위 테스트 / 빌드 + Playwright E2E 실행
+name: FE CI
+
+on:
+  pull_request:
+    paths:
+      - "react-boilerplate/**"
+      - ".github/workflows/fe-ci.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "react-boilerplate/**"
+      - ".github/workflows/fe-ci.yml"
+
+# 같은 ref 에서 새 실행이 시작되면 진행 중인 이전 실행을 취소한다
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: react-boilerplate
+
+jobs:
+  check:
+    name: Lint / Format / Type / Unit / Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node (.nvmrc 버전, npm 캐시)
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: react-boilerplate/.nvmrc
+          cache: npm
+          cache-dependency-path: react-boilerplate/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Prettier check
+        run: npm run format:check
+
+      - name: Type check
+        run: npx tsc -p tsconfig.app.json --noEmit
+
+      - name: Unit tests (Vitest)
+        run: npm run test:run
+
+      # env/.env.prd 는 저장소에 포함되어 있으므로 별도 환경변수 없이 빌드 가능
+      - name: Production build
+        run: npm run build:prd
+
+  e2e:
+    name: E2E (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # env/.env.local 은 저장소에 없으므로 local 모드에 필요한 값을 환경변수로 넘긴다
+    # (Vite 는 프로세스 환경변수를 .env 파일보다 우선한다).
+    # CI=true 이면 playwright.config.ts 의 reuseExistingServer 가 꺼져 webServer(npm run dev)를 새로 띄운다.
+    env:
+      CI: "true"
+      VITE_APP_ENV: local
+      VITE_API_BASE_URL: http://localhost:9091/api
+      VITE_ENABLE_MSW: "true"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Playwright 1.58 러너가 Node 26 에서 테스트 시작 전에 멈추는 현상이 있어(로컬 재현: 30초 타임아웃),
+      # E2E job 만 Node 22 LTS 로 고정한다. Playwright 를 올린 뒤 Node 26 에서 통과하면 .nvmrc 로 되돌린다.
+      - name: Set up Node 22 (Playwright 호환, npm 캐시)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: react-boilerplate/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        run: npx playwright test
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: react-boilerplate/playwright-report/
+          if-no-files-found: ignore
+          retention-days: 7
