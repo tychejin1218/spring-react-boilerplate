@@ -68,7 +68,7 @@ test.describe('Todo E2E', () => {
   });
 
   test('필터 탭으로 완료 항목만 볼 수 있다', async ({ page }) => {
-    await page.getByRole('button', { name: '완료' }).click();
+    await page.getByRole('button', { name: '완료', exact: true }).click();
 
     const items = page.locator('li');
     const count = await items.count();
@@ -79,7 +79,7 @@ test.describe('Todo E2E', () => {
   });
 
   test('필터 탭으로 미완료 항목만 볼 수 있다', async ({ page }) => {
-    await page.getByRole('button', { name: '미완료' }).click();
+    await page.getByRole('button', { name: '미완료', exact: true }).click();
 
     const items = page.locator('li');
     const count = await items.count();
