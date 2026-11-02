@@ -1,15 +1,13 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useUserStore } from '@/app/stores/useUserStore';
 import { postLogout } from '@/features/auth/apis/authApi';
-import { useNotifications } from '@/features/notification/hooks/useNotifications';
+import NotificationSubscriber from '@/features/notification/components/NotificationSubscriber'; // [예제: notification] 알림 feature 제거 시 삭제
 
 const Layout = () => {
   const user = useUserStore((state) => state.user);
   const clearUser = useUserStore((state) => state.clearUser);
   const refreshToken = useUserStore((state) => state.refreshToken);
   const navigate = useNavigate();
-
-  useNotifications();
 
   const onClickLogout = async () => {
     if (refreshToken) {
@@ -25,6 +23,7 @@ const Layout = () => {
 
   return (
     <div className="min-h-screen">
+      <NotificationSubscriber /> {/* [예제: notification] 알림 feature 제거 시 삭제 */}
       <header className="border-b border-gray-200 bg-white">
         <nav className="flex items-center justify-between px-6 py-3">
           <h1 className="text-xl font-bold">React Boilerplate</h1>

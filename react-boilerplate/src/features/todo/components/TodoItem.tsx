@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useDialog } from '@/shared/hooks/useDialog';
 import type { Todo } from '@/features/todo/types/todo';
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
 const TodoItem = ({ todo, onComplete, onDelete, onUpload }: Props) => {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { confirm } = useDialog();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -24,6 +26,12 @@ const TodoItem = ({ todo, onComplete, onDelete, onUpload }: Props) => {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
+  };
+
+  // 삭제는 되돌릴 수 없으므로 공통 Dialog(useDialog.confirm)로 한 번 더 확인
+  const handleDelete = async () => {
+    const confirmed = await confirm(`"${todo.title}" 할 일을 삭제할까요?`, { title: '할 일 삭제', confirmLabel: '삭제' });
+    if (confirmed) onDelete(todo.id);
   };
 
   return (
@@ -41,7 +49,7 @@ const TodoItem = ({ todo, onComplete, onDelete, onUpload }: Props) => {
       <button onClick={() => fileInputRef.current?.click()} disabled={uploading} className="text-xs text-gray-400 hover:text-blue-500 disabled:opacity-40">
         {uploading ? '...' : '사진'}
       </button>
-      <button onClick={() => onDelete(todo.id)} className="text-xs text-red-400 hover:text-red-600">
+      <button onClick={() => void handleDelete()} className="text-xs text-red-400 hover:text-red-600">
         삭제
       </button>
     </li>

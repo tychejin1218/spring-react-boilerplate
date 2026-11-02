@@ -47,6 +47,7 @@ test.describe('Todo E2E', () => {
     await expect(todoItem).toBeVisible();
 
     await todoItem.getByRole('button', { name: '삭제' }).click();
+    await page.getByRole('dialog').getByRole('button', { name: '삭제' }).click();
 
     await expect(todoItem).not.toBeVisible();
   });
@@ -64,6 +65,7 @@ test.describe('Todo E2E', () => {
     await expect(todoItem.locator('span')).toHaveClass(/line-through/);
 
     await todoItem.getByRole('button', { name: '삭제' }).click();
+    await page.getByRole('dialog').getByRole('button', { name: '삭제' }).click();
     await expect(todoItem).not.toBeVisible();
   });
 

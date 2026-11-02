@@ -63,22 +63,28 @@ src/
 │   ├── router/            # React Router 설정 (router.tsx)
 │   └── stores/            # 전역 Zustand 스토어 (useUserStore 등)
 ├── features/              # 피처 레이어 — 도메인별 기능 단위
-│   └── {feature}/         # 예: todo, auth
+│   ├── auth/              # 인증 (로그인, 회원가입, 이메일 인증, 비밀번호 재설정, RouteGuard)
+│   ├── todo/              # [예제] 할 일 관리 (페이지네이션, 필터, 이미지 업로드)
+│   ├── admin/             # [예제] 관리자 전용 페이지 (ROLE_ADMIN)
+│   ├── notification/      # [예제] SSE 실시간 알림 (NotificationSubscriber)
+│   └── {feature}/
 │       ├── types/         # 타입 정의 (todo.ts)
 │       ├── apis/          # API 함수 (todoApi.ts)
-│       ├── hooks/         # TanStack Query 훅 (useTodos.ts)
+│       ├── hooks/         # TanStack Query 훅 (useTodos.ts) + 단위 테스트 (useTodos.test.ts)
 │       ├── mocks/         # MSW 핸들러 (todoHandlers.ts)
-│       ├── pages/         # 페이지 컴포넌트 (TodoPage.tsx)
+│       ├── pages/         # 페이지 컴포넌트 (TodoPage.tsx) + 단위 테스트 (*.test.tsx)
 │       └── components/    # UI 컴포넌트 (TodoItem.tsx)
 ├── shared/                # 공유 레이어 — 도메인 독립 공통 모듈
-│   ├── apis/              # Axios 인스턴스, QueryKey 팩토리
+│   ├── apis/              # Axios 인스턴스(instance.ts), QueryKey 팩토리, fileApi.ts([예제] presigned URL 업로드)
 │   ├── components/        # 공통 컴포넌트 (ErrorBoundary, SuspenseBoundary 등)
 │   ├── constants/         # 상수 (messages.ts)
 │   ├── hooks/             # 공통 훅 (useDialog, useToast 등)
 │   ├── types/             # 공통 타입 (api.ts, env.d.ts)
 │   └── utils/             # 유틸 함수 (token.ts)
-├── mocks/                 # MSW 진입점 (handlers.ts, browser.ts, server.ts)
+├── mocks/                 # MSW 진입점 (handlers.ts, browser.ts, server.ts, fileHandlers.ts)
 └── test/                  # 테스트 설정 (setup.ts)
+
+단위 테스트는 테스트 대상 파일 옆에 `{name}.test.ts(x)` 로 둔다 (별도 `__tests__/` 디렉토리 없음).
 ```
 
 ## 코드 작성 규칙
@@ -165,7 +171,8 @@ export const todoHandlers = [
 ### 라우터 패턴
 
 - 모든 페이지 컴포넌트는 `lazy()` + `withSuspense()` 헬퍼로 감싸기
-- 인증 필요 라우트: `AuthRoute` 컴포넌트로 감싸기
+- 인증 필요 라우트: `RouteGuard` 컴포넌트(`features/auth/components/RouteGuard.tsx`)로 감싸기. 역할 제한은 `<RouteGuard requiredRole="ROLE_ADMIN" />`
+- 예제 기능(todo, admin, notification, 파일 업로드) 라우트는 `router.tsx` 상단의 `[예제: ...]` 블록에 모여 있다 (제거 방법은 README "예제 기능 제거 방법")
 - 에러 처리: `errorElement: <RouterErrorFallback />`
 
 ## Claude Code 자동화 도구

@@ -1,6 +1,7 @@
 # React Boilerplate
 
-React + Vite + TypeScript 기반의 프론트엔드 보일러플레이트입니다. 인증(로그인/회원가입)과 할 일 관리 기능을 포함한 실전 프로젝트 구조를 제공합니다.
+React + Vite + TypeScript 기반의 프론트엔드 보일러플레이트입니다. 인증(로그인/회원가입/이메일 인증/비밀번호 재설정)을 기본으로 제공하고,
+할 일 관리·관리자 페이지·파일 업로드·SSE 알림은 참고용 **예제 기능**으로 포함되어 있어 필요 없으면 제거할 수 있습니다 (아래 "예제 기능 제거 방법" 참고).
 
 ---
 
@@ -34,29 +35,32 @@ src/
 │   └── stores/                 # Zustand 전역 상태 (user, toast, dialog)
 │
 ├── features/                   # 기능별 모듈 (Feature-Sliced 구조)
-│   ├── auth/                   # 인증 기능
-│   │   ├── apis/authApi.ts     # 로그인/회원가입/로그아웃 API
-│   │   ├── components/         # AuthRoute (인증 가드)
+│   ├── auth/                   # 인증 기능 (기본 제공)
+│   │   ├── apis/authApi.ts     # 로그인/회원가입/로그아웃/이메일 인증/비밀번호 재설정 API
+│   │   ├── components/         # RouteGuard (인증·역할 가드)
+│   │   ├── hooks/              # useLoginSuccess
 │   │   ├── mocks/              # MSW 핸들러
-│   │   ├── pages/              # LoginPage, RegisterPage, AuthErrorPage
-│   │   └── types/user.ts       # User 타입 정의
-│   └── todo/                   # 할 일 관리 기능
-│       ├── apis/todoApi.ts     # 할 일 CRUD API
-│       ├── components/         # TodoItem 컴포넌트
-│       ├── hooks/useTodos.ts   # React Query 훅
-│       ├── mocks/              # MSW 핸들러
-│       ├── pages/TodoPage.tsx  # 할 일 목록 페이지
-│       └── types/todo.ts       # Todo 타입 정의
+│   │   ├── pages/              # Login, Register, EmailVerify, PasswordReset*, AuthError 페이지 (+ *.test.tsx)
+│   │   └── types/user.ts       # User / MemberRole 타입 (Zod 스키마)
+│   ├── todo/                   # [예제] 할 일 관리 (페이지네이션, 필터, 정렬, 이미지 업로드)
+│   │   ├── apis/todoApi.ts     # 할 일 CRUD API
+│   │   ├── components/         # TodoItem 컴포넌트 (삭제 시 useDialog.confirm 사용)
+│   │   ├── hooks/useTodos.ts   # React Query 훅 (+ useTodos.test.ts)
+│   │   ├── mocks/              # MSW 핸들러
+│   │   ├── pages/TodoPage.tsx  # 할 일 목록 페이지
+│   │   └── types/todo.ts       # Todo 타입 정의
+│   ├── admin/                  # [예제] 관리자 전용 페이지 (ROLE_ADMIN)
+│   └── notification/           # [예제] SSE 실시간 알림 (useNotifications, NotificationSubscriber)
 │
 ├── shared/                     # 공통 모듈
-│   ├── apis/                   # Axios 인스턴스, API 클라이언트, Query Keys
+│   ├── apis/                   # Axios 인스턴스(instance.ts), Query Keys, fileApi.ts([예제] presigned URL 업로드)
 │   ├── components/             # 공통 UI 컴포넌트 (ErrorBoundary, Toast, Dialog 등)
 │   ├── constants/              # 공통 상수
-│   ├── hooks/                  # 공통 훅
+│   ├── hooks/                  # 공통 훅 (useDialog, useToast, useRetryCountdown)
 │   ├── types/                  # 공통 타입 (api.ts, env.d.ts)
 │   └── utils/token.ts          # JWT 유틸리티
 │
-├── mocks/                      # MSW 브라우저/서버 설정
+├── mocks/                      # MSW 브라우저/서버 설정, handlers.ts(통합 등록), fileHandlers.ts([예제])
 ├── test/setup.ts               # Vitest 전역 설정
 ├── App.tsx
 └── main.tsx
@@ -129,7 +133,12 @@ VITE_ENABLE_MSW=true
 npm run dev
 ```
 
-Mock 사용자 계정: `test@example.com` / `password1`
+Mock 사용자 계정:
+
+| 계정 | 비밀번호 | 역할 |
+|------|---------|------|
+| `test@example.com` | `password1` | `ROLE_USER` |
+| `admin@example.com` | `admin1234` | `ROLE_ADMIN` (관리자 페이지 예제 접근 가능) |
 
 ### 실제 백엔드 연동 모드
 
@@ -147,22 +156,34 @@ MSW 핸들러는 `src/features/*/mocks/` 디렉터리에 기능별로 관리됩�
 
 ## 주요 기능
 
-### 인증
-- **로그인** (`/`): 이메일 + 비밀번호로 로그인, JWT 토큰 발급
-- **회원가입** (`/register`): 이름 + 이메일 + 비밀번호로 계정 생성
-- **인증 가드**: `AuthRoute` 컴포넌트로 비인증 접근 차단 및 리다이렉트
+### 인증 (기본 제공)
+- **로그인** (`/`): 이메일 + 비밀번호로 로그인, Access/Refresh 토큰 발급
+- **회원가입** (`/register`): 이름 + 이메일 + 비밀번호로 계정 생성 후 인증 메일 발송
+- **이메일 인증** (`/verify-email?token=`): 메일 링크의 토큰으로 계정 활성화 후 자동 로그인
+- **비밀번호 재설정** (`/password/reset-request`, `/password/reset?token=`): 재설정 메일 발송 및 새 비밀번호 설정
+- **인증 가드**: `RouteGuard` 컴포넌트로 비인증 접근 차단, `requiredRole` 로 역할 제한
+- **토큰 갱신**: 401 응답 시 Refresh 토큰으로 자동 갱신 후 원 요청 재시도 (아래 "Axios 인터셉터 동작")
+- **공통 UI**: `useToast`(토스트), `useDialog`(alert/confirm/custom 다이얼로그), `SuspenseBoundary`, `ErrorBoundary`
 
-### 할 일 관리
-- **목록 조회** (`/todos`): 전체 할 일 목록 표시
-- **할 일 추가**: 텍스트 입력 후 추가
-- **완료 처리**: 개별 할 일 완료 상태 토글
-- **삭제**: 개별 할 일 삭제
+### 할 일 관리 (예제)
+- **목록 조회** (`/todos`): 페이지네이션, 상태 필터(전체/미완료/완료), 정렬(최신순/제목순)
+- **할 일 추가 / 완료 처리 / 삭제**: 삭제는 `useDialog.confirm` 으로 한 번 더 확인
+- **이미지 업로드**: presigned URL 발급 -> 스토리지 직접 업로드 -> 할 일에 이미지 URL 저장 (`shared/apis/fileApi.ts`)
+
+### 관리자 페이지 (예제)
+- `/admin`: `ROLE_ADMIN` 사용자만 접근 가능. 다른 역할은 `/home` 으로 리다이렉트
+
+### 실시간 알림 (예제)
+- `Layout` 에 배치된 `NotificationSubscriber` 가 로그인 상태에서 `GET /notifications/subscribe` SSE 를 구독하고, 수신한 알림을 토스트로 표시
+- MSW 모드에서는 접속 3초 후 테스트 알림 한 건이 도착
 
 ---
 
 ## 테스트 실행
 
 ### 단위 테스트 (Vitest)
+
+테스트 파일은 대상 파일 옆에 `{name}.test.ts(x)` 로 둡니다 (예: `src/features/todo/hooks/useTodos.test.ts`). 설정은 `vite.config.ts` 의 `test` 항목에 있습니다.
 
 ```bash
 # 감시 모드 (개발 중)
@@ -265,6 +286,22 @@ src/features/{feature}/
 
 ---
 
+## 예제 기능 제거 방법
+
+todo, admin, notification, 파일 업로드는 참고용 예제입니다. 등록 지점이 기능별로 한 곳씩 모여 있어(코드의 `[예제: ...]` 주석) 아래 디렉토리와 등록 줄만 지우면 제거됩니다.
+제거 후 `npm run lint` 와 `npx tsc -p tsconfig.app.json --noEmit` 으로 남은 참조가 없는지 확인하세요.
+
+| 예제 기능 | 삭제할 디렉토리/파일 | 지울 등록 줄 |
+|----------|-------------------|-------------|
+| todo (할 일 관리) | `src/features/todo/`, `e2e/todo.spec.ts` | `router.tsx`: `[예제: todo]` 블록(lazy import + `todoRoutes`)과 `...todoRoutes` 한 줄, `mocks/handlers.ts`: `todoHandlers` import + 배열 항목, `shared/apis/queryKeys.ts`: `todoKeys` 와 `TodoListParams` import, `app/pages/HomePage.tsx`: `/todos` 링크 |
+| 파일 업로드 (todo 이미지) | `src/shared/apis/fileApi.ts`, `src/mocks/fileHandlers.ts` | `mocks/handlers.ts`: `fileHandlers` import + 배열 항목. todo 를 남기고 업로드만 뺄 때는 `useTodos.ts` 의 `useUploadTodoImage`, `todoApi.ts` 의 `patchTodoImage`, `TodoItem.tsx` 의 사진 버튼도 함께 제거 |
+| admin (관리자 페이지) | `src/features/admin/` | `router.tsx`: `[예제: admin]` 블록(lazy import + `adminRoutes`)과 `...adminRoutes` 한 줄, `app/pages/HomePage.tsx`: `/admin` 링크. `RouteGuard` 의 `requiredRole` 과 `MemberRole` 은 공통 기능이므로 유지 |
+| notification (SSE 알림) | `src/features/notification/` | `app/layout/Layout.tsx`: `NotificationSubscriber` import 와 `<NotificationSubscriber />` 한 줄, `mocks/handlers.ts`: `notificationHandlers` import + 배열 항목 |
+
+todo 를 지우면 `queryKeys.ts` 가 비게 되므로, 새 feature 의 쿼리 키를 등록하기 전까지는 파일 내용을 `export {};` 로 두거나 파일을 삭제하면 됩니다.
+
+---
+
 ## Axios 인터셉터 동작
 
 `src/shared/apis/instance.ts`에 전역 인터셉터가 설정되어 있습니다.
@@ -272,8 +309,9 @@ src/features/{feature}/
 | 시점 | 동작 |
 |------|------|
 | 요청 전 | Zustand `accessToken`을 `Authorization: Bearer {token}` 헤더에 자동 주입 |
-| 401 응답 | `clearUser()` 호출 → `window.location.href = '/'` 리다이렉트 |
-| 403 응답 | 콘솔 에러 출력 |
-| 500 응답 | 콘솔 에러 출력 |
+| 401 응답 | Refresh 토큰으로 `POST /auth/token/refresh` 호출 후 새 토큰으로 원 요청을 1회 재시도. 동시에 여러 요청이 401 을 받아도 갱신은 한 번만 수행(single-flight, 백엔드의 Refresh Token Rotation 재사용 감지 대응). 갱신 실패·갱신 요청 자체의 401·재시도 후 재401·Refresh 토큰 없음이면 `clearUser()` 후 `/` 로 리다이렉트 |
+| 403 응답 | 콘솔 에러 출력 (`ERROR_MESSAGES.FORBIDDEN`) |
+| 429 응답 | 콘솔 에러 출력 (`ERROR_MESSAGES.RATE_LIMIT`). 재시도 대기 UI 는 `useRetryCountdown` 훅 참고 |
+| 500 응답 | 콘솔 에러 출력 (`ERROR_MESSAGES.SERVER_ERROR`) |
 
-모든 API 함수는 `api` 인스턴스를 사용하므로 별도 토큰 처리 없이 자동 적용됩니다.
+모든 API 함수는 `api` 인스턴스를 사용하므로 별도 토큰 처리 없이 자동 적용됩니다. 토큰 갱신 요청만 인터셉터 재진입을 피하기 위해 별도 `axios.post` 로 호출합니다.
