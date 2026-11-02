@@ -17,6 +17,7 @@ import software.amazon.awssdk.services.s3.model.CORSRule;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.PutBucketCorsRequest;
 import software.amazon.awssdk.services.s3.model.PutBucketPolicyRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 /**
  * 로컬 환경 MinIO 초기화
@@ -29,6 +30,8 @@ import software.amazon.awssdk.services.s3.model.PutBucketPolicyRequest;
 @Component
 @RequiredArgsConstructor
 public class LocalS3Initializer implements ApplicationRunner {
+
+  private static final int NOT_IMPLEMENTED = 501;
 
   private final S3Client s3Client;
 
@@ -66,6 +69,13 @@ public class LocalS3Initializer implements ApplicationRunner {
     log.info("MinIO 버킷 공개 읽기 정책 설정 완료: {}", bucketName);
   }
 
+  /**
+   * 버킷 CORS 설정
+   *
+   * <p>MinIO 는 버킷 단위 CORS API(PutBucketCors)를 지원하지 않아 501 을 반환한다.
+   * MinIO 는 서버 전역 설정(MINIO_API_CORS_ALLOW_ORIGIN, 기본값 "*")으로 CORS 를 처리하므로
+   * 501 은 무시하고 이후 정책 설정을 계속 진행한다.
+   */
   private void configureBucketCors() {
     CORSRule corsRule = CORSRule.builder()
         .allowedHeaders(List.of("*"))
@@ -74,10 +84,17 @@ public class LocalS3Initializer implements ApplicationRunner {
         .exposeHeaders(List.of("ETag"))
         .maxAgeSeconds(3000)
         .build();
-    s3Client.putBucketCors(PutBucketCorsRequest.builder()
-        .bucket(bucketName)
-        .corsConfiguration(CORSConfiguration.builder().corsRules(corsRule).build())
-        .build());
-    log.info("MinIO 버킷 CORS 설정 완료: {}", bucketName);
+    try {
+      s3Client.putBucketCors(PutBucketCorsRequest.builder()
+          .bucket(bucketName)
+          .corsConfiguration(CORSConfiguration.builder().corsRules(corsRule).build())
+          .build());
+      log.info("MinIO 버킷 CORS 설정 완료: {}", bucketName);
+    } catch (S3Exception e) {
+      if (e.statusCode() != NOT_IMPLEMENTED) {
+        throw e;
+      }
+      log.info("MinIO 는 버킷 CORS API 를 지원하지 않아 서버 전역 CORS 설정을 사용합니다: {}", bucketName);
+    }
   }
 }

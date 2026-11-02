@@ -1,16 +1,23 @@
 package com.example.api.common.response;
 
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
  * 페이지네이션 공통 응답 래퍼
+ *
+ * <p>Redis 캐시({@code @Cacheable})에 저장된 값을 Jackson 이 다시 읽을 수 있도록 기본 생성자를 둔다.
  *
  * @param <T> 응답 데이터 타입
  */
 @Getter
 @Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class PageResponse<T> {
 
   private List<T> content;
