@@ -196,8 +196,9 @@ export const todoHandlers = [
 
 ### Hooks — 파일 저장 시 자동 실행
 
-루트 `.claude/settings.json`의 `fe-format.sh` hook이 `react-boilerplate/` 소스 파일 편집/생성 후 자동 실행된다:
+루트 `.claude/hooks/fe-format.sh` hook이 `react-boilerplate/` 소스 파일 편집/생성 후 자동 실행된다
+(루트에서 시작한 세션은 루트 `.claude/settings.json`, 이 디렉토리에서 시작한 세션은 `react-boilerplate/.claude/settings.json`에 등록되어 있다):
 1. **Prettier** — 코드 포매팅 자동 적용
 2. **ESLint --fix** — 자동 수정 가능한 린트 에러 해결
 
-`react-boilerplate/node_modules`가 설치되어 있어야 동작한다 (`cd react-boilerplate && npm install`).
+`react-boilerplate/node_modules`가 설치되어 있어야 동작한다 (`npm install`). 워크트리 세션은 루트 settings 의 `worktree.symlinkDirectories` 로 메인 체크아웃의 node_modules 를 공유한다.

@@ -8,7 +8,7 @@ allowed-tools: Bash
 # FE ESLint & Prettier 검증
 
 `react-boilerplate/` 에서 ESLint 정적 분석과 Prettier 포맷 체크를 순서대로 실행합니다.
-모든 명령은 `react-boilerplate/` 디렉토리에서 실행합니다 (`cd react-boilerplate && ...`).
+모든 명령은 `react-boilerplate/` 디렉토리에서 실행합니다. 루트에서 시작한 세션이면 `cd react-boilerplate && ...` 로, 이미 `react-boilerplate/` 에서 시작한 세션이면 `cd` 없이 실행합니다.
 
 Prettier 포맷 체크를 먼저 하는 이유는 ESLint의 `eslint-plugin-prettier`가 포맷 규칙을 ESLint 오류로 보고하기 때문에,
 포맷을 먼저 정렬하면 실제 코드 품질 문제와 스타일 오류를 구분하기 쉽습니다.

@@ -3,13 +3,14 @@
 # Checkstyle + PMD 를 실행하고 실패 시 커밋을 차단한다(exit 2).
 
 set -u
+source "$(dirname "$0")/common.sh"
 
 input=$(cat)
 cmd=$(echo "$input" | jq -r '.tool_input.command // empty' 2>/dev/null)
 [ -z "$cmd" ] && exit 0
 echo "$cmd" | grep -q 'git commit' || exit 0
 
-root="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+root=$(hook_repo_root)
 be_dir="$root/springboot-boilerplate"
 
 staged=$(git -C "$root" diff --cached --name-only 2>/dev/null)

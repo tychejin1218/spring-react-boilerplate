@@ -241,7 +241,7 @@ test.describe('페이지 이동', () => {
 
 ## 단계 5: 검증
 
-1. **테스트 실행**: `cd react-boilerplate && npx playwright test e2e/{specFileName}` 으로 해당 테스트만 실행한다.
+1. **테스트 실행**: `react-boilerplate/` 디렉토리에서 `npx playwright test e2e/{specFileName}` 으로 해당 테스트만 실행한다 (루트 세션이면 `cd react-boilerplate &&` 를 앞에 붙인다).
 2. **결과 확인**:
    - **성공**: 통과한 테스트 수를 안내하고 종료한다.
    - **실패**: 에러 메시지를 분석하여 테스트 코드를 수정한다.

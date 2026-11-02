@@ -16,7 +16,7 @@ Google Java Style 포맷 정렬과 Checkstyle + PMD 정적 분석을 순서대�
 
 1. JetBrains MCP `reformat_file`로 Google Java Style 자동 정렬
    - `projectPath`는 `springboot-boilerplate/`의 절대 경로를 넘긴다 (BE CLAUDE.md의 JetBrains 규칙 참조)
-2. `cd springboot-boilerplate && ./gradlew checkstyleMain pmdMain` 실행
+2. `springboot-boilerplate/` 디렉토리에서 `./gradlew checkstyleMain pmdMain` 실행 (루트 세션이면 `cd springboot-boilerplate &&` 를 앞에 붙이고, 이미 그 디렉토리에서 시작한 세션이면 생략)
 3. 오류가 있으면 내용을 분석해 수정한 뒤 재실행
 4. 통과하면 결과 보고
 

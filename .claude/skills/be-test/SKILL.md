@@ -77,7 +77,7 @@ src/test/java/{basePackage}/{패키지}/service/{클래스명}MockTest.java  ←
 
 파일 생성 후:
 1. JetBrains MCP `reformat_file`로 생성된 각 파일 정렬 (`projectPath`는 `springboot-boilerplate/`의 절대 경로, BE CLAUDE.md의 JetBrains 규칙 참조)
-2. `cd springboot-boilerplate && ./gradlew checkstyleMain pmdMain` 실행
+2. `springboot-boilerplate/` 디렉토리에서 `./gradlew checkstyleMain pmdMain` 실행 (루트 세션이면 `cd springboot-boilerplate &&` 를 앞에 붙이고, 이미 그 디렉토리에서 시작한 세션이면 생략)
 3. 오류 발생 시 분석하여 수정 후 재실행
 
 ---

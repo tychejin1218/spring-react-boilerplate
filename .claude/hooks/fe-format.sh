@@ -15,7 +15,7 @@ case "$file" in
   *) exit 0 ;;
 esac
 
-root="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+root=$(hook_repo_root)
 fe_dir="$root/react-boilerplate"
 rel="${file#react-boilerplate/}"
 

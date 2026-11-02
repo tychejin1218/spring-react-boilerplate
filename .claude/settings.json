@@ -1,5 +1,91 @@
 {
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:javadoc.io)",
+      "WebFetch(domain:docs.pmd-code.org)",
+      "WebFetch(domain:docs.spring.io)",
+      "WebFetch(domain:spring.io)",
+      "WebFetch(domain:mybatis.org)",
+      "WebFetch(domain:querydsl.com)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "WebFetch(domain:code.claude.com)",
+      "Bash(./gradlew:*)",
+      "Bash(cd springboot-boilerplate && ./gradlew:*)",
+      "Bash(npm run:*)",
+      "Bash(npx vitest:*)",
+      "Bash(npx playwright:*)",
+      "Bash(cd react-boilerplate && npm run:*)"
+    ],
+    "deny": [
+      "Read(./springboot-boilerplate/src/main/resources/config/datasource/datasource-dev.yml)",
+      "Read(./springboot-boilerplate/src/main/resources/config/datasource/datasource-stg.yml)",
+      "Read(./springboot-boilerplate/src/main/resources/config/datasource/datasource-prd.yml)",
+      "Read(./springboot-boilerplate/src/main/resources/config/environment/environment-dev.yml)",
+      "Read(./springboot-boilerplate/src/main/resources/config/environment/environment-stg.yml)",
+      "Read(./springboot-boilerplate/src/main/resources/config/environment/environment-prd.yml)",
+      "Read(./**/.env)",
+      "Read(./**/.env.*)",
+      "Read(./**/*.pem)",
+      "Read(./**/*.key)",
+      "Read(./**/*.p12)",
+      "Read(./**/*.jks)",
+      "Read(./**/*.keystore)",
+      "Read(./**/secrets/**)",
+      "Read(./**/.aws/**)",
+      "Edit(./.claude/settings.json)",
+      "Edit(./**/gradle-wrapper.jar)",
+      "Read(./**/build/**/*)",
+      "Read(./**/dist/**/*)",
+      "Read(./**/node_modules/**/*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/team-scope-guard.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/be-commit-gate.sh",
+            "timeout": 300
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/fe-format.sh",
+            "timeout": 60
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/be-java-notice.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "worktree": {
+    "symlinkDirectories": [
+      "react-boilerplate/node_modules"
+    ]
   }
 }
