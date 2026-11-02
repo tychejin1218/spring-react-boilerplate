@@ -12,12 +12,12 @@ JWT 인증, Redis 캐시, JPA/QueryDSL/MyBatis 다중 데이터 접근, Read/Wri
 |------|------|
 | 언어 / 프레임워크 | Java 25, Spring Boot 4.1.2 |
 | 빌드 | Gradle 9.3.0 |
-| 데이터베이스 | MySQL 8.0+ (AWS RDS Aurora, Read/Write 분리) |
+| 데이터베이스 | MySQL 8.0+ (Read/Write 분리, AWS RDS Aurora 는 선택) |
 | ORM / 쿼리 | JPA + QueryDSL 5.1.0 + MyBatis 4.1.0 |
-| 캐시 | Redis 7.0 (AWS ElastiCache) |
+| 캐시 | Redis 7.0 (AWS ElastiCache 클러스터는 선택) |
 | 인증 | JWT (JJWT 0.12.6) + Spring Security |
-| 암호화 | Jasypt 3.0.5 + AWS KMS |
-| 파일 스토리지 | AWS S3 |
+| 설정 암호화 | Jasypt 3.0.5 (PBEWITHHMACSHA512ANDAES_256) |
+| 파일 스토리지 | AWS S3 (로컬: MinIO, 운영: IAM Role 기반 DefaultCredentialsProvider) |
 | API 문서 | SpringDoc OpenAPI 3.0 (Swagger UI) |
 | 코드 품질 | Checkstyle 12.3.1 (Google Style) + PMD 7.21.0 + JaCoCo 0.8.14 |
 
@@ -264,8 +264,11 @@ src/main/resources/
 
 # 예시
 ./gradlew jasyptEncrypt --args="local-default mySecretValue"
-# 출력: ENC(XXXXXXXXXXXXXXXX...)
+# 출력: XXXXXXXXXXXXXXXX... (암호문만 출력되므로 ENC(...) 로 감싸서 yml 에 적용)
 ```
+
+> `JasyptConfig` 와 동일한 알고리즘(PBEWITHHMACSHA512ANDAES_256, RandomSalt/RandomIv, base64)으로 암호화합니다.
+> 랜덤 Salt/IV 를 사용하므로 같은 평문이라도 실행할 때마다 다른 암호문이 나오며, 모두 정상 복호화됩니다.
 
 ### yml에 적용
 

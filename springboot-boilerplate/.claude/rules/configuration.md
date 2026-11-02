@@ -21,7 +21,7 @@ src/main/resources/
 │   │   ├── datasource-stg.yml
 │   │   └── datasource-prd.yml
 │   └── environment/
-│       ├── environment-local.yml      # 로컬 환경 설정 (AWS KMS 등)
+│       ├── environment-local.yml      # 로컬 환경 설정 (JWT, Jasypt, Swagger, S3/MinIO 등)
 │       ├── environment-dev.yml
 │       ├── environment-stg.yml
 │       └── environment-prd.yml
@@ -49,7 +49,7 @@ Read/Write 분리 구조 (`MainDataSourceConfig.java`):
 - `mainReaderDataSource`: 읽기 전용 (prefix: `main.datasource.reader-jdbc-url`)
 - `mainDataSource`: `LazyConnectionDataSourceProxy`로 자동 라우팅
 
-**DB**: MySQL 8.0+ (AWS RDS Aurora)
+**DB**: MySQL 8.0+ (AWS RDS Aurora 는 선택. 로컬은 Docker MySQL)
 **드라이버**: `software.aws.rds.jdbc.mysql.Driver` (aws-mysql-jdbc 1.1.15)
 **커넥션 풀**: HikariCP (max: 5, min idle: 2)
 
@@ -58,8 +58,8 @@ Read/Write 분리 구조 (`MainDataSourceConfig.java`):
 프로파일별 설정 분리 (`config/redis/`):
 
 - `RedisStandaloneConfig.java` - local 프로파일 (Standalone 모드)
-- `RedisClusterConfig.java` - dev/stg/prd 프로파일 (AWS ElastiCache 클러스터)
-- `RedisTemplateConfig.java` - RedisTemplate 빈 (StringRedisTemplate, objectRedisTemplate, integerRedisTemplate)
+- `RedisClusterConfig.java` - dev/stg/prd 프로파일 (Redis 클러스터. AWS ElastiCache 는 선택)
+- `RedisTemplateConfig.java` - `StringRedisTemplate` 빈 (객체 캐시는 `CacheConfig` 의 `@Cacheable` 사용)
 
 ```yaml
 # local (Standalone)
@@ -77,15 +77,20 @@ redis:
 ```
 
 - Lettuce 클라이언트 (클러스터: topology refresh 60초, REPLICA_PREFERRED 읽기)
-- `RedisComponent`로 캐시 get/set/delete 처리
+- `RedisComponent`로 문자열 get/set/delete, TTL 카운터(`increment`) 처리
 - `RedisKeys` enum으로 키 이름 + TTL 관리
 
-## 암호화 (Jasypt + AWS KMS)
+## 설정 암호화 (Jasypt)
 
-- `StringEncryptor` 빈 등록
+- `JasyptConfig` 에서 `jasyptStringEncryptor` 빈 등록 (PBEWITHHMACSHA512ANDAES_256, RandomSalt/RandomIv, base64)
 - 프로퍼티에서 `ENC(암호화된값)` 형태로 사용
-- 실제 암복호화는 AWS KMS API (RSAES_OAEP_SHA_256)
-- 설정: `environment-*.yml`의 `aws.kms.key-id`, `aws.kms.encryption-algorithm`
+- 비밀번호: `jasypt.encryptor.password` (운영은 `JASYPT_ENCRYPTOR_PASSWORD` 환경변수로 주입)
+- 암호문 생성: `./gradlew jasyptEncrypt --args="<비밀번호> <평문>"` (build.gradle 의 JavaExec 태스크, `JasyptConfig` 와 동일 설정)
+
+## AWS S3 인증
+
+- `S3Config` 에서 `aws.s3.endpoint` 가 있으면(로컬 MinIO) `access-key`/`secret-key` 정적 자격증명 사용
+- endpoint 가 없으면 `DefaultCredentialsProvider` 체인 사용 → ECS/EKS/EC2 의 IAM Role 로 자동 인증
 
 ## Bastion 터널링
 
@@ -145,6 +150,4 @@ VPN 없이 로컬에서 AWS 리소스 접근 시 JVM 옵션:
 
 ## AWS SDK 의존성
 
-- `software.amazon.awssdk:core:2.33.7` - AWS SDK 공통
-- `software.amazon.awssdk:kms:2.33.7` - KMS 암복호화
-- `software.amazon.awssdk:s3:2.33.7` - S3 파일 관리
+- `software.amazon.awssdk:s3:2.33.7` - S3 파일 관리 (`sdk-core`, `auth`, `regions` 는 전이 의존으로 포함)

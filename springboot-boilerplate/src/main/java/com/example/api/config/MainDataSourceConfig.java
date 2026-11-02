@@ -14,9 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.type.Alias;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
-import org.modelmapper.convention.NameTokenizers;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
@@ -34,9 +31,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -50,6 +45,8 @@ import org.springframework.util.ObjectUtils;
  *
  * <p>Writer/Reader 분리 라우팅, JPA, MyBatis, QueryDSL 통합 설정
  * {@code @Transactional(readOnly = true)} 여부에 따라 자동으로 데이터 소스 라우팅
+ *
+ * <p>JPA Auditing 은 {@link com.example.api.ApiApplication} 의 {@code @EnableJpaAuditing} 에서만 활성화
  */
 @Slf4j
 @AllArgsConstructor
@@ -64,7 +61,6 @@ import org.springframework.util.ObjectUtils;
     entityManagerFactoryRef = MainDataSourceConfig.ENTITY_MANAGER_FACTORY,
     transactionManagerRef = MainDataSourceConfig.TX_MANAGER
 )
-@EnableJpaAuditing
 @Configuration
 public class MainDataSourceConfig {
 
@@ -281,18 +277,6 @@ public class MainDataSourceConfig {
   }
 
   /**
-   * JdbcTemplate 빈 설정
-   *
-   * @param dataSource 데이터 소스
-   * @return {@link JdbcTemplate} 객체
-   */
-  @Bean(name = DATASOURCE_PREFIX + "JdbcTemplate")
-  public JdbcTemplate jdbcTemplate(
-      @Qualifier(DATASOURCE_PREFIX + DATASOURCE_BEAN_NAME) DataSource dataSource) {
-    return new JdbcTemplate(dataSource);
-  }
-
-  /**
    * JPA 및 QueryDSL 설정을 위한 내부 클래스
    */
   @Configuration
@@ -310,24 +294,5 @@ public class MainDataSourceConfig {
     public JPAQueryFactory mainJpaQueryFactory() {
       return new JPAQueryFactory(mainEntityManager);
     }
-  }
-
-  /**
-   * ModelMapper 빈 설정
-   *
-   * <p>STRICT 매칭 전략과 CamelCase 토크나이저 사용
-   *
-   * @return 설정된 {@link ModelMapper} 객체
-   */
-  @Bean
-  public ModelMapper modelMapper() {
-    ModelMapper modelMapper = new ModelMapper();
-    modelMapper.getConfiguration()
-        .setMatchingStrategy(MatchingStrategies.STRICT)
-        .setDestinationNameTokenizer(NameTokenizers.CAMEL_CASE)
-        .setSourceNameTokenizer(NameTokenizers.CAMEL_CASE)
-        .setFieldMatchingEnabled(true)
-        .setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE);
-    return modelMapper;
   }
 }

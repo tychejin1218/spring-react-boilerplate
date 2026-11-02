@@ -55,7 +55,7 @@ com.example.api.{패키지명}/
 | Builder 패턴 | Lombok `@Builder`로 Entity/DTO 생성 |
 | 전역 예외 처리 | `@RestControllerAdvice`로 중앙 집중 예외 처리 |
 | Enum 기반 상태 코드 | `ApiStatus`로 타입 안전 상태 관리 |
-| Cache-Aside | `RedisComponent.getCacheOrDefault()`로 캐시 패턴 구현 |
+| 캐시 추상화 | `CacheConfig` + `@Cacheable`/`@CacheEvict` 로 Redis 캐시 적용, 토큰·카운터는 `RedisComponent` |
 
 ## 클래스 Javadoc
 

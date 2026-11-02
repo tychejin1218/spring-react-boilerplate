@@ -56,7 +56,6 @@ dependencies {
     // Micrometer Prometheus
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
-    implementation 'org.springframework.boot:spring-boot-starter-aspectj'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
@@ -88,16 +87,8 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
-    // ModelMapper
-    implementation 'org.modelmapper:modelmapper:3.2.4'
-
-    // AWS
-    implementation 'software.amazon.awssdk:core:2.33.7'
-    implementation "software.amazon.awssdk:kms:2.33.7"
+    // AWS (sdk-core, auth, regions 는 s3 가 전이 의존으로 가져온다)
     implementation "software.amazon.awssdk:s3:2.33.7"
-
-    // OAuth2 Client (M365 SSO)
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
     // JJWT
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
@@ -121,6 +112,32 @@ tasks.withType(Test).configureEach {
     // 예) ./gradlew clean test -Pcoverage
     if (coverageEnabled) {
         finalizedBy jacocoTestReport
+    }
+}
+
+// Jasypt ENC() 값 생성 태스크
+// 예) ./gradlew jasyptEncrypt --args="<비밀번호> <평문>"
+// JasyptConfig 와 동일한 알고리즘/설정으로 암호화하며, 출력값을 ENC(...) 로 감싸 yml 에 적용한다
+tasks.register('jasyptEncrypt', JavaExec) {
+    group = 'jasypt'
+    description = 'Jasypt ENC() 값 생성. 사용법: ./gradlew jasyptEncrypt --args="<비밀번호> <평문>"'
+    classpath = configurations.runtimeClasspath
+    mainClass = 'org.jasypt.intf.cli.JasyptPBEStringEncryptionCLI'
+    doFirst {
+        def cliArgs = args
+        if (cliArgs == null || cliArgs.size() != 2) {
+            throw new GradleException('사용법: ./gradlew jasyptEncrypt --args="<비밀번호> <평문>"')
+        }
+        args = [
+                "password=${cliArgs[0]}",
+                "input=${cliArgs[1]}",
+                'algorithm=PBEWITHHMACSHA512ANDAES_256',
+                'keyObtentionIterations=1000',
+                'saltGeneratorClassName=org.jasypt.salt.RandomSaltGenerator',
+                'ivGeneratorClassName=org.jasypt.iv.RandomIvGenerator',
+                'stringOutputType=base64',
+                'verbose=false'
+        ]
     }
 }
 

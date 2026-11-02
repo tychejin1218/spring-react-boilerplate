@@ -3,10 +3,10 @@
 Spring Boot 백엔드 API 서비스
 
 - **Java 25** / **Spring Boot 4.1.2** / **Gradle 9.3.0**
-- **DB**: MySQL 8.0+ (AWS RDS Aurora) - Read/Write 분리 (`LazyConnectionDataSourceProxy`)
+- **DB**: MySQL 8.0+ - Read/Write 분리 (`LazyConnectionDataSourceProxy`, AWS RDS Aurora 는 선택)
 - **ORM/Query**: JPA + QueryDSL 5.1.0 + MyBatis 4.1.0
-- **캐시**: Redis (AWS ElastiCache)
-- **암호화**: Jasypt + AWS KMS
+- **캐시**: Redis (AWS ElastiCache 클러스터는 선택)
+- **설정 암호화**: Jasypt (PBEWITHHMACSHA512ANDAES_256, `./gradlew jasyptEncrypt`)
 - **코드 품질**: Checkstyle 12.3.1 (Google Style) + PMD 7.21.0 + JaCoCo 0.8.14
 
 ## 빌드 & 실행

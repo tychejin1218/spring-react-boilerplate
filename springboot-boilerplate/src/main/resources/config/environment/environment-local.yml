@@ -71,9 +71,8 @@ management:
     tags:
       application: ${spring.application.name}
 
-# AWS 설정 (로컬: MinIO Docker 사용)
+# AWS 설정 (로컬: MinIO Docker 사용. endpoint 가 없으면 DefaultCredentialsProvider 체인(IAM Role 등) 사용)
 aws:
-  profile: default
   s3:
     region: us-east-1
     bucket-name: boilerplate-bucket

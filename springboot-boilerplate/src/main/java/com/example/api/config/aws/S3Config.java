@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -18,13 +18,12 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
  * AWS S3 설정
  *
  * <p>로컬 환경에서는 {@code aws.s3.endpoint}가 설정된 경우 MinIO로 연결합니다.
- * 실제 환경에서는 AWS 프로파일 인증을 사용합니다.
+ * 실제 환경에서는 {@link DefaultCredentialsProvider} 체인(환경변수, 시스템 프로퍼티,
+ * {@code ~/.aws/credentials} 프로파일, ECS/EKS 컨테이너 자격증명, EC2 인스턴스 프로파일 순)으로
+ * 자격증명을 찾으므로 IAM Role 을 붙인 ECS/EKS/EC2 에서는 별도 설정이 필요 없습니다.
  */
 @Configuration
 public class S3Config {
-
-  @Value("${aws.profile:default}")
-  private String profile;
 
   @Value("${aws.s3.region}")
   private String region;
@@ -42,7 +41,7 @@ public class S3Config {
    * AWS 자격증명 프로바이더 빈 생성
    *
    * <p>endpoint가 설정된 경우(로컬 MinIO) 정적 자격증명을 사용하고,
-   * 그 외에는 AWS 프로파일 자격증명을 사용합니다.
+   * 그 외에는 {@link DefaultCredentialsProvider} 체인(IAM Role 포함)을 사용합니다.
    *
    * @return AwsCredentialsProvider
    */
@@ -51,7 +50,7 @@ public class S3Config {
     if (hasEndpointOverride()) {
       return StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey));
     }
-    return ProfileCredentialsProvider.create(profile);
+    return DefaultCredentialsProvider.builder().build();
   }
 
   /**

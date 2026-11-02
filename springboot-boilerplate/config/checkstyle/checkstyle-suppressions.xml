@@ -6,5 +6,4 @@
 <suppressions>
     <suppress checks=".*" files=".*generated.*"/>
     <suppress checks=".*" files=".*Q[A-Z].*\.java$"/>
-    <suppress checks="AbbreviationAsWordInName" files="OAuth2.*\.java$"/>
 </suppressions>

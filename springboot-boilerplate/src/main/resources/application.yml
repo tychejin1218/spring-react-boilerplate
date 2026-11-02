@@ -26,8 +26,6 @@ spring:
           time_zone: UTC
   jackson:
     time-zone: UTC
-  main:
-    allow-bean-definition-overriding: true
   # 메일 발송 기본값. 프로파일 yml 또는 MAIL_HOST 등 환경변수로 재정의한다
   mail:
     host: ${MAIL_HOST:localhost}
