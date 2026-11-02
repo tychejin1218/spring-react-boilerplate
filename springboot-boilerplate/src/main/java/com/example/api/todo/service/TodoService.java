@@ -52,7 +52,9 @@ public class TodoService {
    * @param request 조회 조건 (page, size, status)
    * @return 페이지 응답
    */
-  @Cacheable(value = "todo:list", key = "#email")
+  @Cacheable(value = "todo:list",
+      key = "#email + ':' + #request.page + ':' + #request.size"
+          + " + ':' + #request.status + ':' + #request.sort")
   @Transactional(readOnly = true)
   public PageResponse<TodoDto.TodoResponse> getTodoList(
       String email, TodoDto.TodoListRequest request) {
@@ -71,7 +73,7 @@ public class TodoService {
    * @param request 할 일 생성 요청
    * @return 생성된 할 일
    */
-  @CacheEvict(value = "todo:list", key = "#email")
+  @CacheEvict(value = "todo:list", allEntries = true)
   @Transactional
   public TodoDto.TodoResponse insertTodo(String email, TodoDto.CreateRequest request) {
     Member member = memberRepository.findByEmail(email)
@@ -88,7 +90,7 @@ public class TodoService {
    * @param id    할 일 ID
    * @return 업데이트된 할 일
    */
-  @CacheEvict(value = "todo:list", key = "#email")
+  @CacheEvict(value = "todo:list", allEntries = true)
   @Transactional
   public TodoDto.TodoResponse updateTodoComplete(String email, Long id) {
     Todo todo = findTodo(id, email);
@@ -105,7 +107,7 @@ public class TodoService {
    * @param request 이미지 URL 업데이트 요청
    * @return 업데이트된 할 일
    */
-  @CacheEvict(value = "todo:list", key = "#email")
+  @CacheEvict(value = "todo:list", allEntries = true)
   @Transactional
   public TodoDto.TodoResponse updateTodoImage(
       String email, Long id, TodoDto.UpdateImageRequest request) {
@@ -120,7 +122,7 @@ public class TodoService {
    * @param email 인증 회원 이메일
    * @param id    할 일 ID
    */
-  @CacheEvict(value = "todo:list", key = "#email")
+  @CacheEvict(value = "todo:list", allEntries = true)
   @Transactional
   public void deleteTodo(String email, Long id) {
     Todo todo = findTodo(id, email);

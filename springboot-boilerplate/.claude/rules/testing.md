@@ -15,14 +15,17 @@ paths:
 ## 테스트 실행
 
 ```bash
-# 테스트 + 커버리지 리포트 실행
+# 테스트 실행
+./gradlew test
+
+# 테스트 + 커버리지 리포트 실행 (BUNDLE 라인 커버리지가 coverageMinimum(기본 0.50) 미만이면 실패)
 ./gradlew clean test -Pcoverage
 
 # 특정 테스트 클래스 실행
-./gradlew test -Pcoverage --tests "com.example.api.sample.service.SampleServiceTest"
+./gradlew test --tests "com.example.api.sample.service.SampleServiceTest"
 ```
 
-> **참고**: `build.gradle`에서 테스트는 `-Pcoverage` 옵션이 있을 때만 활성화됨. 일반 빌드(`./gradlew build`)에서는 테스트가 실행되지 않음.
+> **참고**: 테스트는 `./gradlew test`와 `./gradlew build`에서 항상 실행된다. `-Pcoverage`는 JaCoCo 리포트 생성과 최소 커버리지 검증만 추가로 켠다. `@SpringBootTest` 테스트는 로컬 MySQL/Redis(`docker-compose up -d`)가 떠 있어야 통과한다.
 
 ## 테스트 구조
 

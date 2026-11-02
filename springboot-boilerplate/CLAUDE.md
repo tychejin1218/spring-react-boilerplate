@@ -12,12 +12,13 @@ Spring Boot 백엔드 API 서비스
 ## 빌드 & 실행
 
 ```bash
-./gradlew build                    # 빌드 (테스트 미실행)
+./gradlew build                    # 빌드 (테스트 포함)
+./gradlew test                     # 테스트
 ./gradlew bootRun                  # 실행 (local, :9091, context-path: /api)
 ./gradlew checkstyleMain           # Checkstyle 검사
 ./gradlew pmdMain                  # PMD 검사
 ./gradlew checkstyleMain pmdMain   # 전체 정적 분석
-./gradlew clean test -Pcoverage    # 테스트 + 커버리지 리포트 생성
+./gradlew clean test -Pcoverage    # 테스트 + 커버리지 리포트 생성 (최소 50%, -PcoverageMinimum 조정)
 ```
 
 ## 프로파일

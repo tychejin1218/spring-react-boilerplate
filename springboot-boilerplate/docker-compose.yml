@@ -7,6 +7,12 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: local
       SERVER_PORT: 9091
+      # local 프로파일은 localhost 를 가리키므로 컨테이너 안에서는 compose 서비스명으로 재정의
+      MAIN_DATASOURCE_WRITER_JDBC_URL: jdbc:mysql://mysql:3306/boilerplate_db?serverTimezone=UTC&characterEncoding=UTF-8
+      MAIN_DATASOURCE_READER_JDBC_URL: jdbc:mysql://mysql:3306/boilerplate_db?serverTimezone=UTC&characterEncoding=UTF-8
+      REDIS_STAND_ALONE_HOST: redis
+      SPRING_MAIL_HOST: mailhog
+      AWS_S3_ENDPOINT: http://minio:9000
     ports:
       - "9091:9091"
     depends_on:

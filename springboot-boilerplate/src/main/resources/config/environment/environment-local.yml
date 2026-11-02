@@ -1,6 +1,6 @@
-# CORS 설정
+# CORS 설정 (allowCredentials=true 이므로 "*" 대신 오리진을 명시한다. 쉼표로 여러 개 가능)
 cors:
-  allowed-origins: "*"
+  allowed-origins: "http://localhost:5173,http://localhost:80,http://localhost"
 
 # Jasypt 설정
 # 암호화 비밀번호: JASYPT_ENCRYPTOR_PASSWORD 환경변수로 오버라이드

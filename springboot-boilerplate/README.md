@@ -106,9 +106,9 @@ docker-compose up -d
 ```
 
 - 기본 프로파일: `local`
-- 서버 포트: `8080`
+- 서버 포트: `9091`
 - Context-path: `/api`
-- 전체 base URL: `http://localhost:8080/api`
+- 전체 base URL: `http://localhost:9091/api`
 
 ---
 
@@ -198,8 +198,8 @@ src/main/resources/
 
 | 항목 | URL |
 |------|-----|
-| Swagger UI | http://localhost:8080/api/swagger-ui.html |
-| API Docs (JSON) | http://localhost:8080/api/api-docs |
+| Swagger UI | http://localhost:9091/api/swagger-ui.html |
+| API Docs (JSON) | http://localhost:9091/api/api-docs |
 
 > Swagger 화면 우상단 **Authorize** 버튼에서 JWT 토큰을 입력하면 인증이 필요한 API를 테스트할 수 있습니다.
 > 로컬/dev/stg 환경에서는 `/api/auth/token/temp` 엔드포인트로 이메일만으로 임시 토큰을 발급받을 수 있습니다.
@@ -228,7 +228,10 @@ src/main/resources/
 ## 테스트 실행
 
 ```bash
-# 테스트 + JaCoCo 커버리지 리포트 생성
+# 테스트 실행
+./gradlew test
+
+# 테스트 + JaCoCo 커버리지 리포트 생성 (라인 커버리지 50% 미만이면 실패, -PcoverageMinimum 으로 조정)
 ./gradlew clean test -Pcoverage
 ```
 
@@ -241,7 +244,7 @@ src/main/resources/
 ## 빌드
 
 ```bash
-# 전체 빌드 (테스트 미실행)
+# 전체 빌드 (테스트 포함)
 ./gradlew build
 
 # 빌드 산출물

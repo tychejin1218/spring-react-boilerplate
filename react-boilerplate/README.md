@@ -76,12 +76,17 @@ npm install
 
 ### 2. 환경변수 파일 설정
 
-`env/` 디렉터리에 환경별 `.env` 파일이 위치합니다. 로컬 개발을 위해 `env/.env.local` 파일을 수정하세요.
+`env/` 디렉터리에 환경별 `.env` 파일이 위치합니다. `env/.env.local`은 gitignore 대상이라 저장소에 없으므로,
+처음 클론한 뒤에는 예시 파일을 복사해서 만듭니다. 이 파일이 없으면 `env.ts` 검증이 실패해 앱이 뜨지 않습니다.
+
+```bash
+cp env/.env.example env/.env.local
+```
 
 ```bash
 # env/.env.local
 VITE_APP_ENV=local
-VITE_API_BASE_URL=http://localhost:8080/api
+VITE_API_BASE_URL=http://localhost:9091/api
 VITE_ENABLE_MSW=true   # MSW 사용 시 true, 실제 백엔드 연동 시 false
 ```
 
@@ -104,7 +109,7 @@ npm run dev:prd   # .env.prd 사용
 | 변수명 | 필수 | 설명 |
 |--------|------|------|
 | `VITE_APP_ENV` | 필수 | 앱 실행 환경 (`local` \| `dev` \| `stg` \| `prd`) |
-| `VITE_API_BASE_URL` | 필수 | API 서버 Base URL (예: `http://localhost:8080/api`) |
+| `VITE_API_BASE_URL` | 필수 | API 서버 Base URL (예: `http://localhost:9091/api`) |
 | `VITE_ENABLE_MSW` | 선택 | MSW 활성화 여부 (`true` \| `false`, 기본값: `false`) |
 
 > 환경변수는 앱 시작 시 Zod 스키마로 런타임 검증됩니다. 누락되거나 잘못된 값이 있으면 렌더 전에 오류가 발생합니다.
@@ -131,7 +136,7 @@ Mock 사용자 계정: `test@example.com` / `password1`
 ```bash
 # env/.env.local에서 MSW 비활성화
 VITE_ENABLE_MSW=false
-VITE_API_BASE_URL=http://localhost:8080/api  # 실제 백엔드 주소
+VITE_API_BASE_URL=http://localhost:9091/api  # 실제 백엔드 주소
 
 npm run dev
 ```

@@ -1,6 +1,7 @@
 package com.example.api.config.security;
 
 import com.example.api.config.jwt.JwtTokenProvider;
+import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +47,7 @@ public class SecurityConfig {
       "/actuator/**"
   );
 
+  /** 허용 오리진. 쉼표로 여러 개 지정 가능 (예: http://localhost:5173,https://app.example.com) */
   @Value("${cors.allowed-origins}")
   private String corsAllowedOrigins;
 
@@ -102,7 +104,11 @@ public class SecurityConfig {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOriginPatterns(List.of(corsAllowedOrigins));
+    List<String> origins = Arrays.stream(corsAllowedOrigins.split(","))
+        .map(String::trim)
+        .filter(origin -> !origin.isEmpty())
+        .toList();
+    config.setAllowedOriginPatterns(origins);
     config.setAllowedMethods(List.of("*"));
     config.setAllowedHeaders(List.of("*"));
     config.setAllowCredentials(true);

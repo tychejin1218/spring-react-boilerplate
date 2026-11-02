@@ -37,6 +37,10 @@ configurations {
 
 ext {
     coverageEnabled = project.hasProperty("coverage")
+    // 커버리지 최소 기준 (BUNDLE 라인 기준). -PcoverageMinimum=0.6 처럼 재정의 가능
+    coverageMinimum = project.hasProperty("coverageMinimum")
+            ? project.property("coverageMinimum").toString().toBigDecimal()
+            : 0.50
 }
 
 repositories {
@@ -107,18 +111,14 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1'
 }
 
-// 테스트 및 JaCoCo 실행을 coverage 옵션(-Pcoverage)으로 제어
+// 테스트는 항상 실행하고, JaCoCo 리포트/검증만 coverage 옵션(-Pcoverage)으로 제어
 tasks.withType(Test).configureEach {
 
     // JUnit 5 플랫폼 사용 (Spring Boot 기본)
     useJUnitPlatform()
 
-    // coverage 플래그가 있을 때만 Test 태스크 활성화
+    // coverage 플래그가 있을 때만 테스트 종료 후 JaCoCo 리포트 생성 태스크를 연결
     // 예) ./gradlew clean test -Pcoverage
-    enabled = coverageEnabled
-
-    // Test 실행이 활성화된 경우에만
-    // 테스트 종료 후 JaCoCo 리포트 생성 태스크를 연결
     if (coverageEnabled) {
         finalizedBy jacocoTestReport
     }
@@ -235,23 +235,14 @@ jacocoTestCoverageVerification {
 
     violationRules {
 
-        // 전체 코드 기준 커버리지
+        // 전체 코드 기준 라인 커버리지가 coverageMinimum 미만이면 빌드 실패
         rule {
             element = 'BUNDLE'
 
             limit {
                 counter = 'LINE'
                 value = 'COVEREDRATIO'
-            }
-        }
-
-        // 핵심 클래스 기준 커버리지
-        rule {
-            element = 'CLASS'
-
-            limit {
-                counter = 'LINE'
-                value = 'COVEREDRATIO'
+                minimum = coverageMinimum
             }
         }
     }

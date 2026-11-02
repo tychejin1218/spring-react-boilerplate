@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,10 @@ import tools.jackson.databind.ObjectMapper;
  *
  * <p>IP + 경로 기준으로 분당 요청 횟수를 제한한다.
  * 초과 시 429 Too Many Requests 응답을 반환한다.
+ *
+ * <p>클라이언트 IP 는 기본적으로 remoteAddr 을 사용한다. X-Forwarded-For 는 누구나 보낼 수 있어
+ * 그대로 믿으면 헤더만 바꿔 제한을 우회할 수 있으므로, 신뢰할 수 있는 리버스 프록시 뒤에서
+ * {@code rate-limit.trust-forwarded-headers=true} 로 켰을 때만 사용한다.
  */
 @Slf4j
 @Component
@@ -32,6 +37,9 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
   private final RedisComponent redisComponent;
   private final ObjectMapper objectMapper;
+
+  @Value("${rate-limit.trust-forwarded-headers:false}")
+  private boolean trustForwardedHeaders;
 
   @Override
   public boolean preHandle(
@@ -67,9 +75,11 @@ public class RateLimitInterceptor implements HandlerInterceptor {
   }
 
   private String resolveClientIp(HttpServletRequest request) {
-    String forwardedFor = request.getHeader("X-Forwarded-For");
-    if (StringUtils.isNotBlank(forwardedFor)) {
-      return forwardedFor.split(",")[0].trim();
+    if (trustForwardedHeaders) {
+      String forwardedFor = request.getHeader("X-Forwarded-For");
+      if (StringUtils.isNotBlank(forwardedFor)) {
+        return forwardedFor.split(",")[0].trim();
+      }
     }
     return request.getRemoteAddr();
   }
