@@ -79,12 +79,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Playwright 1.58 러너가 Node 26 에서 테스트 시작 전에 멈추는 현상이 있어(로컬 재현: 30초 타임아웃),
-      # E2E job 만 Node 22 LTS 로 고정한다. Playwright 를 올린 뒤 Node 26 에서 통과하면 .nvmrc 로 되돌린다.
-      - name: Set up Node 22 (Playwright 호환, npm 캐시)
+      - name: Set up Node (.nvmrc 버전, npm 캐시)
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: react-boilerplate/.nvmrc
           cache: npm
           cache-dependency-path: react-boilerplate/package-lock.json
 
