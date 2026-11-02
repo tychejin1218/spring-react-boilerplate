@@ -13,14 +13,14 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /**
- * 임시 토큰 발급 서비스 (local/dev/stg 전용)
+ * 임시 토큰 발급 서비스 (local 전용)
  *
- * <p>SSO 없이 이메일만으로 JWT를 즉시 발급한다. Swagger 등 API 테스트 목적으로만 사용.
+ * <p>비밀번호 없이 이메일만으로 JWT를 즉시 발급한다. 로컬 Swagger 테스트 목적으로만 사용.
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Profile({"local", "dev", "stg"})
+@Profile("local")
 public class TempAuthService {
 
   private final JwtTokenProvider jwtTokenProvider;

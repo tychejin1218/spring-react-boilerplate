@@ -12,14 +12,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 임시 토큰 발급 컨트롤러 (local/dev/stg 전용)
+ * 임시 토큰 발급 컨트롤러 (local 전용)
  *
- * <p>SSO 없이 이메일만으로 JWT를 즉시 발급한다. Swagger 등 API 테스트 목적으로만 사용.
+ * <p>비밀번호 없이 이메일만으로 JWT를 즉시 발급한다. 로컬 Swagger 테스트 목적으로만 사용한다.
+ * 이메일만 알면 관리자 토큰까지 받을 수 있으므로 외부에서 접근 가능한 dev/stg 에서는 켜지 않는다.
  */
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@Profile({"local", "dev", "stg"})
+@Profile("local")
 public class TempAuthController implements TempAuthControllerDocs {
 
   private final TempAuthService tempAuthService;

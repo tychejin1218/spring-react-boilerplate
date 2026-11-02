@@ -41,6 +41,8 @@ src/main/java/com/example/api/
 │   ├── redis/               # RedisStandaloneConfig, RedisClusterConfig, RedisTemplateConfig
 │   ├── security/            # SecurityConfig, JwtAuthenticationFilter, LoggingFilter
 │   ├── aws/                 # S3Config
+│   ├── web/                 # TraceIdFilter (요청 추적 ID), RateLimitInterceptor
+│   ├── AsyncConfig.java     # @Async 활성화, MDC(traceId) 전파
 │   ├── JasyptConfig.java
 │   ├── MainDataSourceConfig.java
 │   └── OpenApiConfig.java
@@ -162,7 +164,7 @@ src/main/resources/
 | POST | `/api/auth/login` | 로그인 | X |
 | POST | `/api/auth/logout` | 로그아웃 (Refresh Token 무효화) | X |
 | POST | `/api/auth/token/refresh` | Access/Refresh Token 재발급 | X |
-| POST | `/api/auth/token/temp` | 임시 토큰 발급 (local/dev/stg 전용) | X |
+| POST | `/api/auth/token/temp` | 임시 토큰 발급 (local 전용) | X |
 
 ### 회원 API (`/api/users`)
 
@@ -202,7 +204,7 @@ src/main/resources/
 | API Docs (JSON) | http://localhost:9091/api/api-docs |
 
 > Swagger 화면 우상단 **Authorize** 버튼에서 JWT 토큰을 입력하면 인증이 필요한 API를 테스트할 수 있습니다.
-> 로컬/dev/stg 환경에서는 `/api/auth/token/temp` 엔드포인트로 이메일만으로 임시 토큰을 발급받을 수 있습니다.
+> 로컬 환경에서만 `/api/auth/token/temp` 엔드포인트로 이메일만으로 임시 토큰을 발급받을 수 있습니다.
 
 ---
 

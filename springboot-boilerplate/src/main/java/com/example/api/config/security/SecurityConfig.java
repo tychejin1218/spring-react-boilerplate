@@ -1,6 +1,7 @@
 package com.example.api.config.security;
 
 import com.example.api.config.jwt.JwtTokenProvider;
+import com.example.api.config.web.TraceIdFilter;
 import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -111,6 +112,8 @@ public class SecurityConfig {
     config.setAllowedOriginPatterns(origins);
     config.setAllowedMethods(List.of("*"));
     config.setAllowedHeaders(List.of("*"));
+    // 브라우저 JS 가 응답의 추적 ID 를 읽을 수 있도록 노출한다
+    config.setExposedHeaders(List.of(TraceIdFilter.HEADER));
     config.setAllowCredentials(true);
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", config);
