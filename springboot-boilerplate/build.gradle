@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '4.0.9'
+    id 'org.springframework.boot' version '4.1.2'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'checkstyle'
     id 'pmd'
@@ -12,7 +12,7 @@ version = '0.0.1-SNAPSHOT'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
@@ -64,7 +64,7 @@ dependencies {
     implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
 
     // Database
-    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.5'
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:4.1.0'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'software.aws.rds:aws-mysql-jdbc:1.1.15'
 

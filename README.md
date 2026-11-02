@@ -16,7 +16,7 @@ claude-code/
 
 | 프로젝트 | 설명 | 문서 |
 |---------|------|------|
-| [springboot-boilerplate](./springboot-boilerplate) | Spring Boot 4 · Java 17 · JPA · Redis · JWT | [README](./springboot-boilerplate/README.md) |
+| [springboot-boilerplate](./springboot-boilerplate) | Spring Boot 4 · Java 25 · JPA · Redis · JWT | [README](./springboot-boilerplate/README.md) |
 | [react-boilerplate](./react-boilerplate) | React 19 · Vite 7 · TypeScript · React Query · Zustand | [README](./react-boilerplate/README.md) |
 
 ---

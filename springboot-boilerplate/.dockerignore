@@ -1,0 +1,4 @@
+# 로컬 빌드 산출물 제외 (QueryDSL Q클래스는 컨테이너 빌드 시 재생성)
+build/
+.gradle/
+src/main/generated/

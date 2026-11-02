@@ -10,10 +10,10 @@ JWT 인증, Redis 캐시, JPA/QueryDSL/MyBatis 다중 데이터 접근, Read/Wri
 
 | 분류 | 기술 |
 |------|------|
-| 언어 / 프레임워크 | Java 17, Spring Boot 4.0.9 |
+| 언어 / 프레임워크 | Java 25, Spring Boot 4.1.2 |
 | 빌드 | Gradle 9.3.0 |
 | 데이터베이스 | MySQL 8.0+ (AWS RDS Aurora, Read/Write 분리) |
-| ORM / 쿼리 | JPA + QueryDSL 5.1.0 + MyBatis 3.0.5 |
+| ORM / 쿼리 | JPA + QueryDSL 5.1.0 + MyBatis 4.1.0 |
 | 캐시 | Redis 7.0 (AWS ElastiCache) |
 | 인증 | JWT (JJWT 0.12.6) + Spring Security |
 | 암호화 | Jasypt 3.0.5 + AWS KMS |
@@ -85,7 +85,7 @@ Controller → Service → Repository (QueryDSL) / Mapper (MyBatis) → Database
 
 ### 1. 사전 요구사항
 
-- Java 17
+- Java 25
 - Docker / Docker Compose
 
 ### 2. Docker 실행 (MySQL + Redis)
