@@ -1,4 +1,4 @@
-# Boilerplate
+# spring-react-boilerplate
 
 Spring Boot + React 보일러플레이트
 
@@ -7,7 +7,7 @@ Spring Boot + React 보일러플레이트
 ## 프로젝트 구조
 
 ```
-claude-code/
+spring-react-boilerplate/
 ├── springboot-boilerplate/   # Spring Boot 백엔드 API 서버
 └── react-boilerplate/        # React 프론트엔드 앱
 ```

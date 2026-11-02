@@ -3,7 +3,7 @@
 Spring Boot 백엔드 + React 프론트엔드 보일러플레이트 모노레포
 
 ```
-claude-code/
+spring-react-boilerplate/
 ├── springboot-boilerplate/   # Spring Boot 4 · Java 25 · JPA · QueryDSL · MyBatis · Redis
 └── react-boilerplate/        # React 19 · Vite 7 · TypeScript · TanStack Query · Zustand
 ```
