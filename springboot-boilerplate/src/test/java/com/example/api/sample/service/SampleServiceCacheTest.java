@@ -32,17 +32,6 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 @DisplayName("SampleService 캐시 테스트")
 class SampleServiceCacheTest {
 
-  @Configuration
-  @EnableCaching
-  @Import(SampleService.class)
-  static class CacheTestConfig {
-
-    @Bean
-    CacheManager cacheManager() {
-      return new ConcurrentMapCacheManager("sample:memberList", "sample:member");
-    }
-  }
-
   @Autowired
   private SampleService sampleService;
 
@@ -57,6 +46,17 @@ class SampleServiceCacheTest {
 
   @MockitoBean
   private com.example.api.domain.repository.MemberRepository memberRepository;
+
+  @Configuration
+  @EnableCaching
+  @Import(SampleService.class)
+  static class CacheTestConfig {
+
+    @Bean
+    CacheManager cacheManager() {
+      return new ConcurrentMapCacheManager("sample:memberList", "sample:member");
+    }
+  }
 
   @BeforeEach
   void setUp() {

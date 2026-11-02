@@ -41,22 +41,6 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 @DisplayName("TodoService 캐시 테스트")
 class TodoServiceCacheTest {
 
-  @Configuration
-  @EnableCaching
-  @Import(TodoService.class)
-  static class CacheTestConfig {
-
-    @Bean
-    CacheManager cacheManager() {
-      return new ConcurrentMapCacheManager("todo:list");
-    }
-
-    @Bean
-    SimpleMeterRegistry meterRegistry() {
-      return new SimpleMeterRegistry();
-    }
-  }
-
   @Autowired
   private TodoService todoService;
 
@@ -80,6 +64,22 @@ class TodoServiceCacheTest {
   private TodoDto.TodoListRequest listRequest;
   private Member member;
   private Todo todo;
+
+  @Configuration
+  @EnableCaching
+  @Import(TodoService.class)
+  static class CacheTestConfig {
+
+    @Bean
+    CacheManager cacheManager() {
+      return new ConcurrentMapCacheManager("todo:list");
+    }
+
+    @Bean
+    SimpleMeterRegistry meterRegistry() {
+      return new SimpleMeterRegistry();
+    }
+  }
 
   @BeforeEach
   void setUp() {

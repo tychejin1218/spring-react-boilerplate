@@ -44,6 +44,7 @@ class SampleServiceTest {
     Member member = memberRepository.save(Member.builder()
         .name("admin")
         .email("admin@test.com")
+        .password("encodedPassword")
         .build());
     memberRepository.flush();
     savedMemberId = member.getId();

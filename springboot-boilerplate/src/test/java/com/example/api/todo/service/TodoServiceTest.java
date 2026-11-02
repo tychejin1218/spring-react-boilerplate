@@ -56,6 +56,7 @@ class TodoServiceTest {
     todoService = new TodoService(
         todoRepository, todoQueryRepository, memberRepository,
         eventPublisher, new SimpleMeterRegistry());
+    todoService.initMetrics();
   }
 
   @Test

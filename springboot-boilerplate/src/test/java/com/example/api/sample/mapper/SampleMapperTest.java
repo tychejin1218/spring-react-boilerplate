@@ -40,6 +40,7 @@ class SampleMapperTest {
     memberRepository.save(Member.builder()
         .name("admin")
         .email("admin@test.com")
+        .password("encodedPassword")
         .build());
     memberRepository.flush();
   }
