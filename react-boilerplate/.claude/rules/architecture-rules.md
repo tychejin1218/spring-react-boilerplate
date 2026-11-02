@@ -1,6 +1,7 @@
 ---
 paths:
-  - 'src/**'
+  - "react-boilerplate/src/**"
+  - "src/**"
 ---
 
 # Architecture Rules
@@ -51,5 +52,5 @@ features/[domain]/apis/  →  features/[domain]/hooks/  →  컴포넌트
 - 다이얼로그: `useDialog` 훅 (`shared/hooks/useDialog`)
 - 토스트: `useToast` 훅 (`shared/hooks/useToast`)
 - 폼: `useForm` + `zodResolver` (Zod 스키마를 타입 + 검증 양쪽에서 재사용)
-- className 합성: `cn()` (`@/shared/utils/cn.ts`)
+- 토큰 유틸: `@/shared/utils/token.ts`
 - 환경변수: `env.ts`의 `env` 객체 사용 (`import.meta.env` 직접 접근 금지)

@@ -1,10 +1,17 @@
 ---
 paths:
+  - "springboot-boilerplate/src/main/java/**/entity/**/*.java"
   - "src/main/java/**/entity/**/*.java"
+  - "springboot-boilerplate/src/main/java/**/dto/**/*.java"
   - "src/main/java/**/dto/**/*.java"
+  - "springboot-boilerplate/src/main/java/**/service/**/*.java"
   - "src/main/java/**/service/**/*.java"
 ---
 # 날짜/시간 처리 가이드
+
+> **현재 상태**: 아래 `KstDateTimeSerializer`와 `@JsonSerialize` 응답 패턴은 아직 코드베이스에 구현되어 있지 않다(2026-11 기준).
+> 날짜 응답 직렬화가 필요한 기능을 추가할 때 이 가이드대로 `common/util/KstDateTimeSerializer.java`를 먼저 만든다.
+> 현재 코드가 따르는 것은 "DB·서버 UTC 저장"과 `BaseAudit`의 `LocalDateTime.now(ZoneOffset.UTC)` 패턴이다.
 
 ## 기본 원칙
 

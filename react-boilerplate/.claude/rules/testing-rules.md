@@ -1,7 +1,9 @@
 ---
 paths:
-  - '**/*.test.*'
-  - 'e2e/**'
+  - "react-boilerplate/src/__tests__/**"
+  - "react-boilerplate/e2e/**"
+  - "src/__tests__/**"
+  - "e2e/**"
 ---
 
 # Testing Rules
@@ -17,7 +19,7 @@ paths:
 
 - 위치: `e2e/` 디렉토리
 - 설정: `playwright.config.ts` (Chromium only, `tsconfig.e2e.json`으로 타입 분리)
-- 헬퍼: `e2e/helpers/` (공통 함수, 예: `auth.ts`의 `login(page)`)
+- 헬퍼: 반복되는 로직은 `e2e/helpers/`에 추출 (예: `auth.ts`의 `login(page)`). 현재는 `e2e/todo.spec.ts` 한 개만 있음
 - API 모킹: `page.route()` 사용 (MSW가 아닌 Playwright 네이티브)
 
 ## 공통 규칙

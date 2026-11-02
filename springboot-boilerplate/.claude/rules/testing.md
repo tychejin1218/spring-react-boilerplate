@@ -1,5 +1,6 @@
 ---
 paths:
+  - "springboot-boilerplate/src/test/java/**/*.java"
   - "src/test/java/**/*.java"
 ---
 # 테스트 가이드
@@ -27,17 +28,14 @@ paths:
 
 ```
 src/test/java/com/example/api/
-├── ApiApplicationTest.java            # Spring Context 로드 테스트
-└── sample/
-    ├── controller/
-    │   └── SampleControllerTest.java       # Controller MockMvc 테스트
-    ├── mapper/
-    │   └── SampleMapperTest.java           # MyBatis Mapper 통합 테스트
-    ├── repository/
-    │   └── SampleRepositoryTest.java       # QueryDSL Repository 통합 테스트
-    └── service/
-        ├── SampleServiceTest.java          # Service 통합 테스트 (실제 DB)
-        └── SampleServiceMockTest.java      # Service Mock 단위 테스트 (DB 불필요)
+├── ApiApplicationTest.java   # Spring Context 로드 테스트
+├── sample/                   # 테스트 패턴 참조 구현 (아래 5종)
+│   ├── controller/SampleControllerTest.java     # Controller MockMvc 테스트
+│   ├── mapper/SampleMapperTest.java             # MyBatis Mapper 통합 테스트
+│   ├── repository/SampleRepositoryTest.java     # QueryDSL Repository 통합 테스트
+│   └── service/SampleServiceTest.java           # Service 통합 테스트 (실제 DB)
+│       service/SampleServiceMockTest.java       # Service Mock 단위 테스트 (DB 불필요)
+└── auth, common, config, file, todo, user, util/   # 기능별 테스트 (sample 과 동일 패턴)
 ```
 
 ## 테스트 네이밍 규칙

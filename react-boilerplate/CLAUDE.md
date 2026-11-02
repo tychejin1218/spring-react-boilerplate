@@ -170,28 +170,34 @@ export const todoHandlers = [
 
 ## Claude Code 자동화 도구
 
-상세 아키텍처 규칙은 @.claude/rules/architecture-rules.md 참고
-테스트 규칙은 @.claude/rules/testing-rules.md 참고
+상세 아키텍처 규칙: [.claude/rules/architecture-rules.md](.claude/rules/architecture-rules.md) (src/ 파일 편집 시 자동 로드)
+테스트 규칙: [.claude/rules/testing-rules.md](.claude/rules/testing-rules.md) (테스트 파일 편집 시 자동 로드)
+
+스킬과 에이전트는 모노레포 루트 `.claude/`에 있으며 FE 전용은 `fe-` 접두사가 붙는다.
 
 ### Skills (`/xxx`) — 명시적 호출
 
 | 스킬 | 역할 | 사용법 |
 |------|------|------|
-| `/domain-scaffolder <feature명>` | 새 feature 디렉토리 구조 일괄 생성 | `/domain-scaffolder product` |
-| `/vitest-gen <파일경로>` | Vitest 단위 테스트 자동 생성 | `/vitest-gen src/features/auth/hooks/useLogin.ts` |
-| `/e2e-gen <페이지명>` | Playwright E2E 테스트 자동 생성 | `/e2e-gen LoginPage` |
-| `/check [파일명]` | ESLint + Prettier 포맷 체크 및 자동 수정 | `/check` |
+| `/fe-scaffold <feature명>` | 새 feature 디렉토리 구조 일괄 생성 (`fe-feature-scaffolder` 에이전트 호출) | `/fe-scaffold product` |
+| `/fe-vitest-gen <파일경로>` | Vitest 단위 테스트 자동 생성 | `/fe-vitest-gen src/features/auth/hooks/useLogin.ts` |
+| `/fe-e2e-gen <페이지명>` | Playwright E2E 테스트 자동 생성 | `/fe-e2e-gen LoginPage` |
+| `/fe-review <파일명>` | `fe-code-reviewer` 에이전트로 코드 리뷰 | `/fe-review src/features/todo/pages/TodoPage.tsx` |
+| `/fe-explain <파일명>` | 코드 흐름·패턴 설명 | `/fe-explain src/shared/apis/instance.ts` |
+| `/fe-check [파일명]` | ESLint + Prettier 포맷 체크 및 자동 수정 | `/fe-check` |
 
 ### Agents — 대화 맥락에 따라 자동 호출
 
 | 에이전트 | 자동 호출 트리거 |
 |---------|---------------|
-| `debugger` | 에러 메시지·스택 트레이스·콘솔 에러 공유 시 |
-| `code-reviewer` | 코드 변경 후 리뷰 요청 시 |
-| `feature-scaffolder` | 새 기능·페이지·feature 추가 요청 시 |
+| `fe-debugger` | FE 에러 메시지·스택 트레이스·콘솔 에러 공유 시 |
+| `fe-code-reviewer` | FE 코드 변경 후 리뷰 요청 시 |
+| `fe-feature-scaffolder` | 새 기능·페이지·feature 추가 요청 시 |
 
 ### Hooks — 파일 저장 시 자동 실행
 
-파일 편집/생성 후 자동으로 실행됩니다 (설정: `.claude/settings.json`):
+루트 `.claude/settings.json`의 `fe-format.sh` hook이 `react-boilerplate/` 소스 파일 편집/생성 후 자동 실행된다:
 1. **Prettier** — 코드 포매팅 자동 적용
 2. **ESLint --fix** — 자동 수정 가능한 린트 에러 해결
+
+`react-boilerplate/node_modules`가 설치되어 있어야 동작한다 (`cd react-boilerplate && npm install`).

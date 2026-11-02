@@ -1,7 +1,10 @@
 ---
 paths:
+  - "springboot-boilerplate/src/main/java/**/repository/**/*.java"
   - "src/main/java/**/repository/**/*.java"
+  - "springboot-boilerplate/src/main/java/**/mapper/**/*.java"
   - "src/main/java/**/mapper/**/*.java"
+  - "springboot-boilerplate/src/main/resources/mapper/**/*.xml"
   - "src/main/resources/mapper/**/*.xml"
 ---
 # 데이터 접근 계층

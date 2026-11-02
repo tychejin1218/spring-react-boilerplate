@@ -106,37 +106,44 @@ src/main/java/com/example/api/
 
 ## Claude Code 자동화 도구
 
-### 커맨드 (`/xxx`) — 명시적 호출
-
-| 커맨드 | 에이전트 | 역할 |
-|--------|---------|------|
-| `/crud <Entity 파일>` | `crud-generator` | DTO·Repository·Service·Controller·Test 생성 |
-| `/review <파일명>` | `code-reviewer` | 버그·성능·보안·컨벤션 코드 리뷰 |
-| `/perf <파일명>` | `performance-inspector` | N+1·readOnly 누락·페이징·쿼리 비효율 감지 |
-| `/refactor <파일명>` | — | 리팩토링 (분석 → 계획 승인 → 실행) |
-| `/api-doc <파일명>` | — | Swagger ControllerDocs 어노테이션 추가 |
-| `/explain <파일명>` | — | 코드 흐름·로직 설명 |
+스킬과 에이전트는 모노레포 루트 `.claude/`에 있으며 BE 전용은 `be-` 접두사가 붙는다.
+Gradle 명령은 `cd springboot-boilerplate && ./gradlew ...` 형태로 실행한다.
 
 ### 스킬 (`/xxx`) — 명시적 호출
 
 | 스킬 | 역할 |
 |------|------|
-| `/check [파일명]` | Google Style 포맷 정렬 + Checkstyle/PMD 정적 분석 |
-| `/test <파일명>` | 테스트 코드 생성 (Mock·통합·MockMvc·Repository·Mapper 전 유형 지원) |
-| `/cleanup <파일명>` | import 정리 + 임시 코드 제거 |
+| `/be-crud <Entity 파일>` | `be-crud-generator` 에이전트로 DTO·Repository·Service·Controller·Test 생성 |
+| `/be-review <파일명>` | `be-code-reviewer` 에이전트로 버그·성능·보안·컨벤션 코드 리뷰 |
+| `/be-perf <파일명>` | `be-performance-inspector` 에이전트로 N+1·readOnly 누락·페이징·쿼리 비효율 감지 |
+| `/be-refactor <파일명>` | 리팩토링 (분석 → 계획 승인 → 실행) |
+| `/be-api-doc <파일명>` | Swagger ControllerDocs 어노테이션 추가 |
+| `/be-explain <파일명>` | 코드 흐름·로직 설명 |
+| `/be-check [파일명]` | Google Style 포맷 정렬 + Checkstyle/PMD 정적 분석 |
+| `/be-test <파일명>` | 테스트 코드 생성 (Mock·통합·MockMvc·Repository·Mapper 전 유형 지원) |
+| `/be-cleanup <파일명>` | import 정리 + 임시 코드 제거 |
+| `/be-commit [JIRA키]` | git diff 기반 커밋 메시지 생성 후 커밋 (사용자 확인 필수) |
 
 ### 에이전트 — 대화 맥락에 따라 자동 호출
 
 | 에이전트 | 자동 호출 트리거 |
 |---------|---------------|
-| `debugger` | 에러 메시지·스택 트레이스 공유 시 |
-| `mybatis-specialist` | 복잡한 MyBatis 동적 쿼리·Bulk·resultMap 작성 요청 시 |
-| `schema-designer` | 새 테이블 설계·Entity 생성 요청 시 |
+| `be-debugger` | BE 에러 메시지·스택 트레이스 공유 시 |
+| `be-mybatis-specialist` | 복잡한 MyBatis 동적 쿼리·Bulk·resultMap 작성 요청 시 |
+| `be-schema-designer` | 새 테이블 설계·Entity 생성 요청 시 |
 
-## JetBrains MCP
+### Hooks
 
-JetBrains MCP 도구 호출 시 **항상** `projectPath: /path/to/your/project` 를 포함할 것.
-(다수 프로젝트가 동시에 열려 있어 미지정 시 오류 발생)
+루트 `.claude/settings.json`에 정의되어 있다:
+- `be-java-notice.sh`: `.java` 편집 후 포맷 정렬·정적 분석 필요 안내
+- `be-commit-gate.sh`: BE 변경이 스테이징된 `git commit` 전 `checkstyleMain pmdMain` 실행, 실패 시 커밋 차단
+
+## JetBrains MCP (선택)
+
+IntelliJ의 JetBrains MCP를 쓰는 환경에서는 `reformat_file`로 Google Java Style 정렬을 할 수 있다.
+도구 호출 시 **항상** `projectPath`에 `springboot-boilerplate/`의 **절대 경로**를 넘긴다
+(여러 프로젝트가 동시에 열려 있으면 미지정 시 오류). 경로는 세션 시작 시 `pwd`로 확인한다.
+JetBrains MCP가 없는 환경에서는 포맷 정렬 단계를 건너뛰고 `./gradlew checkstyleMain pmdMain` 결과로 들여쓰기·공백 오류를 직접 수정한다.
 
 ### 상세 문서
 

@@ -1,3 +1,12 @@
+---
+paths:
+  - "springboot-boilerplate/build.gradle"
+  - "build.gradle"
+  - "springboot-boilerplate/src/main/resources/**/*.yml"
+  - "src/main/resources/**/*.yml"
+  - "springboot-boilerplate/src/main/java/**/config/**/*.java"
+  - "src/main/java/**/config/**/*.java"
+---
 # 설정 & 인프라
 
 ## 프로파일 구조
@@ -93,7 +102,7 @@ VPN 없이 로컬에서 AWS 리소스 접근 시 JVM 옵션:
 
 ### Checkstyle
 
-- 버전: 12.3.1 (Java 17 호환, 13.x는 JDK 21 필요)
+- 버전: 12.3.1 (`build.gradle`의 `checkstyle.toolVersion`과 일치시킬 것)
 - 설정: `config/checkstyle/google-checkstyle.xml` (Google Java Style, 2-space 들여쓰기)
 - 억제: `config/checkstyle/checkstyle-suppressions.xml`
 - `ignoreFailures = false`, `maxWarnings = 0`
@@ -132,7 +141,7 @@ VPN 없이 로컬에서 AWS 리소스 접근 시 JVM 옵션:
 - 의존성: `springdoc-openapi-starter-webmvc-ui:3.0.1`
 - 활성화: local / dev / stg — 비활성화: prd
 - 설정 위치: `config/environment/environment-{profile}.yml`
-- Config 클래스: `config/SwaggerConfig.java`
+- Config 클래스: `config/OpenApiConfig.java`
 
 ## AWS SDK 의존성
 

@@ -1,5 +1,6 @@
 ---
 paths:
+  - "springboot-boilerplate/src/main/java/**/*.java"
   - "src/main/java/**/*.java"
 ---
 # 네이밍 컨벤션

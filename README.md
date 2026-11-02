@@ -40,16 +40,15 @@ docker-compose up -d
 
 ## 개발 방식 (Claude Code)
 
-백엔드와 프론트엔드는 독립적인 터미널에서 각각 Claude Code를 실행합니다.
+모노레포 루트에서 Claude Code를 실행합니다. 공통 설정(hooks, 스킬, 에이전트)은 루트 `.claude/`에 있고,
+각 프로젝트의 규칙은 해당 디렉토리의 `CLAUDE.md`와 `.claude/rules/`에서 파일을 다룰 때 자동으로 로드됩니다.
 
 ```bash
-# 터미널 1 — 백엔드
-cd springboot-boilerplate
-claude
-
-# 터미널 2 — 프론트엔드
-cd react-boilerplate
+cd spring-react-boilerplate
 claude
 ```
+
+스킬과 에이전트는 `fe-` / `be-` 접두사로 구분합니다 (예: `/fe-check`, `/be-review`). 전체 목록은 루트 `CLAUDE.md` 참고.
+에이전트 팀을 쓸 때는 팀원을 `fe-*` / `be-*` 에이전트 타입으로 만들어야 수정 범위 제한 hook이 동작합니다.
 
 두 프로젝트는 REST API로 연동됩니다. API 스펙 변경 시 백엔드에서 먼저 수정하고 프론트엔드에 반영하는 순서로 작업합니다.

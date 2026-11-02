@@ -226,12 +226,14 @@ npm run build:prd   # Production 빌드 (console, debugger 자동 제거)
 
 `features/todo`와 동일한 구조로 새 기능을 추가합니다.
 
-### Claude Code 커맨드 사용 (권장)
+### Claude Code 스킬 사용 (권장)
+
+모노레포 루트에서 Claude Code를 실행한 뒤:
 
 ```
-/scaffold <feature명>
+/fe-scaffold <feature명>
 
-예) /scaffold board
+예) /fe-scaffold board
 ```
 
 자동으로 아래 파일 구조를 생성하고 `queryKeys.ts`, `handlers.ts`, `router.tsx`를 업데이트합니다.

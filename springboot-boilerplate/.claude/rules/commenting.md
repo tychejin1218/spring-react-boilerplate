@@ -1,3 +1,8 @@
+---
+paths:
+  - "springboot-boilerplate/src/main/java/**/*.java"
+  - "src/main/java/**/*.java"
+---
 # 주석 가이드
 
 ## Javadoc 기본 규칙

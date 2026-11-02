@@ -1,3 +1,10 @@
+---
+paths:
+  - "springboot-boilerplate/src/main/java/**/*.java"
+  - "src/main/java/**/*.java"
+  - "springboot-boilerplate/src/main/resources/mapper/**/*.xml"
+  - "src/main/resources/mapper/**/*.xml"
+---
 # 새 패키지 생성 가이드
 
 새 기능 패키지 추가 시 `sample` 패키지를 참조하여 아래 순서대로 진행한다.

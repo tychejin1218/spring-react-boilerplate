@@ -1,3 +1,12 @@
+---
+paths:
+  - "springboot-boilerplate/src/main/java/**/entity/**/*.java"
+  - "src/main/java/**/entity/**/*.java"
+  - "springboot-boilerplate/src/main/resources/**/*.sql"
+  - "src/main/resources/**/*.sql"
+  - "springboot-boilerplate/**/*.sql"
+  - "**/*.sql"
+---
 # DB 네이밍 컨벤션
 
 효율적인 협업과 일관된 데이터베이스 설계를 위한 네이밍 규칙입니다.
@@ -41,19 +50,19 @@
 2. NOT NULL 컬럼
 3. 외래키(FK) 컬럼
 4. 일반 속성 컬럼 (고정 길이 → 가변 길이 / Date → Number → String / 짧은 → 긴 길이)
-5. 이력 컬럼 (항상 마지막): `is_deleted`, `created_by`, `created_ts`, `modified_by`, `modified_ts`
+5. 감사 컬럼 (항상 마지막): `created_at`, `updated_at`, `deleted_at`
 
 ### 공통 감사 컬럼 (모든 테이블 필수)
 
-모든 테이블 마지막에 아래 6개 컬럼을 반드시 포함:
+모든 테이블 마지막에 아래 3개 컬럼을 반드시 포함한다. JPA 쪽은 `domain/entity/BaseAudit.java`(`createdAt`, `updatedAt`, `deletedAt`)를 상속하며, 논리 삭제는 `deleted_at IS NULL` 조건과 `@SQLRestriction`으로 처리한다. 값은 모두 UTC로 저장한다.
 
 ```sql
-is_deleted    BOOLEAN   NOT NULL DEFAULT FALSE COMMENT '삭제 여부(TRUE:삭제, FALSE:미삭제)',
-created_by    VARCHAR(50) NULL   COMMENT '생성자',
-created_ts    DATETIME  DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
-modified_by   VARCHAR(50) NULL   COMMENT '수정자',
-modified_ts   DATETIME  DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시'
+created_at    DATETIME  NOT NULL COMMENT '생성일시(UTC)',
+updated_at    DATETIME  NOT NULL COMMENT '수정일시(UTC)',
+deleted_at    DATETIME  NULL     COMMENT '삭제일시(UTC, NULL이면 미삭제)'
 ```
+
+생성자/수정자 추적(`created_by`, `updated_by`)이 필요한 테이블은 `BaseAudit` 확장과 함께 팀 논의 후 추가한다.
 
 ---
 
@@ -129,17 +138,15 @@ CREATE TABLE app.app_exam (
     user_id         VARCHAR(50)     NOT NULL COMMENT '회원 ID',
     exam_nm         VARCHAR(200)    NOT NULL COMMENT '시험지명',
     -- ... 일반 속성 컬럼 ...
-    is_deleted      BOOLEAN         NOT NULL DEFAULT FALSE COMMENT '삭제 여부(TRUE:삭제, FALSE:미삭제)',
-    created_by      VARCHAR(50)     NULL COMMENT '생성자',
-    created_ts      DATETIME        DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
-    modified_by     VARCHAR(50)     NULL COMMENT '수정자',
-    modified_ts     DATETIME        DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
+    created_at      DATETIME        NOT NULL COMMENT '생성일시(UTC)',
+    updated_at      DATETIME        NOT NULL COMMENT '수정일시(UTC)',
+    deleted_at      DATETIME        NULL COMMENT '삭제일시(UTC, NULL이면 미삭제)',
     CONSTRAINT fk_app_exam_01 FOREIGN KEY (user_id) REFERENCES app_user(id)
 ) COMMENT = '시험지 정보';
 
 -- INDEX
 CREATE INDEX idx_app_exam_01 ON app.app_exam (user_id);
-CREATE INDEX idx_app_exam_02 ON app.app_exam (created_ts);
+CREATE INDEX idx_app_exam_02 ON app.app_exam (created_at);
 ```
 
 ### 작성 규칙 요약

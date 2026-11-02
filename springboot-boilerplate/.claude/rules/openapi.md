@@ -1,3 +1,12 @@
+---
+paths:
+  - "springboot-boilerplate/src/main/java/**/controller/**/*.java"
+  - "src/main/java/**/controller/**/*.java"
+  - "springboot-boilerplate/src/main/java/**/dto/**/*.java"
+  - "src/main/java/**/dto/**/*.java"
+  - "springboot-boilerplate/src/main/java/**/config/OpenApiConfig.java"
+  - "src/main/java/**/config/OpenApiConfig.java"
+---
 # OpenAPI (SpringDoc) 가이드
 
 ## 의존성
@@ -6,7 +15,7 @@
 implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1'
 ```
 
-Spring Boot 4.0.x → springdoc-openapi 3.x 사용 (2.x는 Spring Boot 3.x 전용)
+Spring Boot 4.x → springdoc-openapi 3.x 사용 (2.x는 Spring Boot 3.x 전용)
 
 ---
 

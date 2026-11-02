@@ -1,6 +1,8 @@
 ---
 paths:
+  - "springboot-boilerplate/src/main/java/**/controller/**/*.java"
   - "src/main/java/**/controller/**/*.java"
+  - "springboot-boilerplate/src/main/java/**/service/**/*.java"
   - "src/main/java/**/service/**/*.java"
 ---
 # API 응답 & 예외 처리
