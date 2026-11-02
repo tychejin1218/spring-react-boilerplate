@@ -1,82 +1,76 @@
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
 import { postPasswordResetRequest } from '@/features/auth/apis/authApi';
+import AuthCard from '@/features/auth/components/AuthCard';
+import { passwordResetRequestFormSchema, type PasswordResetRequestFormValues } from '@/features/auth/types/authForm';
 import type { ErrorResponse } from '@/shared/types/api';
+import Button from '@/shared/components/ui/Button';
+import FormField from '@/shared/components/ui/FormField';
+import Input from '@/shared/components/ui/Input';
 
 const PasswordResetRequestPage = () => {
-  const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
-  const [loading, setLoading] = useState(false);
+  // 발송 성공한 이메일 (null 이면 아직 입력 단계)
+  const [sentEmail, setSentEmail] = useState<string | null>(null);
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<PasswordResetRequestFormValues>({ resolver: zodResolver(passwordResetRequestFormSchema), defaultValues: { email: '' } });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
+  const onSubmit = async ({ email }: PasswordResetRequestFormValues) => {
     try {
       await postPasswordResetRequest(email);
-      setSuccess(true);
+      setSentEmail(email);
     } catch (err) {
       const apiErr = err as ErrorResponse;
-      setError(apiErr?.message ?? '요청에 실패했습니다.');
-    } finally {
-      setLoading(false);
+      setError('root', { message: apiErr?.message ?? '요청에 실패했습니다.' });
     }
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50">
-      <div className="w-full max-w-sm rounded-lg bg-white p-8 shadow">
-        <h1 className="mb-6 text-center text-2xl font-bold text-gray-800">비밀번호 재설정</h1>
+    <AuthCard title="비밀번호 재설정">
+      {sentEmail !== null ? (
+        <div className="text-center">
+          <p className="mb-2 text-sm text-gray-600">
+            <span className="font-medium">{sentEmail}</span>으로 비밀번호 재설정 메일을 발송했습니다.
+          </p>
+          <p className="mb-6 text-sm text-gray-500">받은편지함에서 링크를 클릭해 비밀번호를 재설정해주세요.</p>
+          <Link to="/" className="text-sm text-blue-600 hover:underline">
+            로그인 페이지로 돌아가기
+          </Link>
+        </div>
+      ) : (
+        <>
+          <p className="mb-4 text-center text-sm text-gray-500">가입한 이메일을 입력하면 비밀번호 재설정 링크를 보내드립니다.</p>
 
-        {success ? (
-          <div className="text-center">
-            <p className="mb-2 text-sm text-gray-600">
-              <span className="font-medium">{email}</span>으로 비밀번호 재설정 메일을 발송했습니다.
-            </p>
-            <p className="mb-6 text-sm text-gray-500">받은편지함에서 링크를 클릭해 비밀번호를 재설정해주세요.</p>
-            <Link to="/" className="text-sm text-blue-600 hover:underline">
+          {/* noValidate: 브라우저 기본 검증 대신 zod 스키마 메시지를 사용 */}
+          <form onSubmit={(e) => void handleSubmit(onSubmit)(e)} noValidate className="flex flex-col gap-4">
+            <FormField id="email" label="이메일" error={errors.email?.message}>
+              <Input type="email" placeholder="user@example.com" autoComplete="email" required {...register('email')} />
+            </FormField>
+
+            {errors.root && (
+              <p role="alert" className="text-sm text-red-500">
+                {errors.root.message}
+              </p>
+            )}
+
+            <Button type="submit" loading={isSubmitting}>
+              {isSubmitting ? '발송 중...' : '재설정 메일 발송'}
+            </Button>
+          </form>
+
+          <p className="mt-4 text-center text-sm text-gray-500">
+            <Link to="/" className="text-blue-600 hover:underline">
               로그인 페이지로 돌아가기
             </Link>
-          </div>
-        ) : (
-          <>
-            <p className="mb-4 text-center text-sm text-gray-500">가입한 이메일을 입력하면 비밀번호 재설정 링크를 보내드립니다.</p>
-
-            <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-gray-700">이메일</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="user@example.com"
-                  required
-                  className="rounded border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-
-              {error && <p className="text-sm text-red-500">{error}</p>}
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="rounded bg-blue-600 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-              >
-                {loading ? '발송 중...' : '재설정 메일 발송'}
-              </button>
-            </form>
-
-            <p className="mt-4 text-center text-sm text-gray-500">
-              <Link to="/" className="text-blue-600 hover:underline">
-                로그인 페이지로 돌아가기
-              </Link>
-            </p>
-          </>
-        )}
-      </div>
-    </div>
+          </p>
+        </>
+      )}
+    </AuthCard>
   );
 };
 

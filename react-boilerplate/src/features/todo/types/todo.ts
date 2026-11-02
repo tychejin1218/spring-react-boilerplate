@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 export interface Todo {
   id: number;
   title: string;
@@ -8,6 +10,12 @@ export interface Todo {
 export interface CreateTodoRequest {
   title: string;
 }
+
+/** 할 일 추가 폼 스키마 (앞뒤 공백 제거 후 1자 이상) */
+export const createTodoFormSchema = z.object({
+  title: z.string().trim().min(1),
+});
+export type CreateTodoFormValues = z.infer<typeof createTodoFormSchema>;
 
 export type TodoFilter = 'all' | 'completed' | 'incomplete';
 

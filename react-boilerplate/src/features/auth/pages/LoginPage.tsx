@@ -1,26 +1,30 @@
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
 import { postLogin } from '@/features/auth/apis/authApi';
+import AuthCard from '@/features/auth/components/AuthCard';
 import useLoginSuccess from '@/features/auth/hooks/useLoginSuccess';
+import { loginFormSchema, type LoginFormValues } from '@/features/auth/types/authForm';
 import type { ErrorResponse } from '@/shared/types/api';
 import { API_STATUS_CODES } from '@/shared/constants/apiStatus';
 import useRetryCountdown from '@/shared/hooks/useRetryCountdown';
+import Button from '@/shared/components/ui/Button';
+import FormField from '@/shared/components/ui/FormField';
+import Input from '@/shared/components/ui/Input';
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormValues>({ resolver: zodResolver(loginFormSchema), defaultValues: { email: '', password: '' } });
   const { retrySeconds, startCountdown } = useRetryCountdown();
   const onLoginSuccess = useLoginSuccess();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
+  const onSubmit = async (values: LoginFormValues) => {
     try {
-      const res = await postLogin({ email, password });
+      const res = await postLogin(values);
       const { accessToken, refreshToken } = res.data;
       onLoginSuccess(accessToken, refreshToken);
     } catch (err) {
@@ -28,66 +32,45 @@ const LoginPage = () => {
       if (apiErr?.statusCode === API_STATUS_CODES.RATE_LIMIT_EXCEEDED) {
         startCountdown(60);
       }
-      setError(apiErr?.message ?? '로그인에 실패했습니다.');
-    } finally {
-      setLoading(false);
+      setError('root', { message: apiErr?.message ?? '로그인에 실패했습니다.' });
     }
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50">
-      <div className="w-full max-w-sm rounded-lg bg-white p-8 shadow">
-        <h1 className="mb-6 text-center text-2xl font-bold text-gray-800">로그인</h1>
+    <AuthCard title="로그인">
+      {/* noValidate: 브라우저 기본 검증 대신 zod 스키마 메시지를 사용 */}
+      <form onSubmit={(e) => void handleSubmit(onSubmit)(e)} noValidate className="flex flex-col gap-4">
+        <FormField id="email" label="이메일" error={errors.email?.message}>
+          <Input type="email" placeholder="user@example.com" autoComplete="email" required {...register('email')} />
+        </FormField>
 
-        <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">이메일</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="user@example.com"
-              required
-              className="rounded border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none"
-            />
-          </div>
+        <FormField id="password" label="비밀번호" error={errors.password?.message}>
+          <Input type="password" placeholder="비밀번호 입력" autoComplete="current-password" required {...register('password')} />
+        </FormField>
 
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">비밀번호</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="비밀번호 입력"
-              required
-              className="rounded border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none"
-            />
-          </div>
+        {errors.root && (
+          <p role="alert" className="text-sm text-red-500">
+            {errors.root.message}
+          </p>
+        )}
 
-          {error && <p className="text-sm text-red-500">{error}</p>}
+        <Button type="submit" loading={isSubmitting} disabled={retrySeconds > 0}>
+          {retrySeconds > 0 ? `${retrySeconds}초 후 재시도` : isSubmitting ? '로그인 중...' : '로그인'}
+        </Button>
+      </form>
 
-          <button
-            type="submit"
-            disabled={loading || retrySeconds > 0}
-            className="rounded bg-blue-600 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-          >
-            {retrySeconds > 0 ? `${retrySeconds}초 후 재시도` : loading ? '로그인 중...' : '로그인'}
-          </button>
-        </form>
-
-        <p className="mt-4 text-center text-sm text-gray-500">
-          계정이 없으신가요?{' '}
-          <Link to="/register" className="text-blue-600 hover:underline">
-            회원가입
-          </Link>
-        </p>
-        <p className="mt-2 text-center text-sm text-gray-500">
-          <Link to="/password/reset-request" className="text-blue-600 hover:underline">
-            비밀번호를 잊으셨나요?
-          </Link>
-        </p>
-      </div>
-    </div>
+      <p className="mt-4 text-center text-sm text-gray-500">
+        계정이 없으신가요?{' '}
+        <Link to="/register" className="text-blue-600 hover:underline">
+          회원가입
+        </Link>
+      </p>
+      <p className="mt-2 text-center text-sm text-gray-500">
+        <Link to="/password/reset-request" className="text-blue-600 hover:underline">
+          비밀번호를 잊으셨나요?
+        </Link>
+      </p>
+    </AuthCard>
   );
 };
 

@@ -15,6 +15,7 @@ React + Vite + TypeScript 기반의 프론트엔드 보일러플레이트입니�
 | 클라이언트 상태 | Zustand 5 |
 | HTTP 클라이언트 | Axios |
 | 유효성 검사 | Zod |
+| 폼 | React Hook Form + `@hookform/resolvers` (zodResolver) |
 | API Mocking | MSW 2 |
 | 단위 테스트 | Vitest, Testing Library |
 | E2E 테스트 | Playwright |
@@ -28,7 +29,7 @@ React + Vite + TypeScript 기반의 프론트엔드 보일러플레이트입니�
 src/
 ├── app/                        # 앱 전역 설정
 │   ├── config/env.ts           # 환경변수 런타임 검증 (Zod)
-│   ├── layout/Layout.tsx       # 공통 레이아웃
+│   ├── layout/Layout.tsx       # 인증 영역 공통 레이아웃 (상단 바: 앱 이름, 메뉴, 이메일, 로그아웃)
 │   ├── pages/                  # 앱 레벨 페이지 (Home, NotFound)
 │   ├── providers/              # React Query 등 전역 Provider
 │   ├── router/router.tsx       # 라우터 정의 (React Router v7)
@@ -37,11 +38,11 @@ src/
 ├── features/                   # 기능별 모듈 (Feature-Sliced 구조)
 │   ├── auth/                   # 인증 기능 (기본 제공)
 │   │   ├── apis/authApi.ts     # 로그인/회원가입/로그아웃/이메일 인증/비밀번호 재설정 API
-│   │   ├── components/         # RouteGuard (인증·역할 가드)
+│   │   ├── components/         # RouteGuard (인증·역할 가드), AuthCard (인증 화면 공통 카드)
 │   │   ├── hooks/              # useLoginSuccess
 │   │   ├── mocks/              # MSW 핸들러
 │   │   ├── pages/              # Login, Register, EmailVerify, PasswordReset*, AuthError 페이지 (+ *.test.tsx)
-│   │   └── types/user.ts       # User / MemberRole 타입 (Zod 스키마)
+│   │   └── types/              # user.ts (User / MemberRole), authForm.ts (폼 검증 Zod 스키마)
 │   ├── todo/                   # [예제] 할 일 관리 (페이지네이션, 필터, 정렬, 이미지 업로드)
 │   │   ├── apis/todoApi.ts     # 할 일 CRUD API
 │   │   ├── components/         # TodoItem 컴포넌트 (삭제 시 useDialog.confirm 사용)
@@ -54,7 +55,7 @@ src/
 │
 ├── shared/                     # 공통 모듈
 │   ├── apis/                   # Axios 인스턴스(instance.ts), Query Keys, fileApi.ts([예제] presigned URL 업로드)
-│   ├── components/             # 공통 UI 컴포넌트 (ErrorBoundary, Toast, Dialog 등)
+│   ├── components/             # common/ (ErrorBoundary, SuspenseBoundary), ui/ (Button, Input, FormField, EmptyState, LoadingSpinner, Toast, Dialog)
 │   ├── constants/              # 공통 상수
 │   ├── hooks/                  # 공통 훅 (useDialog, useToast, useRetryCountdown)
 │   ├── types/                  # 공통 타입 (api.ts, env.d.ts)
@@ -293,9 +294,9 @@ todo, admin, notification, 파일 업로드는 참고용 예제입니다. 등록
 
 | 예제 기능 | 삭제할 디렉토리/파일 | 지울 등록 줄 |
 |----------|-------------------|-------------|
-| todo (할 일 관리) | `src/features/todo/`, `e2e/todo.spec.ts` | `router.tsx`: `[예제: todo]` 블록(lazy import + `todoRoutes`)과 `...todoRoutes` 한 줄, `mocks/handlers.ts`: `todoHandlers` import + 배열 항목, `shared/apis/queryKeys.ts`: `todoKeys` 와 `TodoListParams` import, `app/pages/HomePage.tsx`: `/todos` 링크 |
+| todo (할 일 관리) | `src/features/todo/`, `e2e/todo.spec.ts` | `router.tsx`: `[예제: todo]` 블록(lazy import + `todoRoutes`)과 `...todoRoutes` 한 줄, `mocks/handlers.ts`: `todoHandlers` import + 배열 항목, `shared/apis/queryKeys.ts`: `todoKeys` 와 `TodoListParams` import, `app/pages/HomePage.tsx`: `/todos` 링크, `app/layout/Layout.tsx`: `NAV_ITEMS` 의 `[예제: todo]` 항목 |
 | 파일 업로드 (todo 이미지) | `src/shared/apis/fileApi.ts`, `src/mocks/fileHandlers.ts` | `mocks/handlers.ts`: `fileHandlers` import + 배열 항목. todo 를 남기고 업로드만 뺄 때는 `useTodos.ts` 의 `useUploadTodoImage`, `todoApi.ts` 의 `patchTodoImage`, `TodoItem.tsx` 의 사진 버튼도 함께 제거 |
-| admin (관리자 페이지) | `src/features/admin/` | `router.tsx`: `[예제: admin]` 블록(lazy import + `adminRoutes`)과 `...adminRoutes` 한 줄, `app/pages/HomePage.tsx`: `/admin` 링크. `RouteGuard` 의 `requiredRole` 과 `MemberRole` 은 공통 기능이므로 유지 |
+| admin (관리자 페이지) | `src/features/admin/` | `router.tsx`: `[예제: admin]` 블록(lazy import + `adminRoutes`)과 `...adminRoutes` 한 줄, `app/pages/HomePage.tsx`: `/admin` 링크, `app/layout/Layout.tsx`: `NAV_ITEMS` 의 `[예제: admin]` 항목. `RouteGuard` 의 `requiredRole` 과 `MemberRole` 은 공통 기능이므로 유지 |
 | notification (SSE 알림) | `src/features/notification/` | `app/layout/Layout.tsx`: `NotificationSubscriber` import 와 `<NotificationSubscriber />` 한 줄, `mocks/handlers.ts`: `notificationHandlers` import + 배열 항목 |
 
 todo 를 지우면 `queryKeys.ts` 가 비게 되므로, 새 feature 의 쿼리 키를 등록하기 전까지는 파일 내용을 `export {};` 로 두거나 파일을 삭제하면 됩니다.
@@ -310,8 +311,10 @@ todo 를 지우면 `queryKeys.ts` 가 비게 되므로, 새 feature 의 쿼리 �
 |------|------|
 | 요청 전 | Zustand `accessToken`을 `Authorization: Bearer {token}` 헤더에 자동 주입 |
 | 401 응답 | Refresh 토큰으로 `POST /auth/token/refresh` 호출 후 새 토큰으로 원 요청을 1회 재시도. 동시에 여러 요청이 401 을 받아도 갱신은 한 번만 수행(single-flight, 백엔드의 Refresh Token Rotation 재사용 감지 대응). 갱신 실패·갱신 요청 자체의 401·재시도 후 재401·Refresh 토큰 없음이면 `clearUser()` 후 `/` 로 리다이렉트 |
-| 403 응답 | 콘솔 에러 출력 (`ERROR_MESSAGES.FORBIDDEN`) |
-| 429 응답 | 콘솔 에러 출력 (`ERROR_MESSAGES.RATE_LIMIT`). 재시도 대기 UI 는 `useRetryCountdown` 훅 참고 |
-| 500 응답 | 콘솔 에러 출력 (`ERROR_MESSAGES.SERVER_ERROR`) |
+| 403 응답 | 에러 토스트 + 콘솔 에러 (`ERROR_MESSAGES.FORBIDDEN`) |
+| 429 응답 | 콘솔 에러만. 요청 횟수 제한은 로그인, 회원가입에만 걸리고 두 화면이 `useRetryCountdown` 으로 재시도 대기를 직접 보여 주므로 토스트를 띄우지 않음 |
+| 500 응답 | 에러 토스트 + 콘솔 에러 (`ERROR_MESSAGES.SERVER_ERROR`) |
+
+토스트는 컴포넌트 밖이므로 `useToastStore.getState().add()` 로 직접 호출하며, 여러 요청이 동시에 실패해도 같은 메시지는 2초 안에 한 번만 표시합니다. 401 은 토큰 갱신 흐름이 처리하므로 토스트를 띄우지 않습니다.
 
 모든 API 함수는 `api` 인스턴스를 사용하므로 별도 토큰 처리 없이 자동 적용됩니다. 토큰 갱신 요청만 인터셉터 재진입을 피하기 위해 별도 `axios.post` 로 호출합니다.

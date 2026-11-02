@@ -3,6 +3,8 @@ import type { ErrorResponse } from '@/shared/types/api';
 import { ERROR_MESSAGES } from '@/shared/constants/messages';
 // 예외: 인증 인터셉터(cross-cutting concern)로 app 레이어 참조
 import { useUserStore } from '@/app/stores/useUserStore';
+// 예외: 전역 에러 토스트(cross-cutting concern)로 app 레이어 참조. 컴포넌트 밖이므로 훅 대신 getState() 로 호출
+import { useToastStore } from '@/app/stores/useToastStore';
 import { env } from '@/app/config/env';
 
 const api = axios.create({
@@ -42,6 +44,30 @@ const refreshAccessToken = (): Promise<string> => {
       });
   }
   return refreshPromise;
+};
+
+/** 같은 메시지의 토스트를 다시 띄우지 않는 간격 (동시에 여러 요청이 실패할 때 중복 방지) */
+const TOAST_DEDUPE_MS = 2000;
+const TOAST_DURATION_MS = 3000;
+const lastToastAt = new Map<string, number>();
+
+/** 공통 에러 토스트 표시. 같은 메시지가 TOAST_DEDUPE_MS 안에 이미 표시됐으면 건너뛴다 */
+const showErrorToast = (message: string) => {
+  const now = Date.now();
+  const last = lastToastAt.get(message);
+  if (last !== undefined && now - last < TOAST_DEDUPE_MS) return;
+  lastToastAt.set(message, now);
+  useToastStore.getState().add({ type: 'error', message, duration: TOAST_DURATION_MS });
+};
+
+/**
+ * 토스트로 알리는 상태 코드별 공통 메시지
+ * - 401: 토큰 갱신 흐름에서 처리하므로 제외
+ * - 429: 요청 횟수 제한은 로그인, 회원가입에만 걸리고 두 화면이 재시도 카운트다운을 직접 보여 주므로 제외
+ */
+const TOAST_MESSAGES: Partial<Record<number, string>> = {
+  403: ERROR_MESSAGES.FORBIDDEN,
+  500: ERROR_MESSAGES.SERVER_ERROR,
 };
 
 const logoutAndRedirect = () => {
@@ -97,16 +123,13 @@ api.interceptors.response.use(
         }
       }
 
-      switch (status) {
-        case 403:
-          console.error(`[403] ${ERROR_MESSAGES.FORBIDDEN}`, errorResponse);
-          break;
-        case 429:
-          console.error(`[429] ${ERROR_MESSAGES.RATE_LIMIT}`, errorResponse);
-          break;
-        case 500:
-          console.error(`[500] ${ERROR_MESSAGES.SERVER_ERROR}`, errorResponse);
-          break;
+      const toastMessage = TOAST_MESSAGES[status];
+      if (toastMessage) {
+        console.error(`[${status}] ${toastMessage}`, errorResponse);
+        showErrorToast(toastMessage);
+      }
+      if (status === 429) {
+        console.error(`[429] ${ERROR_MESSAGES.RATE_LIMIT}`, errorResponse);
       }
 
       return Promise.reject(errorResponse);

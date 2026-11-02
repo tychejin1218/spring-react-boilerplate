@@ -3,6 +3,9 @@ import { useUserStore } from '@/app/stores/useUserStore';
 import { useToast } from '@/shared/hooks/useToast';
 import { env } from '@/app/config/env';
 
+/** 백엔드 NotificationService 가 알림을 보낼 때 쓰는 SSE 이벤트 이름 */
+const NOTIFICATION_EVENT = 'notification';
+
 interface NotificationPayload {
   todoId: number;
   todoTitle: string;
@@ -37,6 +40,8 @@ export const useNotifications = () => {
 
         const decoder = new TextDecoder();
         let buffer = '';
+        // SSE 는 "event: 이름" 줄 다음에 "data: 내용" 줄이 오고, 빈 줄로 이벤트 하나가 끝난다
+        let eventName = 'message';
 
         while (true) {
           const { done, value } = await reader.read();
@@ -48,13 +53,19 @@ export const useNotifications = () => {
           buffer = lines.pop() ?? '';
 
           for (const line of lines) {
-            if (line.startsWith('data:')) {
+            if (line.startsWith('event:')) {
+              eventName = line.slice(6).trim();
+            } else if (line.startsWith('data:')) {
+              // 연결 확인용 connect 이벤트 등은 무시하고, 서버가 보내는 notification 이벤트만 토스트로 표시
+              if (eventName !== NOTIFICATION_EVENT) continue;
               try {
-                const data = JSON.parse(line.slice(5).trim()) as NotificationPayload;
-                toast.success(data.message);
+                const data = JSON.parse(line.slice(5).trim()) as Partial<NotificationPayload>;
+                if (typeof data.message === 'string' && data.message) toast.success(data.message);
               } catch {
-                // 파싱 실패한 이벤트는 무시 (connect 이벤트 등)
+                // 형식이 맞지 않는 데이터는 무시
               }
+            } else if (line.trim() === '') {
+              eventName = 'message';
             }
           }
         }

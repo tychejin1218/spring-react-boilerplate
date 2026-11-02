@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { getVerifyEmail, postResendVerification } from '@/features/auth/apis/authApi';
+import AuthCard from '@/features/auth/components/AuthCard';
 import useLoginSuccess from '@/features/auth/hooks/useLoginSuccess';
+import Button from '@/shared/components/ui/Button';
 import type { ErrorResponse } from '@/shared/types/api';
 
 const EmailVerifyPage = () => {
@@ -53,49 +55,43 @@ const EmailVerifyPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50">
-      <div className="w-full max-w-sm rounded-lg bg-white p-8 shadow text-center">
-        {token ? (
-          <>
-            {error ? (
-              <>
-                <p className="mb-4 text-red-500">{error}</p>
-                <Link to="/" className="text-sm text-blue-600 hover:underline">
-                  로그인 페이지로 돌아가기
-                </Link>
-              </>
-            ) : (
-              <p className="text-gray-600">이메일 인증 중...</p>
-            )}
-          </>
-        ) : (
-          <>
-            <h1 className="mb-2 text-2xl font-bold text-gray-800">이메일 인증</h1>
-            <p className="mb-1 text-sm text-gray-600">
-              <span className="font-medium">{email}</span>으로 인증 메일을 발송했습니다.
-            </p>
-            <p className="mb-6 text-sm text-gray-500">받은편지함에서 링크를 클릭해 인증을 완료해주세요.</p>
-
-            {resendMessage && <p className="mb-4 text-sm text-green-600">{resendMessage}</p>}
-            {error && <p className="mb-4 text-sm text-red-500">{error}</p>}
-
-            <button
-              onClick={() => void handleResend()}
-              disabled={resendLoading || !email}
-              className="w-full rounded bg-blue-600 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-            >
-              {resendLoading ? '발송 중...' : '인증 메일 재발송'}
-            </button>
-
-            <p className="mt-4 text-sm text-gray-500">
-              <Link to="/" className="text-blue-600 hover:underline">
+    <AuthCard centered>
+      {token ? (
+        <>
+          {error ? (
+            <>
+              <p className="mb-4 text-red-500">{error}</p>
+              <Link to="/" className="text-sm text-blue-600 hover:underline">
                 로그인 페이지로 돌아가기
               </Link>
-            </p>
-          </>
-        )}
-      </div>
-    </div>
+            </>
+          ) : (
+            <p className="text-gray-600">이메일 인증 중...</p>
+          )}
+        </>
+      ) : (
+        <>
+          <h1 className="mb-2 text-2xl font-bold text-gray-800">이메일 인증</h1>
+          <p className="mb-1 text-sm text-gray-600">
+            <span className="font-medium">{email}</span>으로 인증 메일을 발송했습니다.
+          </p>
+          <p className="mb-6 text-sm text-gray-500">받은편지함에서 링크를 클릭해 인증을 완료해주세요.</p>
+
+          {resendMessage && <p className="mb-4 text-sm text-green-600">{resendMessage}</p>}
+          {error && <p className="mb-4 text-sm text-red-500">{error}</p>}
+
+          <Button onClick={() => void handleResend()} loading={resendLoading} disabled={!email} className="w-full">
+            {resendLoading ? '발송 중...' : '인증 메일 재발송'}
+          </Button>
+
+          <p className="mt-4 text-sm text-gray-500">
+            <Link to="/" className="text-blue-600 hover:underline">
+              로그인 페이지로 돌아가기
+            </Link>
+          </p>
+        </>
+      )}
+    </AuthCard>
   );
 };
 

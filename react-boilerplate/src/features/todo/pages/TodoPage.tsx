@@ -1,7 +1,12 @@
 import { useState, useMemo, useCallback } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useTodos, useCreateTodo, useCompleteTodo, useDeleteTodo, useUploadTodoImage } from '@/features/todo/hooks/useTodos';
 import TodoItem from '@/features/todo/components/TodoItem';
-import type { TodoFilter, TodoListParams, TodoSort } from '@/features/todo/types/todo';
+import { createTodoFormSchema, type CreateTodoFormValues, type TodoFilter, type TodoListParams, type TodoSort } from '@/features/todo/types/todo';
+import Button from '@/shared/components/ui/Button';
+import EmptyState from '@/shared/components/ui/EmptyState';
+import Input from '@/shared/components/ui/Input';
 
 const PAGE_SIZE = 10;
 
@@ -12,7 +17,8 @@ const FILTER_TABS: { label: string; value: TodoFilter }[] = [
 ];
 
 const TodoPage = () => {
-  const [input, setInput] = useState('');
+  // 빈 제목(공백만 포함)은 에러 메시지 없이 제출만 막는다 (zod 스키마에서 trim 후 1자 이상 검사)
+  const { register, handleSubmit, reset } = useForm<CreateTodoFormValues>({ resolver: zodResolver(createTodoFormSchema), defaultValues: { title: '' } });
   const [filter, setFilter] = useState<TodoFilter>('all');
   const [sort, setSort] = useState<TodoSort>('id');
   const [page, setPage] = useState(0);
@@ -28,12 +34,9 @@ const TodoPage = () => {
   const todos = pageData?.content ?? [];
   const totalPages = pageData?.totalPages ?? 1;
 
-  const handleAdd = (e: React.FormEvent) => {
-    e.preventDefault();
-    const title = input.trim();
-    if (!title) return;
+  const onAdd = ({ title }: CreateTodoFormValues) => {
     createTodo.mutate({ title });
-    setInput('');
+    reset();
   };
 
   const handleFilterChange = useCallback((newFilter: TodoFilter) => {
@@ -50,21 +53,11 @@ const TodoPage = () => {
     <div className="mx-auto max-w-lg py-6">
       <h2 className="mb-4 text-xl font-bold text-gray-800">할 일 목록</h2>
 
-      <form onSubmit={handleAdd} className="mb-4 flex gap-2">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="새 할 일 입력"
-          className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-        />
-        <button
-          type="submit"
-          disabled={createTodo.isPending}
-          className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-        >
+      <form onSubmit={(e) => void handleSubmit(onAdd)(e)} className="mb-4 flex gap-2">
+        <Input type="text" placeholder="새 할 일 입력" aria-label="새 할 일 입력" className="flex-1" {...register('title')} />
+        <Button type="submit" disabled={createTodo.isPending}>
           추가
-        </button>
+        </Button>
       </form>
 
       <div className="mb-4 flex items-center justify-between border-b border-gray-200">
@@ -89,7 +82,7 @@ const TodoPage = () => {
 
       {isLoading && <p className="text-sm text-gray-400">불러오는 중...</p>}
 
-      {!isLoading && todos.length === 0 && <p className="text-sm text-gray-400">할 일이 없습니다. 추가해보세요!</p>}
+      {!isLoading && todos.length === 0 && <EmptyState message="할 일이 없습니다. 추가해보세요!" />}
 
       <ul className="flex flex-col gap-2">
         {todos.map((todo) => (
@@ -105,23 +98,15 @@ const TodoPage = () => {
 
       {totalPages > 1 && (
         <div className="mt-4 flex items-center justify-center gap-2">
-          <button
-            onClick={() => setPage((p) => p - 1)}
-            disabled={page === 0}
-            className="rounded border border-gray-300 px-3 py-1 text-sm text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
-          >
+          <Button variant="secondary" size="sm" onClick={() => setPage((p) => p - 1)} disabled={page === 0}>
             이전
-          </button>
+          </Button>
           <span className="text-sm text-gray-600">
             {page + 1} / {totalPages}
           </span>
-          <button
-            onClick={() => setPage((p) => p + 1)}
-            disabled={pageData?.last ?? true}
-            className="rounded border border-gray-300 px-3 py-1 text-sm text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
-          >
+          <Button variant="secondary" size="sm" onClick={() => setPage((p) => p + 1)} disabled={pageData?.last ?? true}>
             다음
-          </button>
+          </Button>
         </div>
       )}
     </div>

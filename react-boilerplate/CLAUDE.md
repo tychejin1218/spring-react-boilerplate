@@ -7,6 +7,7 @@ React 프론트엔드 SPA 서비스
 - **라우팅**: React Router DOM 7
 - **HTTP 클라이언트**: Axios 1
 - **스키마 검증**: Zod 4
+- **폼**: React Hook Form 7 + `@hookform/resolvers` 7 (zodResolver)
 - **스타일**: Tailwind CSS 4
 - **Mock**: MSW 2 (개발/테스트 환경 API Mocking)
 - **테스트**: Vitest 4 + Testing Library + Playwright (E2E)
@@ -57,7 +58,7 @@ FSD(Feature-Sliced Design) 기반 3계층 구조:
 src/
 ├── app/                   # 앱 레이어 — 전역 설정·프로바이더·라우터
 │   ├── config/            # 환경변수 검증 (env.ts)
-│   ├── layout/            # 공통 레이아웃 컴포넌트
+│   ├── layout/            # 인증 영역 공통 레이아웃 (Layout.tsx: 상단 바 + NAV_ITEMS)
 │   ├── pages/             # 앱 레벨 페이지 (HomePage, NotFoundPage)
 │   ├── providers/         # QueryProvider 등 전역 프로바이더
 │   ├── router/            # React Router 설정 (router.tsx)
@@ -76,7 +77,7 @@ src/
 │       └── components/    # UI 컴포넌트 (TodoItem.tsx)
 ├── shared/                # 공유 레이어 — 도메인 독립 공통 모듈
 │   ├── apis/              # Axios 인스턴스(instance.ts), QueryKey 팩토리, fileApi.ts([예제] presigned URL 업로드)
-│   ├── components/        # 공통 컴포넌트 (ErrorBoundary, SuspenseBoundary 등)
+│   ├── components/        # common/ (ErrorBoundary, SuspenseBoundary), ui/ (Button, Input, FormField, EmptyState, LoadingSpinner, Toast, Dialog)
 │   ├── constants/         # 상수 (messages.ts)
 │   ├── hooks/             # 공통 훅 (useDialog, useToast 등)
 │   ├── types/             # 공통 타입 (api.ts, env.d.ts)
@@ -109,6 +110,13 @@ const TodoItem = ({ todo, onComplete }: Props) => {
 
 export default TodoItem;
 ```
+
+### UI 컴포넌트와 폼
+
+- 버튼·입력은 `shared/components/ui/` 의 `Button`(variant/size/loading), `Input`, `FormField`(label + 에러 `role="alert"`)를 사용한다. 빈 목록은 `EmptyState`
+- 인증 화면은 `features/auth/components/AuthCard.tsx` 로 감싼다
+- 폼은 `useForm` + `zodResolver(schema)`. 스키마는 피처의 `types/` 에 두고 (`auth/types/authForm.ts`), 서버 에러는 `setError('root', ...)` 로 표시한다
+- 전역 API 에러(403/500)는 `instance.ts` 인터셉터가 토스트로 알리므로 화면에서 중복 토스트를 띄우지 않는다. 429 는 해당 화면이 직접 처리한다
 
 ### Hooks 패턴 (TanStack Query)
 

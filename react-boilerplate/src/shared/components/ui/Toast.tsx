@@ -44,7 +44,8 @@ const ToastRenderer = () => {
   if (toasts.length === 0) return null;
 
   return createPortal(
-    <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">
+    // 상단 바(약 56px) 아래에 표시해 로그아웃 버튼 등 헤더 요소를 가리지 않게 한다
+    <div className="fixed top-16 right-4 z-50 flex flex-col gap-2">
       {toasts.map((toast) => (
         <ToastElement key={toast.id} toast={toast} />
       ))}
