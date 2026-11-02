@@ -45,7 +45,9 @@ services:
       - redis_data:/data
 
   minio:
-    image: minio/minio
+    # minio/minio 공개 이미지는 Docker Hub/quay.io 배포가 중단되어 받을 수 없다.
+    # Chainguard 가 같은 MinIO 바이너리로 빌드해 무료 배포하는 이미지를 사용한다 (latest 태그만 무료).
+    image: cgr.dev/chainguard/minio:latest
     container_name: springboot-boilerplate-minio
     environment:
       MINIO_ROOT_USER: minioadmin
@@ -57,7 +59,8 @@ services:
       - minio_data:/data
     command: server /data --console-address ":9001"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      # 이미지에 curl 이 없으므로 내장된 mc 로 준비 상태를 확인한다
+      test: ["CMD-SHELL", "mc alias set local http://localhost:9000 \"$$MINIO_ROOT_USER\" \"$$MINIO_ROOT_PASSWORD\" >/dev/null && mc ready local"]
       interval: 5s
       timeout: 5s
       retries: 10
