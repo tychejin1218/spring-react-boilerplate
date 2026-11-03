@@ -1,23 +1,27 @@
-# CORS 설정
+# 운영 환경 설정
+# 운영 값은 저장소에 두지 않는다. 배포 환경의 환경변수로 넣는다.
+# 기본값이 없는 항목은 환경변수가 없으면 앱이 시작하지 않는다.
+
+# CORS 설정 (쉼표로 여러 도메인 지정. 운영에서는 "*" 금지)
 cors:
-  allowed-origins: "https://your-domain.com"
+  allowed-origins: ${CORS_ALLOWED_ORIGINS}
 
 # JWT 설정
+# access-token-validity-ms 는 jwt.session-idle-timeout-ms(기본 30분)보다 짧아야 한다
 jwt:
-  secret: change-me-prd-jwt-secret-key-must-be-at-least-256-bits-long
-  access-token-validity-ms: 7200000    # 2시간
-  refresh-token-validity-ms: 604800000 # 7일
+  secret: ${JWT_SECRET}
+  access-token-validity-ms: ${JWT_ACCESS_TOKEN_VALIDITY_MS:900000}  # 15분
 
-# SpringDoc 비활성화
+# SpringDoc 설정 (운영에서는 API 문서를 노출하지 않는다)
 springdoc:
-  swagger-ui:
-    enabled: false
   api-docs:
+    enabled: false
+  swagger-ui:
     enabled: false
 
 # AWS 설정
 aws:
   s3:
-    region: ap-northeast-2
-    bucket-name: your-prd-bucket-name
+    region: ${AWS_REGION:ap-northeast-2}
+    bucket-name: ${AWS_S3_BUCKET_NAME}
     presigned-url-expiry-minutes: 5

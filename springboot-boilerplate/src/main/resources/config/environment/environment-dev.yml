@@ -1,12 +1,13 @@
 # CORS 설정
+# 쉼표로 여러 도메인 지정. "*" 는 쿠키, 인증 헤더와 함께 쓰면 위험하므로 실제 도메인을 적는다
 cors:
-  allowed-origins: "*"
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:https://your-dev-frontend-domain}
 
 # JWT 설정
 jwt:
   secret: change-me-dev-jwt-secret-key-must-be-at-least-256-bits-long
-  access-token-validity-ms: 7200000    # 2시간
-  refresh-token-validity-ms: 604800000 # 7일
+  access-token-validity-ms: 900000     # 15분 (jwt.session-idle-timeout-ms 30분보다 짧게)
+  # 미활동 만료, 절대 만료는 application.yml 의 jwt.session-* 기본값(30분, 12시간)을 쓴다
 
 # SpringDoc 설정
 springdoc:

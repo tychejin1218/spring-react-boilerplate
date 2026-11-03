@@ -1,20 +1,20 @@
-# Main 데이터베이스 설정 (AWS RDS MySQL)
+# Main 데이터베이스 설정 (운영)
+# 운영 값은 저장소에 두지 않는다. 배포 환경(ECS 작업 정의, Secrets Manager 등)의 환경변수로 넣는다.
+# 기본값이 없는 항목은 환경변수가 없으면 앱이 시작하지 않는다 (값 누락을 배포 시점에 바로 알기 위함).
 main:
-  # 데이터 소스 설정 (데이터베이스 연결을 관리하는 HikariCP 관련 설정 포함)
   datasource:
     driver-class-name: software.aws.rds.jdbc.mysql.Driver
-    writer-jdbc-url: jdbc:mysql:aws://your-prd-rds-writer-endpoint:3306/your_db?serverTimezone=UTC
-    reader-jdbc-url: jdbc:mysql:aws://your-prd-rds-reader-endpoint:3306/your_db?serverTimezone=UTC
-    username: ENC(your_encrypted_username)
-    password: ENC(your_encrypted_password)
+    writer-jdbc-url: ${MAIN_DATASOURCE_WRITER_JDBC_URL}
+    reader-jdbc-url: ${MAIN_DATASOURCE_READER_JDBC_URL}
+    username: ${MAIN_DATASOURCE_USERNAME}
+    password: ${MAIN_DATASOURCE_PASSWORD}
     hikari:
       poolName: mysqlDbConnectionPool
-      maximum-pool-size: 20
-      minimum-idle: 5
+      maximum-pool-size: ${MAIN_DATASOURCE_MAXIMUM_POOL_SIZE:10}
+      minimum-idle: ${MAIN_DATASOURCE_MINIMUM_IDLE:3}
       idle-timeout: 10000
       max-life-time: 300000
       connection-test-query: SELECT 1
-  # JPA 설정
   jpa:
     generate-ddl: false
     show-sql: false
@@ -29,4 +29,4 @@ main:
 # Redis 설정
 redis:
   cluster:
-    nodes: your-prd-redis-endpoint:6379
+    nodes: ${REDIS_CLUSTER_NODES}
