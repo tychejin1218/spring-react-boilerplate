@@ -3,3 +3,6 @@
 
 # /qa-scenario 실행 결과 (스크린샷, 보고서)
 .qa-reports/
+
+# Claude Code 개인 설정 (각자 다름)
+.claude/settings.local.json

@@ -54,3 +54,6 @@ Thumbs.db
 *.mov
 *.wmv
 
+
+# Claude Code 개인 설정 (각자 다름)
+.claude/settings.local.json

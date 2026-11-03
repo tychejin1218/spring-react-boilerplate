@@ -84,5 +84,49 @@ cd spring-react-boilerplate/react-boilerplate && claude
 
 스킬과 에이전트는 `fe-` / `be-` 접두사로 구분합니다 (예: `/fe-check`, `/be-review`). 전체 목록은 루트 `CLAUDE.md` 참고.
 에이전트 팀을 쓸 때는 팀원을 `fe-*` / `be-*` 에이전트 타입으로 만들어야 수정 범위 제한 hook이 동작합니다.
+에이전트 팀은 루트 `.claude/settings.json` 의 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` 로 켜는 실험 기능이라, Claude Code 업데이트 후 동작이 바뀌면 이 설정부터 확인합니다.
+
+`.claude/settings.json` 의 `permissions.deny` 는 비밀이 들어갈 수 있는 파일(`.env.local`, `.env.*.local`, `*.pem`, `*.key`, prd 설정)과 빌드 산출물만 막습니다.
+커밋된 설정 파일(`react-boilerplate/env/.env.dev` 등, BE 의 dev/stg yml)은 환경변수 이름과 공개 값만 담고 있어 막지 않습니다.
 
 두 프로젝트는 REST API로 연동됩니다. API 스펙 변경 시 백엔드에서 먼저 수정하고 프론트엔드에 반영하는 순서로 작업합니다.
+
+## 한쪽만 떼어 쓸 때
+
+스킬, 에이전트, hook 스크립트는 루트 `.claude/` 에 있고 하위 `settings.json` 은 `../.claude/hooks/` 를 가리킵니다.
+그래서 `springboot-boilerplate/` 나 `react-boilerplate/` 디렉토리만 복사하면 스킬과 에이전트가 사라지고 hook 이 깨집니다.
+한쪽만 쓰려면 아래 순서로 옮깁니다 (BE 기준, FE 는 `be` 를 `fe` 로 바꿉니다).
+
+```bash
+cp -r springboot-boilerplate /path/to/new-project && cd /path/to/new-project
+mkdir -p .claude/skills .claude/agents .claude/hooks
+cp -r /path/to/spring-react-boilerplate/.claude/skills/be-* .claude/skills/
+cp /path/to/spring-react-boilerplate/.claude/agents/be-*.md .claude/agents/
+cp /path/to/spring-react-boilerplate/.claude/hooks/common.sh /path/to/spring-react-boilerplate/.claude/hooks/be-*.sh .claude/hooks/
+sed -i '' 's#/../.claude/hooks/#/.claude/hooks/#g' .claude/settings.json
+```
+
+그 뒤에 손으로 정리할 것:
+- 루트 `CLAUDE.md` 의 "공통 규칙" 절을 하위 `CLAUDE.md` 맨 앞에 옮깁니다 (이모지 금지, 한국어, 커밋 정책).
+- 하위 `CLAUDE.md` 와 스킬 문서에서 `cd springboot-boilerplate && ` 접두사와 `springboot-boilerplate/` 경로를 지웁니다 (단독 프로젝트에서는 현재 디렉토리가 곧 프로젝트).
+- hook 스크립트는 경로를 저장소 루트 기준으로 보고 `springboot-boilerplate/` 로 시작하는지 검사합니다. 단독 저장소에서는 `common.sh` 의 `hook_project_of` 에서 `springboot-boilerplate/*` 패턴을 `*` 로, `be-commit-gate.sh` 의 `grep -q '^springboot-boilerplate/'` 를 `grep -q .` 로 바꿉니다.
+- `.github/workflows/be-ci.yml` 을 가져가면 `paths` 필터와 `working-directory`, 아티팩트 경로에서 `springboot-boilerplate/` 를 지웁니다.
+- `/qa-scenario` 는 FE 와 BE 를 함께 쓰는 스킬이라 가져가지 않습니다.
+
+## 새 프로젝트로 시작할 때 바꿀 이름
+
+이름이 여러 곳에 흩어져 있어 하나씩 바꿔야 합니다. 바꾼 뒤 `git grep -n -i boilerplate` 로 남은 곳을 확인합니다.
+
+| 구분 | 현재 값 | 위치 |
+|------|---------|------|
+| Java 패키지 | `com.example.api` | `src/main/java`, `src/test/java` 디렉토리와 `package` 선언, `common/constants/Constants.BASE_PACKAGE`, `logback-spring.xml` 의 logger 이름, `resources/mapper/**/*.xml` 의 `namespace`, `build.gradle` 의 `group` |
+| 애플리케이션 이름 | `springboot-boilerplate` | `settings.gradle` 의 `rootProject.name`, `application.yml` 의 `spring.application.name`, `docker-compose.yml` 의 `container_name` 들, `docker/prometheus/prometheus.yml` 의 `job_name`, `config/pmd/custom-ruleset.xml` 의 description |
+| DB 이름과 계정 | `boilerplate_db`, `boilerplate` / `boilerplate` | `docker-compose.yml`, `docker/init.sql` 의 `USE`, `datasource-local.yml`, `.github/workflows/be-ci.yml` 의 MySQL 서비스 환경변수 |
+| Redis 네임스페이스 | `APP` | `common/type/RedisKeys.NAMESPACE` (Redis 하나를 여러 서비스가 같이 쓸 때 키가 섞이지 않게 서비스 이름으로) |
+| S3 버킷 | `boilerplate-bucket` | `environment-{profile}.yml` 의 `aws.s3.bucket-name`, Swagger 예시 값(`file/dto/FileDto.java` 등), `react-boilerplate/src/mocks/fileHandlers.ts` 의 목업 URL |
+| 메일 발신자와 제목 | `noreply@boilerplate.local`, `[Boilerplate]` | `environment-{profile}.yml` 의 `mail.from`, `auth/service/EmailService.java` 의 `setSubject` |
+| FE 패키지 이름 | `react-boilerplate` | `package.json`, `package-lock.json` 의 `name` |
+| FE 화면 이름 | `React Boilerplate` | `index.html` 의 `<title>`, `src/app/layout/Layout.tsx` 상단 바, `src/app/pages/HomePage.tsx` 문구 |
+| CI 경로 필터 | `springboot-boilerplate/**`, `react-boilerplate/**` | `.github/workflows/*.yml` (디렉토리 이름을 바꿀 때만) |
+
+JWT 비밀키, Jasypt 비밀번호, DB 비밀번호는 이름이 아니라 비밀값이므로 prd 에서는 환경변수로 넣습니다 (`environment-prd.yml`, `datasource-prd.yml` 은 환경변수 이름만 담고 있습니다).
