@@ -1,6 +1,6 @@
-# spring-react-boilerplate
+# Spring Boot + React 보일러플레이트
 
-Spring Boot + React 보일러플레이트
+Spring Boot 백엔드와 React 프론트엔드를 함께 담은 모노레포 (`spring-react-boilerplate`)
 
 ---
 

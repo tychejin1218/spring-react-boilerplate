@@ -1,4 +1,4 @@
-# React Boilerplate
+# React 보일러플레이트
 
 React + Vite + TypeScript 기반의 프론트엔드 보일러플레이트입니다. 인증(로그인/회원가입/이메일 인증/비밀번호 재설정)을 기본으로 제공하고,
 할 일 관리·관리자 페이지·파일 업로드·SSE 알림은 참고용 **예제 기능**으로 포함되어 있어 필요 없으면 제거할 수 있습니다 (아래 "예제 기능 제거 방법" 참고).
@@ -292,7 +292,7 @@ src/features/{feature}/
 ## 예제 기능 제거 방법
 
 todo, admin, notification, 파일 업로드는 참고용 예제입니다. 등록 지점이 기능별로 한 곳씩 모여 있어(코드의 `[예제: ...]` 주석) 아래 디렉토리와 등록 줄만 지우면 제거됩니다.
-제거 후 `npm run lint` 와 `npx tsc -p tsconfig.app.json --noEmit` 으로 남은 참조가 없는지 확인하세요.
+제거 후 `npm run lint` 와 `npx tsc -p tsconfig.app.json --noEmit` 으로 남은 참조가 없는지 확인하세요. BE 쪽은 [BE README](../springboot-boilerplate/README.md#예제-기능-제거-방법) 를 봅니다.
 
 | 예제 기능 | 삭제할 디렉토리/파일 | 지울 등록 줄 |
 |----------|-------------------|-------------|

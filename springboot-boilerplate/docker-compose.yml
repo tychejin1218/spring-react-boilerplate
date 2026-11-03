@@ -12,13 +12,13 @@ services:
       MAIN_DATASOURCE_READER_JDBC_URL: jdbc:mysql://mysql:3306/boilerplate_db?serverTimezone=UTC&characterEncoding=UTF-8
       REDIS_STAND_ALONE_HOST: redis
       SPRING_MAIL_HOST: mailhog
-      AWS_S3_ENDPOINT: http://minio:9000
+      AWS_S3_ENDPOINT: http://minio:9000  # [예제: file-upload]
     ports:
       - "9091:9091"
     depends_on:
       - mysql
       - redis
-      - minio
+      - minio  # [예제: file-upload]
       - mailhog
 
   mysql:
@@ -44,6 +44,7 @@ services:
     volumes:
       - redis_data:/data
 
+  # [예제: file-upload] 파일 업로드 예제를 지우면 minio 서비스와 minio_data 볼륨도 지운다
   minio:
     # minio/minio 공개 이미지는 Docker Hub/quay.io 배포가 중단되어 받을 수 없다.
     # Chainguard 가 같은 MinIO 바이너리로 빌드해 무료 배포하는 이미지를 사용한다 (latest 태그만 무료).

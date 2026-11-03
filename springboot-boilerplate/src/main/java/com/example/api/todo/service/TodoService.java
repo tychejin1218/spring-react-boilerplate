@@ -94,6 +94,7 @@ public class TodoService {
   public TodoDto.TodoResponse updateTodoComplete(String email, Long id) {
     Todo todo = findTodo(id, email);
     todo.complete();
+    // [예제: notification] 완료 알림. notification 을 지울 때 이 줄과 import, eventPublisher 필드를 지운다
     eventPublisher.publishEvent(new TodoCompleteEvent(email, todo.getId(), todo.getTitle()));
     return TodoDto.TodoResponse.from(todo);
   }

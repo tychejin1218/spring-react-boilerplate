@@ -14,7 +14,7 @@ SET NAMES utf8mb4;
 -- =============================================================================
 -- 기존 테이블 삭제 (FK 의존 순서 역순으로 삭제)
 -- =============================================================================
-DROP TABLE IF EXISTS todo;
+DROP TABLE IF EXISTS todo;  -- [예제: todo]
 DROP TABLE IF EXISTS member;
 
 -- -----------------------------------------------------------------------------
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS member (
 ) COMMENT = '회원';
 
 -- -----------------------------------------------------------------------------
--- todo : 할 일 목록
+-- todo : 할 일 목록 [예제: todo]
 --   - member_id 로 소유자를 식별하며, 회원 삭제 시 연쇄 삭제(CASCADE)
 --   - completed : 0 = 미완료, 1 = 완료
 -- -----------------------------------------------------------------------------
@@ -71,6 +71,7 @@ INSERT INTO member (email, name, password, role, email_verified) VALUES
 -- 논리 삭제된 회원 처리
 UPDATE member SET deleted_at = '2026-01-01 00:00:00' WHERE email = 'deleted@example.com';
 
+-- [예제: todo]
 INSERT INTO todo (title, completed, member_id) VALUES
   ('Spring Boot 프로젝트 세팅',   1, 1),
   ('JWT 인증 구현',               1, 1),

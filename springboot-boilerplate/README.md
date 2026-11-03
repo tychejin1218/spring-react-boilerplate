@@ -195,6 +195,26 @@ src/main/resources/
 
 ---
 
+## 예제 기능 제거 방법
+
+todo, admin, notification, 파일 업로드는 참고용 예제입니다 (FE 와 같은 구성). 공통 파일에 걸린 등록 지점에는 `[예제: ...]` 주석이 붙어 있어,
+`grep -rn "\[예제: todo\]" .` 처럼 찾아 아래 디렉토리와 함께 지우면 제거됩니다.
+제거 후 `./gradlew clean build` 로 컴파일, 테스트, Checkstyle, PMD 가 모두 통과하는지 확인하세요. FE 쪽은 [FE README](../react-boilerplate/README.md#예제-기능-제거-방법) 를 봅니다.
+
+경로는 `src/main/java/com/example/api/` (테스트는 `src/test/java/com/example/api/`) 기준입니다.
+
+| 예제 기능 | 삭제할 디렉토리/파일 | 지울 등록 지점 (`[예제: ...]` 주석) |
+|----------|-------------------|-------------------------------|
+| todo (할 일 관리) | `todo/`, `domain/entity/Todo.java`, `domain/repository/TodoRepository.java`, 테스트 `todo/` | `ApiStatus`: `TODO_NOT_FOUND`, `OpenApiConfig`: `todoApi()` 빈, `Member`: `todos` 필드와 관련 import, `docker/init.sql`: todo 테이블 DROP/CREATE/INSERT |
+| 파일 업로드 (todo 이미지) | `file/`, `common/component/S3Component.java`, `config/aws/`, 테스트 `file/`, `common/component/S3ComponentMockTest.java` | `ApiStatus`: `FILE_CONTENT_TYPE_INVALID`, `build.gradle`: `awssdk:s3` 의존성, `environment-{profile}.yml`: `aws.s3` 설정, `docker-compose.yml`: `minio` 서비스, `minio_data` 볼륨, app 의 `AWS_S3_ENDPOINT` 와 `depends_on` 항목. todo 를 남기고 업로드만 뺄 때는 `TodoController`/`TodoService` 의 이미지 URL 수정 API 와 `todo.image_url` 컬럼도 함께 정리 |
+| admin (관리자 API) | `admin/`, 테스트 `admin/` | 없음. `MemberRole`, `@PreAuthorize` 처리(`ExceptionAdvice` 의 403)는 공통 기능이므로 유지 |
+| notification (SSE 알림) | `notification/`, `config/redis/RedisPubSubConfig.java` | `RedisKeys`: `NOTIFICATION_CHANNEL` (마지막 상수라 앞 줄 끝을 `;` 로 바꾼다), `TodoService`: `TodoCompleteEvent` 발행 줄과 import, `eventPublisher` 필드 |
+
+todo 와 notification 은 서로 엮여 있습니다. todo 를 지우면 `notification/event/TodoCompleteEvent` 를 받는 곳도 함께 지우거나 다른 이벤트로 바꿔야 합니다.
+QA 시나리오(`docs/qa/scenarios.md`)에서도 해당 기능 시나리오를 지웁니다: todo `QA-TODO-01`, 파일 업로드 `QA-TODO-02`, notification `QA-NOTI-01`, admin `QA-ADMIN-01`.
+
+---
+
 ## Swagger UI
 
 로컬 환경에서 Swagger UI를 통해 API를 테스트할 수 있습니다.

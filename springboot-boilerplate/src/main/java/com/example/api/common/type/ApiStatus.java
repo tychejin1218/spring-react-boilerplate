@@ -55,10 +55,10 @@ public enum ApiStatus {
   MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
   MEMBER_EMAIL_DUPLICATED(HttpStatus.CONFLICT, "이미 가입된 이메일입니다."),
 
-  // 할 일
+  // 할 일 [예제: todo]
   TODO_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 할 일입니다."),
 
-  // 파일
+  // 파일 [예제: file-upload]
   FILE_CONTENT_TYPE_INVALID(HttpStatus.BAD_REQUEST, "업로드할 수 없는 파일 형식입니다."),
 
   // 시스템 (ExceptionAdvice 가 프레임워크 예외를 자동 매핑)

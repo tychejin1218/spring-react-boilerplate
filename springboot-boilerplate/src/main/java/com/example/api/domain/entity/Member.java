@@ -55,6 +55,7 @@ public class Member extends BaseAudit {
   @Column(name = "email_verified", nullable = false)
   private boolean emailVerified;
 
+  // [예제: todo] todo 를 지울 때 이 필드와 OneToMany, FetchType, ArrayList, List import 를 함께 지운다
   @Builder.Default
   @ToString.Exclude
   @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)

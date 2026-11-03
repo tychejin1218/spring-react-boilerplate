@@ -87,7 +87,7 @@ public class OpenApiConfig {
   }
 
   /**
-   * 할 일 모듈 API 그룹
+   * 할 일 모듈 API 그룹 [예제: todo]
    *
    * @return GroupedOpenApi 인스턴스
    */

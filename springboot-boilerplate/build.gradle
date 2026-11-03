@@ -90,7 +90,7 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
-    // AWS (sdk-core, auth, regions 는 s3 가 전이 의존으로 가져온다)
+    // AWS (sdk-core, auth, regions 는 s3 가 전이 의존으로 가져온다) [예제: file-upload]
     implementation "software.amazon.awssdk:s3:2.33.7"
 
     // JJWT

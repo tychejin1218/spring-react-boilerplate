@@ -32,7 +32,7 @@ public enum RedisKeys {
   EMAIL_VERIFY_TOKEN("AUTH:EMAIL_VERIFY", 86_400),  // {인증 토큰}, 24시간
   PASSWORD_RESET_TOKEN("AUTH:PASSWORD_RESET", 1_800),  // {재설정 토큰}, 30분
   RATE_LIMIT("RATE_LIMIT", 60),  // {IP}:{URI}, 1분
-  NOTIFICATION_CHANNEL("NOTIFICATION:CHANNEL", 0);  // {이메일}, Pub/Sub 채널 (TTL 없음)
+  NOTIFICATION_CHANNEL("NOTIFICATION:CHANNEL", 0);  // [예제: notification] {이메일}, Pub/Sub 채널 (TTL 없음)
 
   /** 서비스 이름 접두사. 새 서비스에서는 서비스 이름으로 바꾼다 */
   public static final String NAMESPACE = "APP";
