@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { getVerifyEmail, postResendVerification } from '@/features/auth/apis/authApi';
 import AuthCard from '@/features/auth/components/AuthCard';
@@ -17,24 +17,24 @@ const EmailVerifyPage = () => {
 
   const onLoginSuccess = useLoginSuccess();
 
+  // 이미 인증 요청을 보낸 토큰. 인증 토큰은 1회용이라 같은 토큰으로 두 번 요청하면 두 번째가 실패한다.
+  // 개발 모드의 StrictMode 는 effect 를 두 번 실행하므로, 컴포넌트가 다시 마운트돼도 유지되는 ref 로 막는다.
+  const requestedTokenRef = useRef<string | null>(null);
+
   // 토큰이 있으면 자동으로 인증 처리
   useEffect(() => {
-    if (!token) return;
+    if (!token || requestedTokenRef.current === token) return;
+    requestedTokenRef.current = token;
 
-    const controller = new AbortController();
-
+    // 응답은 effect 정리와 관계없이 반영한다. 정리 시점에 응답을 버리면 성공한 인증이 화면에 반영되지 않는다
     getVerifyEmail(token)
       .then((res) => {
-        if (controller.signal.aborted) return;
         const { accessToken, refreshToken } = res.data;
         onLoginSuccess(accessToken, refreshToken);
       })
       .catch((err: ErrorResponse) => {
-        if (controller.signal.aborted) return;
         setError(err?.message ?? '인증 링크가 유효하지 않거나 만료되었습니다.');
       });
-
-    return () => controller.abort();
   }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleResend = async () => {
