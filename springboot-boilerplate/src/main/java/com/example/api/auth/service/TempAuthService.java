@@ -4,8 +4,10 @@ import com.example.api.auth.dto.AuthDto;
 import com.example.api.common.component.RedisComponent;
 import com.example.api.common.type.RedisKeys;
 import com.example.api.config.jwt.JwtTokenProvider;
+import com.example.api.domain.entity.Member;
 import com.example.api.domain.entity.MemberRole;
 import com.example.api.domain.repository.MemberRepository;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,11 +37,11 @@ public class TempAuthService {
    */
   public AuthDto.TokenResponse issueToken(AuthDto.TempTokenRequest request) {
     String subject = request.getEmail();
-    String role = memberRepository.findByEmail(subject)
-        .map(m -> m.getRole().name())
-        .orElse(MemberRole.ROLE_USER.name());
+    Optional<Member> member = memberRepository.findByEmail(subject);
+    String role = member.map(m -> m.getRole().name()).orElse(MemberRole.ROLE_USER.name());
+    Long memberId = member.map(Member::getId).orElse(null);
 
-    String accessToken = jwtTokenProvider.createAccessToken(subject, role);
+    String accessToken = jwtTokenProvider.createAccessToken(subject, memberId, role);
     String refreshToken = jwtTokenProvider.createRefreshToken(subject);
 
     String redisKey = RedisKeys.REFRESH_TOKEN.getKey() + subject;

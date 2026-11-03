@@ -35,7 +35,7 @@ class JwtTokenProviderTest {
   @Order(1)
   @DisplayName("액세스 토큰 생성 - JWT 형식(header.payload.signature)")
   void createAccessToken_success() {
-    String token = jwtTokenProvider.createAccessToken("testUser", "ROLE_USER");
+    String token = jwtTokenProvider.createAccessToken("testUser", 1L, "ROLE_USER");
 
     assertThat(token).isNotBlank();
     assertThat(token.split("\\.")).hasSize(3);
@@ -55,7 +55,7 @@ class JwtTokenProviderTest {
   @Order(3)
   @DisplayName("액세스 토큰과 리프레시 토큰은 서로 다른 값")
   void accessAndRefreshToken_areDifferent() {
-    String accessToken = jwtTokenProvider.createAccessToken("testUser", "ROLE_USER");
+    String accessToken = jwtTokenProvider.createAccessToken("testUser", 1L, "ROLE_USER");
     String refreshToken = jwtTokenProvider.createRefreshToken("testUser");
 
     assertThat(accessToken).isNotEqualTo(refreshToken);
@@ -65,7 +65,7 @@ class JwtTokenProviderTest {
   @Order(4)
   @DisplayName("토큰에서 Subject 추출 - 정상")
   void getSubject_success() {
-    String token = jwtTokenProvider.createAccessToken("testUser", "ROLE_USER");
+    String token = jwtTokenProvider.createAccessToken("testUser", 1L, "ROLE_USER");
 
     assertThat(jwtTokenProvider.getSubject(token)).isEqualTo("testUser");
   }
@@ -74,7 +74,7 @@ class JwtTokenProviderTest {
   @Order(5)
   @DisplayName("유효한 토큰 검증 - true 반환")
   void validateToken_validToken() {
-    String token = jwtTokenProvider.createAccessToken("testUser", "ROLE_USER");
+    String token = jwtTokenProvider.createAccessToken("testUser", 1L, "ROLE_USER");
 
     assertThat(jwtTokenProvider.validateToken(token)).isTrue();
   }
@@ -85,7 +85,7 @@ class JwtTokenProviderTest {
   void validateToken_expiredToken() throws InterruptedException {
     JwtTokenProvider shortLivedProvider =
         new JwtTokenProvider(TEST_SECRET, 1L, 1L);
-    String token = shortLivedProvider.createAccessToken("testUser", "ROLE_USER");
+    String token = shortLivedProvider.createAccessToken("testUser", 1L, "ROLE_USER");
 
     Thread.sleep(10);
 
@@ -103,7 +103,7 @@ class JwtTokenProviderTest {
   @Order(8)
   @DisplayName("서명이 조작된 토큰 검증 - false 반환")
   void validateToken_tamperedSignature() {
-    String token = jwtTokenProvider.createAccessToken("testUser", "ROLE_USER");
+    String token = jwtTokenProvider.createAccessToken("testUser", 1L, "ROLE_USER");
     String tampered = token.substring(0, token.lastIndexOf('.') + 1) + "invalidsignature";
 
     assertThat(jwtTokenProvider.validateToken(tampered)).isFalse();
@@ -125,8 +125,28 @@ class JwtTokenProviderTest {
             "other-secret-key-must-be-at-least-256-bits-long-for-hs256-algorithm",
             ACCESS_TOKEN_VALIDITY_MS,
             REFRESH_TOKEN_VALIDITY_MS);
-    String token = otherProvider.createAccessToken("testUser", "ROLE_USER");
+    String token = otherProvider.createAccessToken("testUser", 1L, "ROLE_USER");
 
     assertThat(jwtTokenProvider.validateToken(token)).isFalse();
+  }
+
+  @Test
+  @Order(11)
+  @DisplayName("액세스 토큰에서 회원 번호(mid) 추출")
+  void getMemberId_success() {
+    String token = jwtTokenProvider.createAccessToken("testUser", 42L, "ROLE_USER");
+
+    assertThat(jwtTokenProvider.getMemberId(token)).isEqualTo(42L);
+  }
+
+  @Test
+  @Order(12)
+  @DisplayName("회원 번호 없이 만든 토큰은 getMemberId 가 null")
+  void getMemberId_absent() {
+    String accessToken = jwtTokenProvider.createAccessToken("testUser", null, "ROLE_USER");
+    String refreshToken = jwtTokenProvider.createRefreshToken("testUser");
+
+    assertThat(jwtTokenProvider.getMemberId(accessToken)).isNull();
+    assertThat(jwtTokenProvider.getMemberId(refreshToken)).isNull();
   }
 }

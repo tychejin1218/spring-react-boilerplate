@@ -72,7 +72,7 @@ class AuthServiceMockTest {
         .build();
     given(memberRepository.findByEmail("test@example.com")).willReturn(Optional.of(member));
     given(passwordEncoder.matches("password123", "encodedPassword")).willReturn(true);
-    given(jwtTokenProvider.createAccessToken("test@example.com", "ROLE_USER")).willReturn(
+    given(jwtTokenProvider.createAccessToken("test@example.com", 1L, "ROLE_USER")).willReturn(
         "accessToken");
     given(jwtTokenProvider.createRefreshToken("test@example.com")).willReturn("refreshToken");
 
@@ -175,7 +175,7 @@ class AuthServiceMockTest {
     given(redisComponent.getStringValue("APP:REFRESH_TOKEN:test@example.com"))
         .willReturn("validToken");
     given(memberRepository.findByEmail("test@example.com")).willReturn(Optional.of(member));
-    given(jwtTokenProvider.createAccessToken("test@example.com", "ROLE_USER")).willReturn(
+    given(jwtTokenProvider.createAccessToken("test@example.com", 1L, "ROLE_USER")).willReturn(
         "newAccessToken");
     given(jwtTokenProvider.createRefreshToken("test@example.com")).willReturn("newRefreshToken");
 

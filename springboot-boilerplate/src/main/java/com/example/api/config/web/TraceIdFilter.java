@@ -1,5 +1,6 @@
 package com.example.api.config.web;
 
+import com.example.api.config.security.JwtAuthenticationFilter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +22,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * 앞단(게이트웨이, 다른 서비스)이 보낸 {@value #HEADER} 가 형식에 맞으면 그 값을 이어서 쓴다.
  *
  * <p>보안 필터보다 먼저 실행되도록 가장 높은 우선순위로 등록한다.
+ * 가장 바깥 필터이므로 요청이 끝날 때 MDC 정리도 여기서 한다. 톰캣은 스레드를 재사용하므로
+ * 정리하지 않으면 다음 요청 로그에 이전 요청의 값이 섞인다.
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -50,6 +53,7 @@ public class TraceIdFilter extends OncePerRequestFilter {
       filterChain.doFilter(request, response);
     } finally {
       MDC.remove(MDC_KEY);
+      MDC.remove(JwtAuthenticationFilter.MDC_KEY);
     }
   }
 

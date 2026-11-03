@@ -216,7 +216,7 @@ public class AuthService {
 
   private AuthDto.TokenResponse issueTokenPair(Member member) {
     String accessToken = jwtTokenProvider.createAccessToken(
-        member.getEmail(), member.getRole().name());
+        member.getEmail(), member.getId(), member.getRole().name());
     String refreshToken = jwtTokenProvider.createRefreshToken(member.getEmail());
 
     redisComponent.setStringValue(

@@ -43,14 +43,21 @@ flowchart TB
   R[HTTP 요청] --> T[TraceIdFilter<br/>traceId 발급, 응답 헤더 X-Trace-Id]
   T --> C[CorsFilter]
   C --> L[LoggingFilter<br/>메서드, URI, 상태, 소요 시간 로그]
-  L --> J[JwtAuthenticationFilter<br/>Authorization 헤더 검증]
+  L --> J[JwtAuthenticationFilter<br/>Authorization 헤더 검증, 회원 번호를 MDC 에 저장]
   J --> RL[RateLimitInterceptor<br/>로그인, 회원가입만]
   RL --> CT[Controller]
   CT --> S[Service<br/>트랜잭션, 캐시, 이벤트]
   S --> Q[Repository<br/>JPA, QueryDSL, MyBatis]
 ```
 
-- **traceId:** 요청마다 16자리 ID 를 만들어 모든 로그 줄에 `[traceId]` 로 찍는다. 응답 헤더 `X-Trace-Id` 로도 돌려준다. 사용자가 오류를 신고할 때 이 값을 받으면 서버 로그에서 그 요청만 골라 볼 수 있다. `@Async` 로 실행되는 메일 발송 로그에도 같은 ID 가 이어진다.
+- **traceId:** 요청마다 16자리 ID 를 만들어 모든 로그 줄에 찍는다. 응답 헤더 `X-Trace-Id` 로도 돌려준다. 사용자가 오류를 신고할 때 이 값을 받으면 서버 로그에서 그 요청만 골라 볼 수 있다.
+- **회원 번호:** 로그인한 요청이면 JWT 의 `mid` claim 에서 회원 번호를 꺼내 함께 찍는다. 이메일은 개인정보라 로그에 남기지 않는다. 특정 회원의 요청만 보고 싶으면 `m:<회원 번호>` 로 검색한다.
+- 두 값 모두 `@Async` 로 실행되는 메일 발송 로그에도 이어진다. 요청이 끝나면 가장 바깥의 TraceIdFilter 가 MDC 를 비운다.
+
+```
+[7d6b7e8b935d44b0 m:3] c.e.api.config.security.LoggingFilter : [REQUEST] GET /api/todos → 200 (161ms)
+[f924c0d53efa4145]     c.e.api.config.security.LoggingFilter : [REQUEST] GET /api/health → 200 (1ms)
+```
 - **인증:** 공개 경로(로그인, 회원가입, Swagger 등)는 `SecurityConfig` 의 `PERMIT_ALL_PATTERN_LIST` 에 있다. 나머지는 유효한 Access Token 이 필요하다.
 - **권한:** 관리자 API 는 `@PreAuthorize("hasRole('ADMIN')")` 로 막는다.
 - **응답 형식:** 성공은 `BaseResponse<T>`, 실패는 `ExceptionAdvice` 가 `ApiStatus` 코드와 메시지로 감싼다. 형식은 `springboot-boilerplate/.claude/rules/api-response.md` 를 본다.
@@ -251,4 +258,4 @@ sequenceDiagram
 | FE 가 다른 포트를 호출 | `env/.env.local` 의 `VITE_API_BASE_URL` 확인 (`http://localhost:9091/api`) |
 | 로그인 401 | 비밀번호 확인. MSW 목업 계정과 DB 샘플 계정의 비밀번호는 다르다 |
 | 메일이 안 보임 | 메일은 실제로 나가지 않고 MailHog(http://localhost:8025)에 쌓인다 |
-| 특정 요청의 서버 로그 찾기 | 브라우저 응답 헤더 `X-Trace-Id` 값으로 로그 검색 |
+| 특정 요청의 서버 로그 찾기 | 브라우저 응답 헤더 `X-Trace-Id` 값으로 로그 검색. 특정 회원은 `m:<회원 번호>` 로 검색 |
