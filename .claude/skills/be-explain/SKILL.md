@@ -2,10 +2,10 @@
 name: be-explain
 description: springboot-boilerplate 전용. 지정된 파일의 역할, 어노테이션 의미, 코드 흐름을 설명합니다.
 argument-hint: "<파일명>"
-allowed-tools: ["Read", "Glob", "Grep"]
+allowed-tools: Read, Glob, Grep
 ---
 
-# 코드 설명
+# BE 코드 설명
 
 지정된 파일을 처음 보는 개발자도 이해할 수 있게 설명해주세요.
 

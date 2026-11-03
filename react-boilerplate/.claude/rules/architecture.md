@@ -4,7 +4,7 @@ paths:
   - "src/**"
 ---
 
-# Architecture Rules
+# 아키텍처 규칙
 
 ## 레이어 의존 규칙
 

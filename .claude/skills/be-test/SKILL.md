@@ -5,7 +5,7 @@ argument-hint: "<클래스명>"
 disable-model-invocation: true
 ---
 
-# 테스트 코드 생성
+# BE 테스트 코드 생성
 
 지정된 클래스에 대한 테스트 코드를 작성해주세요.
 

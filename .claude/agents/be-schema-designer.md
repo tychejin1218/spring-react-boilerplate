@@ -1,16 +1,16 @@
 ---
 name: be-schema-designer
 description: |
-  springboot-boilerplate (Spring Boot BE) 전용. Use this agent when a new table design or Entity creation is requested. Examples:
+  springboot-boilerplate (Spring Boot BE) 전용. 새 테이블 설계나 Entity 생성을 요청받았을 때 사용합니다 (use proactively). 예시:
   <example>user_profile 테이블 설계해줘</example>
   <example>ERD 보고 Entity 만들어줘</example>
   <example>컬럼 목록 줄게, JPA Entity랑 DDL 생성해줘</example>
 color: cyan
-tools: ["Read", "Glob", "Grep", "Write", "Edit"]
+tools: Read, Glob, Grep, Write, Edit
 model: sonnet
 ---
 
-# 스키마 설계 에이전트
+# BE 스키마 설계 에이전트
 
 테이블 요구사항을 받아 JPA Entity, JPA Repository, DDL을 생성하는 전문 에이전트입니다.
 

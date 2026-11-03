@@ -6,7 +6,7 @@ disable-model-invocation: true
 allowed-tools: Bash, Read, Write, Glob, Grep
 ---
 
-# /qa-scenario — ego lite 통합 테스트 실행
+# ego lite 통합 테스트 실행
 
 시나리오 원본은 `docs/qa/scenarios.md` 다. 시나리오를 바꾸고 싶으면 그 문서를 고치고, 이 스킬은 실행 방법만 정한다.
 경로는 모두 저장소 루트 기준이다. 도우미는 `.claude/skills/qa-scenario/scripts/qa.sh` (이하 `qa.sh`)를 쓴다.

@@ -1,16 +1,16 @@
 ---
 name: be-performance-inspector
 description: |
-  springboot-boilerplate (Spring Boot BE) 전용. Use this agent when performance analysis is requested. Examples:
+  springboot-boilerplate (Spring Boot BE) 전용. 성능 분석을 요청받았을 때 N+1, readOnly 누락, 페이징 누락, 쿼리 비효율을 찾습니다 (use proactively). 예시:
   <example>/be-perf SampleService.java</example>
   <example>N+1 문제 있는지 확인해줘</example>
   <example>이 쿼리 성능 개선할 수 있어?</example>
-color: magenta
-tools: ["Read", "Glob", "Grep"]
+color: purple
+tools: Read, Glob, Grep
 effort: high
 ---
 
-# 성능 분석 에이전트
+# BE 성능 분석 에이전트
 
 Spring Boot + JPA + QueryDSL + MyBatis 스택에서 발생하는 성능 문제를 탐지하고 개선 방안을 제시하는 읽기 전용 에이전트입니다.
 

@@ -94,11 +94,11 @@ src/
 
 | 파일 | 내용 | 로드 시점 |
 |------|------|-----------|
-| [architecture-rules.md](.claude/rules/architecture-rules.md) | 레이어 의존 규칙, API 함수·Query 훅 패턴, 라우터, 새 도메인 추가 순서 | `src/` 파일 |
+| [architecture.md](.claude/rules/architecture.md) | 레이어 의존 규칙, API 함수·Query 훅 패턴, 라우터, 새 도메인 추가 순서 | `src/` 파일 |
 | [naming-styling.md](.claude/rules/naming-styling.md) | 파일·함수 이름, export 방식, Tailwind 스타일, 접근성 | `src/` 파일 |
 | [components-forms.md](.claude/rules/components-forms.md) | 컴포넌트 구조, 공통 UI, 폼, 오류 알림, 세션 만료, 이탈 확인 | 페이지, 컴포넌트, 훅 |
 | [mocks.md](.claude/rules/mocks.md) | MSW 핸들러 작성 규칙 | `src/mocks/`, `features/*/mocks/` |
-| [testing-rules.md](.claude/rules/testing-rules.md) | Vitest, Playwright 규칙 | 테스트 파일, `e2e/` |
+| [testing.md](.claude/rules/testing.md) | Vitest, Playwright 규칙 | 테스트 파일, `e2e/` |
 
 ## Claude Code 자동화 도구
 

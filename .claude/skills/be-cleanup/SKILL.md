@@ -5,7 +5,7 @@ argument-hint: "[파일명]"
 disable-model-invocation: true
 ---
 
-# 코드 정리
+# BE 코드 정리
 
 불필요한 import와 임시 코드를 제거해 코드베이스를 깔끔하게 유지합니다.
 로직은 건드리지 않고 형식만 정리하는 것이 원칙입니다.

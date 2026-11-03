@@ -3,7 +3,6 @@ name: fe-explain
 description: react-boilerplate 파일의 역할, 사용 패턴, 데이터 흐름을 설명합니다.
 argument-hint: "<파일명>"
 allowed-tools: Read, Glob, Grep
-disable-model-invocation: true
 ---
 
 # FE 코드 설명

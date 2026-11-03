@@ -1,6 +1,11 @@
 ---
 name: fe-feature-scaffolder
-description: react-boilerplate/ 에 새 feature 디렉토리 구조와 보일러플레이트 파일을 생성합니다. features/todo를 참고해서 동일한 패턴으로 생성합니다. FE 새 기능, 페이지, feature 추가 요청 시 자동으로 호출됩니다.
+description: |
+  react-boilerplate (React FE) 전용. 새 기능, 페이지, feature 추가를 요청받았을 때 features/todo 와 같은 패턴으로 디렉토리 구조와 파일을 생성합니다. 예시:
+  <example>/fe-scaffold product</example>
+  <example>상품 목록 페이지 feature 만들어줘</example>
+  <example>새 feature 디렉토리 구조 생성해줘</example>
+color: green
 tools: Read, Glob, Grep, Write, Edit, Bash
 model: sonnet
 ---
@@ -13,7 +18,7 @@ model: sonnet
 ## 사전 준비
 
 작업 시작 전 반드시 아래를 읽으세요:
-- `react-boilerplate/CLAUDE.md`, `react-boilerplate/.claude/rules/architecture-rules.md`, `naming-styling.md`, `components-forms.md`, `mocks.md` (같은 디렉토리)
+- `react-boilerplate/CLAUDE.md`, `react-boilerplate/.claude/rules/architecture.md`, `naming-styling.md`, `components-forms.md`, `mocks.md` (같은 디렉토리)
 - `src/features/todo/` — 참조 구현체 (전체 디렉토리)
   - `types/todo.ts` — 타입 정의 패턴
   - `apis/todoApi.ts` — API 함수 패턴

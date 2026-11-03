@@ -2,7 +2,6 @@
 name: fe-review
 description: react-boilerplate 파일을 fe-code-reviewer 에이전트로 리뷰합니다 (버그, 성능, 접근성, 타입 안전성, 컨벤션).
 argument-hint: "<파일명>"
-disable-model-invocation: true
 ---
 
 # FE 코드 리뷰

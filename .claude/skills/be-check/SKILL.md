@@ -5,7 +5,7 @@ argument-hint: "[파일명]"
 allowed-tools: Bash
 ---
 
-# 정적 분석 & 포맷 검증
+# BE 정적 분석 & 포맷 검증
 
 Google Java Style 포맷 정렬과 Checkstyle + PMD 정적 분석을 순서대로 실행합니다.
 

@@ -1,6 +1,11 @@
 ---
 name: fe-debugger
-description: React/Vite/TypeScript 애플리케이션(react-boilerplate/)의 오류, 빌드 실패, 예상치 못한 동작의 근본 원인을 분석하고 최소한의 수정으로 해결합니다. FE 에러 메시지나 스택 트레이스가 공유되면 자동으로 호출됩니다 (use proactively).
+description: |
+  react-boilerplate (React FE) 전용. 오류, 빌드 실패, 예상치 못한 동작이 공유되면 근본 원인을 분석하고 최소한으로 수정합니다 (use proactively). 예시:
+  <example>콘솔에 TypeError: Cannot read properties of undefined 가 떠</example>
+  <example>npm run build 가 실패해</example>
+  <example>로그인 후 화면이 하얗게 나와</example>
+color: red
 tools: Read, Grep, Glob, Bash, Edit, Write
 effort: high
 ---

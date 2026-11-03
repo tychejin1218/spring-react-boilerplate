@@ -4,7 +4,7 @@ description: springboot-boilerplate 전용. 버그, 성능, 보안, 프로젝트
 argument-hint: "<파일명>"
 ---
 
-# 코드 리뷰
+# BE 코드 리뷰
 
 Agent 도구를 사용하여 `be-code-reviewer` 에이전트를 호출하고, 아래 파일을 리뷰하세요.
 

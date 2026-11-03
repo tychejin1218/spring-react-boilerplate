@@ -61,6 +61,11 @@ spring-react-boilerplate/
 | 기타 | | `/be-perf`, `/be-refactor`, `/be-api-doc`, `/be-cleanup`, `/be-commit` |
 | 자동 호출 에이전트 | `fe-debugger` | `be-debugger`, `be-mybatis-specialist`, `be-schema-designer`, `be-performance-inspector` |
 
+스킬 자동 호출 기준 (BE, FE 공통):
+- 파일을 만들거나 고치는 스킬, 커밋하는 스킬은 `disable-model-invocation: true` 로 사용자가 `/이름` 으로 부를 때만 실행한다 (`/be-crud`, `/be-api-doc`, `/be-refactor`, `/be-cleanup`, `/be-commit`, `/be-test`, `/fe-scaffold`, `/fe-vitest-gen`, `/fe-e2e-gen`, `/qa-scenario`)
+- 읽기만 하는 스킬은 대화 맥락에 따라 자동으로 실행될 수 있다 (`/be-review`, `/fe-review`, `/be-explain`, `/fe-explain`, `/be-perf`)
+- 예외: `/be-check`, `/fe-check` 는 포맷을 고치지만 코드 변경 후 항상 실행하도록 자동 호출을 허용한다
+
 FE 와 BE 를 함께 다루는 공통 스킬:
 - `/qa-scenario [all | ID...]`: `docs/qa/scenarios.md` 의 통합 테스트 시나리오를 실제 로컬 인프라에 붙여 ego lite 로 실행하고 결과를 `.qa-reports/` 에 남긴다. 발견한 버그는 보고만 하고 고치지 않는다.
 

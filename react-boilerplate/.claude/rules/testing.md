@@ -8,7 +8,7 @@ paths:
   - "e2e/**"
 ---
 
-# Testing Rules
+# 테스트 규칙
 
 ## 단위 테스트 (Vitest)
 

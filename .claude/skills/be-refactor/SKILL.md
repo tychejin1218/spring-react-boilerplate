@@ -2,10 +2,11 @@
 name: be-refactor
 description: springboot-boilerplate 전용. 분석 → 계획 승인 → 실행 순서로 코드를 리팩토링합니다.
 argument-hint: "<파일명 또는 패키지 경로>"
-allowed-tools: ["Read", "Glob", "Grep", "Write", "Edit", "Bash"]
+allowed-tools: Read, Glob, Grep, Write, Edit, Bash
+disable-model-invocation: true
 ---
 
-# 리팩토링
+# BE 리팩토링
 
 지정된 코드를 리팩토링해주세요.
 

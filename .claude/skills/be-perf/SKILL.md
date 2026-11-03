@@ -4,7 +4,7 @@ description: springboot-boilerplate 전용. N+1, readOnly 누락, 페이징 누�
 argument-hint: "<파일명>"
 ---
 
-# 성능 분석
+# BE 성능 분석
 
 Agent 도구를 사용하여 `be-performance-inspector` 에이전트를 호출하고, 아래 대상의 성능 이슈를 분석하세요.
 

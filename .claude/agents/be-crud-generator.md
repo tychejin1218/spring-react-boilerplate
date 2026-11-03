@@ -1,16 +1,16 @@
 ---
 name: be-crud-generator
 description: |
-  springboot-boilerplate (Spring Boot BE) 전용. Use this agent when CRUD layer generation is requested for a new Entity. Examples:
+  springboot-boilerplate (Spring Boot BE) 전용. 새 Entity 의 CRUD 레이어(DTO, Repository, Service, Controller, 테스트) 생성을 요청받았을 때 사용합니다. 예시:
   <example>/be-crud domain/entity/User.java</example>
   <example>User Entity 기반으로 CRUD 레이어 만들어줘</example>
   <example>새 Entity에 대한 DTO, Repository, Service, Controller 생성해줘</example>
 color: green
-tools: ["Read", "Glob", "Grep", "Write", "Edit"]
+tools: Read, Glob, Grep, Write, Edit
 model: sonnet
 ---
 
-# CRUD 레이어 생성 에이전트
+# BE CRUD 레이어 생성 에이전트
 
 Entity 파일을 읽어 DTO, Repository, Service, Controller, Test를 생성하는 전문 에이전트입니다.
 

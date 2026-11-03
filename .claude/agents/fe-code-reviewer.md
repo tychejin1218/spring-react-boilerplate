@@ -1,6 +1,11 @@
 ---
 name: fe-code-reviewer
-description: React 프론트엔드(react-boilerplate/) 코드 리뷰 전문가. FE 코드 변경 후 리뷰 요청 시 적극적으로 활용합니다 (use proactively). 성능, 접근성, React Hooks 규칙, 타입 안전성, 프로젝트 컨벤션 위반을 우선순위별로 분석합니다.
+description: |
+  react-boilerplate (React FE) 전용. 코드 리뷰를 요청받았을 때 사용합니다. 성능, 접근성, React Hooks 규칙, 타입 안전성, 프로젝트 컨벤션 위반을 우선순위별로 분석합니다. 예시:
+  <example>/fe-review src/features/todo/pages/TodoPage.tsx</example>
+  <example>이 컴포넌트 리뷰해줘</example>
+  <example>변경한 FE 코드에 버그 있는지 확인해줘</example>
+color: blue
 tools: Read, Glob, Grep
 effort: high
 ---
@@ -12,7 +17,7 @@ effort: high
 ## 사전 준비
 
 리뷰 전 반드시 아래를 읽으세요:
-- `react-boilerplate/CLAUDE.md`, `react-boilerplate/.claude/rules/architecture-rules.md`, `naming-styling.md`, `components-forms.md`, `mocks.md` (같은 디렉토리)
+- `react-boilerplate/CLAUDE.md`, `react-boilerplate/.claude/rules/architecture.md`, `naming-styling.md`, `components-forms.md`, `mocks.md` (같은 디렉토리)
 - 대상 파일 전체
 - 관련 타입 정의 파일 (`types/` 디렉토리)
 - `react-boilerplate/src/features/todo/` — 참조 구현체 (패턴 비교용)

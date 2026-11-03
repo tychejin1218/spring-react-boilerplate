@@ -2,10 +2,11 @@
 name: be-api-doc
 description: springboot-boilerplate 전용. Controller에 대한 ControllerDocs 인터페이스를 생성하고 Swagger 어노테이션을 추가합니다.
 argument-hint: "<Controller 파일명>"
-allowed-tools: ["Read", "Glob", "Grep", "Write", "Edit", "Bash"]
+allowed-tools: Read, Glob, Grep, Write, Edit, Bash
+disable-model-invocation: true
 ---
 
-# API 문서 어노테이션 추가
+# BE API 문서 어노테이션 추가
 
 지정된 Controller에 대한 `XxxControllerDocs` 인터페이스를 생성하고, Controller가 이를 implements하도록 수정해주세요.
 

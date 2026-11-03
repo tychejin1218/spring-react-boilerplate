@@ -6,7 +6,7 @@ disable-model-invocation: true
 allowed-tools: Read, Write, Bash, Glob, Grep, Edit, Agent, AskUserQuestion
 ---
 
-# /fe-e2e-gen — Playwright E2E 테스트 코드 자동 생성 스킬
+# FE Playwright E2E 테스트 코드 생성
 
 모든 경로는 `react-boilerplate/` 기준이며, 명령은 `react-boilerplate/` 디렉토리에서 실행한다.
 
