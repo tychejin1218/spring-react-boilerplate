@@ -66,9 +66,9 @@ class ExceptionAdviceTest {
         () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR),
         () -> assertThat(response.getBody()).isNotNull(),
         () -> assertThat(response.getBody().getStatusCode())
-            .isEqualTo(ApiStatus.INTERNAL_SERVER_ERROR.getCode()),
+            .isEqualTo(ApiStatus.SYSTEM_INTERNAL_ERROR.getCode()),
         () -> assertThat(response.getBody().getMessage())
-            .isEqualTo(ApiStatus.INTERNAL_SERVER_ERROR.getMessage()),
+            .isEqualTo(ApiStatus.SYSTEM_INTERNAL_ERROR.getMessage()),
         () -> assertThat(response.getBody().getMethod()).isEqualTo("GET"),
         () -> assertThat(response.getBody().getPath()).isEqualTo("/test"),
         () -> assertThat(response.getBody().getTimestamp()).isNotBlank()
@@ -80,8 +80,7 @@ class ExceptionAdviceTest {
   @DisplayName("ApiException 5xx - 500 응답 (log.error 분기)")
   void handleApiException_5xx_returns500() {
     // given
-    ApiException ex = new ApiException(HttpStatus.INTERNAL_SERVER_ERROR,
-        ApiStatus.INTERNAL_SERVER_ERROR);
+    ApiException ex = new ApiException(ApiStatus.SYSTEM_INTERNAL_ERROR);
 
     // when
     ResponseEntity<ErrorResponse> response = exceptionAdvice.handleApiException(ex, request);
@@ -91,9 +90,9 @@ class ExceptionAdviceTest {
         () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR),
         () -> assertThat(response.getBody()).isNotNull(),
         () -> assertThat(response.getBody().getStatusCode())
-            .isEqualTo(ApiStatus.INTERNAL_SERVER_ERROR.getCode()),
+            .isEqualTo(ApiStatus.SYSTEM_INTERNAL_ERROR.getCode()),
         () -> assertThat(response.getBody().getMessage())
-            .isEqualTo(ApiStatus.INTERNAL_SERVER_ERROR.getMessage()),
+            .isEqualTo(ApiStatus.SYSTEM_INTERNAL_ERROR.getMessage()),
         () -> assertThat(response.getBody().getTimestamp()).isNotBlank()
     );
   }
@@ -103,7 +102,7 @@ class ExceptionAdviceTest {
   @DisplayName("ApiException 4xx - 404 응답 (log.warn 분기)")
   void handleApiException_4xx_returns404() {
     // given
-    ApiException ex = new ApiException(HttpStatus.NOT_FOUND, ApiStatus.NOT_FOUND);
+    ApiException ex = new ApiException(ApiStatus.RESOURCE_NOT_FOUND);
 
     // when
     ResponseEntity<ErrorResponse> response = exceptionAdvice.handleApiException(ex, request);
@@ -113,9 +112,9 @@ class ExceptionAdviceTest {
         () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND),
         () -> assertThat(response.getBody()).isNotNull(),
         () -> assertThat(response.getBody().getStatusCode())
-            .isEqualTo(ApiStatus.NOT_FOUND.getCode()),
+            .isEqualTo(ApiStatus.RESOURCE_NOT_FOUND.getCode()),
         () -> assertThat(response.getBody().getMessage())
-            .isEqualTo(ApiStatus.NOT_FOUND.getMessage()),
+            .isEqualTo(ApiStatus.RESOURCE_NOT_FOUND.getMessage()),
         () -> assertThat(response.getBody().getTimestamp()).isNotBlank()
     );
   }
@@ -126,7 +125,7 @@ class ExceptionAdviceTest {
   void handleApiException_customMessage() {
     // given
     String customMessage = "사용자 정의 오류 메시지";
-    ApiException ex = new ApiException(HttpStatus.BAD_REQUEST, ApiStatus.INVALID_REQUEST,
+    ApiException ex = new ApiException(ApiStatus.VALIDATION_INVALID_REQUEST,
         customMessage);
 
     // when
@@ -136,7 +135,7 @@ class ExceptionAdviceTest {
     assertAll(
         () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
         () -> assertThat(response.getBody().getStatusCode())
-            .isEqualTo(ApiStatus.INVALID_REQUEST.getCode()),
+            .isEqualTo(ApiStatus.VALIDATION_INVALID_REQUEST.getCode()),
         () -> assertThat(response.getBody().getMessage()).isEqualTo(customMessage)
     );
   }
@@ -157,9 +156,9 @@ class ExceptionAdviceTest {
         () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
         () -> assertThat(response.getBody()).isNotNull(),
         () -> assertThat(response.getBody().getStatusCode())
-            .isEqualTo(ApiStatus.METHOD_ARGUMENT_NOT_VALID.getCode()),
+            .isEqualTo(ApiStatus.VALIDATION_METHOD_ARGUMENT_INVALID.getCode()),
         () -> assertThat(response.getBody().getMessage())
-            .isEqualTo(ApiStatus.METHOD_ARGUMENT_NOT_VALID.getMessage())
+            .isEqualTo(ApiStatus.VALIDATION_METHOD_ARGUMENT_INVALID.getMessage())
     );
   }
 
@@ -180,9 +179,9 @@ class ExceptionAdviceTest {
         () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
         () -> assertThat(response.getBody()).isNotNull(),
         () -> assertThat(response.getBody().getStatusCode())
-            .isEqualTo(ApiStatus.MISSING_SERVLET_REQUEST_PARAMETER.getCode()),
+            .isEqualTo(ApiStatus.VALIDATION_PARAMETER_MISSING.getCode()),
         () -> assertThat(response.getBody().getMessage())
-            .isEqualTo(ApiStatus.MISSING_SERVLET_REQUEST_PARAMETER.getMessage())
+            .isEqualTo(ApiStatus.VALIDATION_PARAMETER_MISSING.getMessage())
     );
   }
 
@@ -203,9 +202,9 @@ class ExceptionAdviceTest {
         () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
         () -> assertThat(response.getBody()).isNotNull(),
         () -> assertThat(response.getBody().getStatusCode())
-            .isEqualTo(ApiStatus.CONSTRAINT_VIOLATION.getCode()),
+            .isEqualTo(ApiStatus.VALIDATION_CONSTRAINT_VIOLATED.getCode()),
         () -> assertThat(response.getBody().getMessage())
-            .isEqualTo(ApiStatus.CONSTRAINT_VIOLATION.getMessage())
+            .isEqualTo(ApiStatus.VALIDATION_CONSTRAINT_VIOLATED.getMessage())
     );
   }
 
@@ -225,9 +224,9 @@ class ExceptionAdviceTest {
         () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
         () -> assertThat(response.getBody()).isNotNull(),
         () -> assertThat(response.getBody().getStatusCode())
-            .isEqualTo(ApiStatus.METHOD_ARGUMENT_TYPE_MISMATCH.getCode()),
+            .isEqualTo(ApiStatus.VALIDATION_PARAMETER_TYPE_MISMATCH.getCode()),
         () -> assertThat(response.getBody().getMessage())
-            .isEqualTo(ApiStatus.METHOD_ARGUMENT_TYPE_MISMATCH.getMessage())
+            .isEqualTo(ApiStatus.VALIDATION_PARAMETER_TYPE_MISMATCH.getMessage())
     );
   }
 
@@ -248,9 +247,9 @@ class ExceptionAdviceTest {
         () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND),
         () -> assertThat(response.getBody()).isNotNull(),
         () -> assertThat(response.getBody().getStatusCode())
-            .isEqualTo(ApiStatus.NO_HANDLER_FOUND.getCode()),
+            .isEqualTo(ApiStatus.SYSTEM_NO_HANDLER_FOUND.getCode()),
         () -> assertThat(response.getBody().getMessage())
-            .isEqualTo(ApiStatus.NO_HANDLER_FOUND.getMessage())
+            .isEqualTo(ApiStatus.SYSTEM_NO_HANDLER_FOUND.getMessage())
     );
   }
 
@@ -271,9 +270,9 @@ class ExceptionAdviceTest {
         () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED),
         () -> assertThat(response.getBody()).isNotNull(),
         () -> assertThat(response.getBody().getStatusCode())
-            .isEqualTo(ApiStatus.HTTP_REQUEST_METHOD_NOT_SUPPORTED.getCode()),
+            .isEqualTo(ApiStatus.SYSTEM_METHOD_NOT_SUPPORTED.getCode()),
         () -> assertThat(response.getBody().getMessage())
-            .isEqualTo(ApiStatus.HTTP_REQUEST_METHOD_NOT_SUPPORTED.getMessage())
+            .isEqualTo(ApiStatus.SYSTEM_METHOD_NOT_SUPPORTED.getMessage())
     );
   }
 
@@ -293,9 +292,9 @@ class ExceptionAdviceTest {
         () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNSUPPORTED_MEDIA_TYPE),
         () -> assertThat(response.getBody()).isNotNull(),
         () -> assertThat(response.getBody().getStatusCode())
-            .isEqualTo(ApiStatus.HTTP_MEDIA_TYPE_NOT_SUPPORTED.getCode()),
+            .isEqualTo(ApiStatus.SYSTEM_MEDIA_TYPE_NOT_SUPPORTED.getCode()),
         () -> assertThat(response.getBody().getMessage())
-            .isEqualTo(ApiStatus.HTTP_MEDIA_TYPE_NOT_SUPPORTED.getMessage())
+            .isEqualTo(ApiStatus.SYSTEM_MEDIA_TYPE_NOT_SUPPORTED.getMessage())
     );
   }
 
@@ -315,9 +314,9 @@ class ExceptionAdviceTest {
         () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
         () -> assertThat(response.getBody()).isNotNull(),
         () -> assertThat(response.getBody().getStatusCode())
-            .isEqualTo(ApiStatus.HTTP_MESSAGE_NOT_READABLE_EXCEPTION.getCode()),
+            .isEqualTo(ApiStatus.VALIDATION_MESSAGE_NOT_READABLE.getCode()),
         () -> assertThat(response.getBody().getMessage())
-            .isEqualTo(ApiStatus.HTTP_MESSAGE_NOT_READABLE_EXCEPTION.getMessage())
+            .isEqualTo(ApiStatus.VALIDATION_MESSAGE_NOT_READABLE.getMessage())
     );
   }
 }

@@ -60,7 +60,7 @@ class SampleControllerTest {
     // when & then
     mockMvc.perform(get("/sample/member/{id}", 1L))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.statusCode").value("200"))
+        .andExpect(jsonPath("$.statusCode").value("OK"))
         .andExpect(jsonPath("$.data.id").value(1))
         .andExpect(jsonPath("$.data.name").value("admin"));
   }
@@ -84,7 +84,7 @@ class SampleControllerTest {
             .param("name", "")
             .param("email", ""))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.statusCode").value("200"))
+        .andExpect(jsonPath("$.statusCode").value("OK"))
         .andExpect(jsonPath("$.data[0].name").value("admin"));
   }
 
@@ -107,7 +107,7 @@ class SampleControllerTest {
             .param("name", "")
             .param("email", ""))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.statusCode").value("200"))
+        .andExpect(jsonPath("$.statusCode").value("OK"))
         .andExpect(jsonPath("$.data[0].name").value("admin"));
   }
 }

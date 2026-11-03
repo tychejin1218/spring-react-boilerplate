@@ -37,7 +37,7 @@ public interface FileControllerDocs {
           schema = @Schema(implementation = FileDto.PresignedUrlResponse.class),
           examples = @ExampleObject(value = """
               {
-                "statusCode": "200",
+                "statusCode": "OK",
                 "message": "성공",
                 "data": {
                   "presignedUrl": "http://localhost:9000/boilerplate-bucket/uuid/image.png?X-Amz-...",

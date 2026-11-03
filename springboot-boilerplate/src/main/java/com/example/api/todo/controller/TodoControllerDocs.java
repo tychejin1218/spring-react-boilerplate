@@ -39,7 +39,7 @@ public interface TodoControllerDocs {
           schema = @Schema(implementation = TodoDto.TodoResponse.class),
           examples = @ExampleObject(value = """
               {
-                "statusCode": "200",
+                "statusCode": "OK",
                 "message": "성공",
                 "data": {
                   "content": [
@@ -75,7 +75,7 @@ public interface TodoControllerDocs {
           schema = @Schema(implementation = TodoDto.TodoResponse.class),
           examples = @ExampleObject(value = """
               {
-                "statusCode": "200",
+                "statusCode": "OK",
                 "message": "성공",
                 "data": {"id": 3, "title": "JPA 공부하기", "completed": false}
               }
@@ -102,7 +102,7 @@ public interface TodoControllerDocs {
               schema = @Schema(implementation = TodoDto.TodoResponse.class),
               examples = @ExampleObject(value = """
                   {
-                    "statusCode": "200",
+                    "statusCode": "OK",
                     "message": "성공",
                     "data": {"id": 1, "title": "스프링 부트 공부하기", "completed": true}
                   }
@@ -141,7 +141,7 @@ public interface TodoControllerDocs {
               schema = @Schema(implementation = TodoDto.TodoResponse.class),
               examples = @ExampleObject(value = """
                   {
-                    "statusCode": "200",
+                    "statusCode": "OK",
                     "message": "성공",
                     "data": {
                       "id": 1,
@@ -181,7 +181,7 @@ public interface TodoControllerDocs {
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = BaseResponse.class),
               examples = @ExampleObject(value = """
-                  {"statusCode": "200", "message": "성공", "data": null}
+                  {"statusCode": "OK", "message": "성공", "data": null}
                   """)
           )
       ),

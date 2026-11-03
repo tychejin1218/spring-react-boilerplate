@@ -7,7 +7,6 @@ import com.example.api.domain.repository.MemberRepository;
 import com.example.api.user.dto.UserDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +30,7 @@ public class UserService {
   @Transactional(readOnly = true)
   public UserDto.MeResponse getMe(String email) {
     Member member = memberRepository.findByEmail(email)
-        .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, ApiStatus.NOT_FOUND));
+        .orElseThrow(() -> new ApiException(ApiStatus.MEMBER_NOT_FOUND));
     return UserDto.MeResponse.from(member);
   }
 }

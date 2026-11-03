@@ -84,7 +84,7 @@ class TodoControllerTest {
     // when & then
     mockMvc.perform(get("/todos").with(authentication(auth)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.statusCode").value("200"))
+        .andExpect(jsonPath("$.statusCode").value("OK"))
         .andExpect(jsonPath("$.data.content").isArray())
         .andExpect(jsonPath("$.data.content[0].id").value(2))
         .andExpect(jsonPath("$.data.content[0].title").value("스프링 부트 공부하기"))
@@ -125,7 +125,7 @@ class TodoControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.statusCode").value("200"))
+        .andExpect(jsonPath("$.statusCode").value("OK"))
         .andExpect(jsonPath("$.data.id").value(1))
         .andExpect(jsonPath("$.data.title").value("스프링 부트 공부하기"))
         .andExpect(jsonPath("$.data.completed").value(false));
@@ -179,7 +179,7 @@ class TodoControllerTest {
     // when & then
     mockMvc.perform(patch("/todos/1/complete").with(authentication(auth)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.statusCode").value("200"))
+        .andExpect(jsonPath("$.statusCode").value("OK"))
         .andExpect(jsonPath("$.data.id").value(1))
         .andExpect(jsonPath("$.data.completed").value(true));
   }
@@ -189,7 +189,7 @@ class TodoControllerTest {
   @DisplayName("PATCH /todos/{id}/complete - 존재하지 않는 할 일")
   void updateTodoComplete_notFound() throws Exception {
     // given
-    willThrow(new ApiException(HttpStatus.NOT_FOUND, ApiStatus.NOT_FOUND))
+    willThrow(new ApiException(ApiStatus.RESOURCE_NOT_FOUND))
         .given(todoService).updateTodoComplete("test@example.com", 999L);
 
     // when & then
@@ -216,7 +216,7 @@ class TodoControllerTest {
     // when & then
     mockMvc.perform(delete("/todos/1").with(authentication(auth)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.statusCode").value("200"));
+        .andExpect(jsonPath("$.statusCode").value("OK"));
   }
 
   @Test
@@ -224,7 +224,7 @@ class TodoControllerTest {
   @DisplayName("DELETE /todos/{id} - 존재하지 않는 할 일")
   void deleteTodo_notFound() throws Exception {
     // given
-    willThrow(new ApiException(HttpStatus.NOT_FOUND, ApiStatus.NOT_FOUND))
+    willThrow(new ApiException(ApiStatus.RESOURCE_NOT_FOUND))
         .given(todoService).deleteTodo("test@example.com", 999L);
 
     // when & then

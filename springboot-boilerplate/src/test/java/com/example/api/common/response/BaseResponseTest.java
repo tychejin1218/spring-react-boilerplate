@@ -52,13 +52,13 @@ class BaseResponseTest {
 
   @Test
   @Order(3)
-  @DisplayName("ok(data) - statusCode 값 '200' 검증")
+  @DisplayName("ok(data) - statusCode 값 'OK' 검증")
   void ok_statusCodeValue() {
     // when
     BaseResponse<Integer> response = BaseResponse.ok(42);
 
     // then
-    assertThat(response.getStatusCode()).isEqualTo("200");
+    assertThat(response.getStatusCode()).isEqualTo("OK");
   }
 
   @Test

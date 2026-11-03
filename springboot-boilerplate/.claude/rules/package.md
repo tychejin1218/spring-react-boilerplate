@@ -172,9 +172,8 @@ public class {패키지명}Service {
 
 **예외 처리**:
 ```java
-throw new ApiException(HttpStatus.BAD_REQUEST, ApiStatus.NOT_FOUND);            // 권장
-throw new ApiException(HttpStatus.BAD_REQUEST, ApiStatus.CUSTOM_EXCEPTION, "상세 메시지"); // 커스텀 메시지
-throw new ApiException(ApiStatus.NOT_FOUND);                                    // 단순 사용 (HTTP 400 기본값)
+throw new ApiException(ApiStatus.XXX_NOT_FOUND);                          // HTTP 상태는 ApiStatus 에 정의된 값
+throw new ApiException(ApiStatus.SYSTEM_CUSTOM_EXCEPTION, "상세 메시지");  // 메시지만 바꿀 때
 ```
 
 **메서드 네이밍**: `getXXX`(단건) / `getXXXList`(목록) / `insertXXX` / `updateXXX` / `deleteXXX`

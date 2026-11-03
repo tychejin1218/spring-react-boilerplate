@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -48,7 +47,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
       Object handler) throws IOException {
 
     String ip = resolveClientIp(request);
-    String key = RedisKeys.RATE_LIMIT.getKey() + ip + ":" + request.getRequestURI();
+    String key = RedisKeys.RATE_LIMIT.key(ip, request.getRequestURI());
 
     Long count = redisComponent.increment(key, RedisKeys.RATE_LIMIT.getTtl(), TimeUnit.SECONDS);
 
@@ -64,11 +63,11 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
   private void writeRateLimitResponse(
       HttpServletRequest request, HttpServletResponse response) throws IOException {
-    response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+    response.setStatus(ApiStatus.SYSTEM_RATE_LIMIT_EXCEEDED.getHttpStatus().value());
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     response.setCharacterEncoding("UTF-8");
     ErrorResponse errorResponse = ErrorResponse.of(
-        ApiStatus.RATE_LIMIT_EXCEEDED,
+        ApiStatus.SYSTEM_RATE_LIMIT_EXCEEDED,
         request.getMethod(),
         request.getRequestURI());
     response.getWriter().write(objectMapper.writeValueAsString(errorResponse));

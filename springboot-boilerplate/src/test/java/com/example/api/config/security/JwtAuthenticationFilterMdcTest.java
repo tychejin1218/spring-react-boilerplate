@@ -1,7 +1,10 @@
 package com.example.api.config.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
+import com.example.api.common.component.RedisComponent;
 import com.example.api.config.jwt.JwtTokenProvider;
 import com.example.api.config.web.TraceIdFilter;
 import jakarta.servlet.FilterChain;
@@ -25,8 +28,10 @@ class JwtAuthenticationFilterMdcTest {
       "test-secret-key-for-jwt-must-be-at-least-256-bits-long-for-hs256";
 
   private final JwtTokenProvider jwtTokenProvider =
-      new JwtTokenProvider(SECRET, 60_000L, 120_000L);
-  private final JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(jwtTokenProvider);
+      new JwtTokenProvider(SECRET, 60_000L, 120_000L, 600_000L);
+  private final RedisComponent redisComponent = mock(RedisComponent.class);
+  private final JwtAuthenticationFilter jwtFilter =
+      new JwtAuthenticationFilter(jwtTokenProvider, redisComponent);
   private final TraceIdFilter traceIdFilter = new TraceIdFilter();
 
   @AfterEach
@@ -56,6 +61,22 @@ class JwtAuthenticationFilterMdcTest {
     assertThat(seenInside.get()).isEqualTo("7");
     assertThat(seenAfterJwtFilter.get()).isEqualTo("7");
     assertThat(MDC.get(JwtAuthenticationFilter.MDC_KEY)).isNull();
+  }
+
+  @Test
+  @DisplayName("로그아웃으로 차단 목록에 오른 토큰은 인증하지 않는다")
+  void deniedTokenIsNotAuthenticated() throws Exception {
+    String token = jwtTokenProvider.createAccessToken("user1@example.com", 7L, "ROLE_USER");
+    String jti = jwtTokenProvider.getValidClaims(token).getId();
+    given(redisComponent.getStringValue("APP:AUTH:ACCESS_TOKEN_DENY:" + jti)).willReturn("1");
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.addHeader("Authorization", "Bearer " + token);
+    AtomicReference<Object> authentication = new AtomicReference<>("not-called");
+
+    jwtFilter.doFilter(request, new MockHttpServletResponse(),
+        (req, res) -> authentication.set(SecurityContextHolder.getContext().getAuthentication()));
+
+    assertThat(authentication.get()).isNull();
   }
 
   @Test

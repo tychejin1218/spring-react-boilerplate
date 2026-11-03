@@ -13,7 +13,7 @@ JWT 인증, Redis 캐시, JPA/QueryDSL/MyBatis 다중 데이터 접근, Read/Wri
 | 언어 / 프레임워크 | Java 25, Spring Boot 4.1.2 |
 | 빌드 | Gradle 9.3.0 |
 | 데이터베이스 | MySQL 8.0+ (Read/Write 분리, AWS RDS Aurora 는 선택) |
-| ORM / 쿼리 | JPA + QueryDSL 5.1.0 + MyBatis 4.1.0 |
+| ORM / 쿼리 | JPA + QueryDSL 7.7 (OpenFeign fork) + MyBatis 4.1.0 |
 | 캐시 | Redis 7.0 (AWS ElastiCache 클러스터는 선택) |
 | 인증 | JWT (JJWT 0.12.6) + Spring Security |
 | 설정 암호화 | Jasypt 3.0.5 (PBEWITHHMACSHA512ANDAES_256) |
@@ -149,8 +149,9 @@ src/main/resources/
 |---------|------|--------------|
 | `JASYPT_ENCRYPTOR_PASSWORD` | Jasypt 암호화 비밀번호 | `local-default` |
 | `jwt.secret` | JWT 서명 키 (256비트 이상) | `environment-local.yml` 참조 |
-| `jwt.access-token-validity-ms` | Access Token 유효 기간 | `7200000` (2시간) |
-| `jwt.refresh-token-validity-ms` | Refresh Token 유효 기간 | `604800000` (7일) |
+| `jwt.access-token-validity-ms` | Access Token 유효 기간. 미활동 만료보다 짧아야 함 | `900000` (15분) |
+| `jwt.session-idle-timeout-ms` (`JWT_SESSION_IDLE_TIMEOUT_MS`) | 미활동 만료. Refresh Token 의 Redis TTL 이며 재발급마다 연장 | `1800000` (30분) |
+| `jwt.session-absolute-timeout-ms` (`JWT_SESSION_ABSOLUTE_TIMEOUT_MS`) | 최초 로그인 기준 절대 만료. 계속 활동해도 이 시간이 지나면 재로그인 | `43200000` (12시간) |
 
 ---
 

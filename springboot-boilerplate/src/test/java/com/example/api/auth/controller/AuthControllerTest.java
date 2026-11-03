@@ -74,7 +74,7 @@ class AuthControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.statusCode").value("200"))
+        .andExpect(jsonPath("$.statusCode").value("OK"))
         .andExpect(jsonPath("$.data.accessToken").value("accessToken"))
         .andExpect(jsonPath("$.data.refreshToken").value("refreshToken"));
   }
@@ -88,7 +88,7 @@ class AuthControllerTest {
         .email("test@example.com")
         .password("wrongPassword")
         .build();
-    willThrow(new ApiException(HttpStatus.UNAUTHORIZED, ApiStatus.UNAUTHORIZED))
+    willThrow(new ApiException(ApiStatus.AUTH_LOGIN_FAILED))
         .given(authService).login(any());
 
     // when & then
@@ -96,7 +96,7 @@ class AuthControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isUnauthorized())
-        .andExpect(jsonPath("$.statusCode").value("805"));
+        .andExpect(jsonPath("$.statusCode").value("AUTH_LOGIN_FAILED"));
   }
 
   @Test
@@ -107,14 +107,14 @@ class AuthControllerTest {
     AuthDto.RefreshRequest request = AuthDto.RefreshRequest.builder()
         .refreshToken("refreshToken")
         .build();
-    willDoNothing().given(authService).logout(any());
+    willDoNothing().given(authService).logout(any(), any());
 
     // when & then
     mockMvc.perform(post("/auth/logout")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.statusCode").value("200"));
+        .andExpect(jsonPath("$.statusCode").value("OK"));
   }
 
   @Test
@@ -136,7 +136,7 @@ class AuthControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.statusCode").value("200"))
+        .andExpect(jsonPath("$.statusCode").value("OK"))
         .andExpect(jsonPath("$.data.accessToken").value("newAccessToken"))
         .andExpect(jsonPath("$.data.refreshToken").value("newRefreshToken"));
   }

@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -28,11 +27,11 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
       HttpServletResponse response,
       AccessDeniedException accessDeniedException) throws IOException {
 
-    response.setStatus(HttpStatus.FORBIDDEN.value());
+    response.setStatus(ApiStatus.PERMISSION_FORBIDDEN.getHttpStatus().value());
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     response.setCharacterEncoding("UTF-8");
     ErrorResponse errorResponse = ErrorResponse.of(
-        ApiStatus.FORBIDDEN_REQUEST,
+        ApiStatus.PERMISSION_FORBIDDEN,
         request.getMethod(),
         request.getRequestURI());
     response.getWriter().write(objectMapper.writeValueAsString(errorResponse));

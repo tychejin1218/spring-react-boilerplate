@@ -34,7 +34,7 @@ public interface AdminControllerDocs {
           schema = @Schema(implementation = AdminDto.MemberResponse.class),
           examples = @ExampleObject(value = """
               {
-                "statusCode": "200",
+                "statusCode": "OK",
                 "message": "성공",
                 "data": [
                   {"id": 1, "email": "user1@example.com", "name": "홍길동", "role": "ROLE_USER"},

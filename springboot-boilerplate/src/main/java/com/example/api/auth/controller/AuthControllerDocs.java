@@ -34,7 +34,7 @@ public interface AuthControllerDocs {
               schema = @Schema(implementation = BaseResponse.class),
               examples = @ExampleObject(value = """
                   {
-                    "statusCode": "200",
+                    "statusCode": "OK",
                     "message": "성공",
                     "data": null
                   }
@@ -68,7 +68,7 @@ public interface AuthControllerDocs {
               schema = @Schema(implementation = AuthDto.TokenResponse.class),
               examples = @ExampleObject(value = """
                   {
-                    "statusCode": "200",
+                    "statusCode": "OK",
                     "message": "성공",
                     "data": {
                       "accessToken": "eyJhbGciOiJIUzI1NiJ9...",
@@ -105,7 +105,7 @@ public interface AuthControllerDocs {
               schema = @Schema(implementation = BaseResponse.class),
               examples = @ExampleObject(value = """
                   {
-                    "statusCode": "200",
+                    "statusCode": "OK",
                     "message": "성공",
                     "data": null
                   }
@@ -139,7 +139,7 @@ public interface AuthControllerDocs {
               schema = @Schema(implementation = AuthDto.TokenResponse.class),
               examples = @ExampleObject(value = """
                   {
-                    "statusCode": "200",
+                    "statusCode": "OK",
                     "message": "성공",
                     "data": {
                       "accessToken": "eyJhbGciOiJIUzI1NiJ9...",
@@ -163,10 +163,12 @@ public interface AuthControllerDocs {
   /**
    * 로그아웃
    *
-   * @param request 리프레시 토큰 요청
+   * @param request       리프레시 토큰 요청
+   * @param authorization Authorization 헤더 (Bearer Access 토큰, 없어도 됨)
    * @return 성공 응답
    */
-  @Operation(summary = "로그아웃", description = "리프레시 토큰을 무효화하여 로그아웃 처리합니다.")
+  @Operation(summary = "로그아웃", description = "리프레시 토큰을 지우고 현재 Access 토큰을 차단 목록에 올립니다. "
+      + "토큰이 이미 만료됐어도 항상 성공으로 응답합니다.")
   @ApiResponses({
       @ApiResponse(
           responseCode = "200",
@@ -176,23 +178,15 @@ public interface AuthControllerDocs {
               schema = @Schema(implementation = BaseResponse.class),
               examples = @ExampleObject(value = """
                   {
-                    "statusCode": "200",
+                    "statusCode": "OK",
                     "message": "성공",
                     "data": null
                   }
                   """)
           )
-      ),
-      @ApiResponse(
-          responseCode = "401",
-          description = "유효하지 않은 리프레시 토큰",
-          content = @Content(
-              mediaType = MediaType.APPLICATION_JSON_VALUE,
-              schema = @Schema(implementation = ErrorResponse.class)
-          )
       )
   })
-  BaseResponse<Void> logout(AuthDto.RefreshRequest request);
+  BaseResponse<Void> logout(AuthDto.RefreshRequest request, String authorization);
 
   /**
    * 토큰 재발급
@@ -210,7 +204,7 @@ public interface AuthControllerDocs {
               schema = @Schema(implementation = AuthDto.TokenResponse.class),
               examples = @ExampleObject(value = """
                   {
-                    "statusCode": "200",
+                    "statusCode": "OK",
                     "message": "성공",
                     "data": {
                       "accessToken": "eyJhbGciOiJIUzI1NiJ9...",
@@ -247,7 +241,7 @@ public interface AuthControllerDocs {
           schema = @Schema(implementation = BaseResponse.class),
           examples = @ExampleObject(value = """
               {
-                "statusCode": "200",
+                "statusCode": "OK",
                 "message": "성공",
                 "data": null
               }
@@ -273,7 +267,7 @@ public interface AuthControllerDocs {
               schema = @Schema(implementation = BaseResponse.class),
               examples = @ExampleObject(value = """
                   {
-                    "statusCode": "200",
+                    "statusCode": "OK",
                     "message": "성공",
                     "data": null
                   }

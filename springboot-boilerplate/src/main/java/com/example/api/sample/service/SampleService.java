@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,7 +51,7 @@ public class SampleService {
   public SampleDto.MemberResponse getMember(SampleDto.MemberRequest request) {
     SampleDto.MemberResponse response = sampleRepository.selectMember(request);
     if (response == null) {
-      throw new ApiException(HttpStatus.NOT_FOUND, ApiStatus.NOT_FOUND);
+      throw new ApiException(ApiStatus.RESOURCE_NOT_FOUND);
     }
     return response;
   }

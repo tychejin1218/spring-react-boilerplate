@@ -6,7 +6,6 @@ import com.example.api.common.type.ApiStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -37,9 +36,9 @@ public class ExceptionAdvice {
       Exception ex, HttpServletRequest request) {
     log.error("Exception: {}", ex.getMessage(), ex);
     return ResponseEntity
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .status(ApiStatus.SYSTEM_INTERNAL_ERROR.getHttpStatus())
         .body(ErrorResponse.of(
-            ApiStatus.INTERNAL_SERVER_ERROR,
+            ApiStatus.SYSTEM_INTERNAL_ERROR,
             request.getMethod(),
             request.getRequestURI()));
   }
@@ -80,9 +79,9 @@ public class ExceptionAdvice {
       MethodArgumentNotValidException ex, HttpServletRequest request) {
     log.error("MethodArgumentNotValidException: {}", ex.getMessage(), ex);
     return ResponseEntity
-        .status(HttpStatus.BAD_REQUEST)
+        .status(ApiStatus.VALIDATION_METHOD_ARGUMENT_INVALID.getHttpStatus())
         .body(ErrorResponse.of(
-            ApiStatus.METHOD_ARGUMENT_NOT_VALID,
+            ApiStatus.VALIDATION_METHOD_ARGUMENT_INVALID,
             request.getMethod(),
             request.getRequestURI()));
   }
@@ -99,9 +98,9 @@ public class ExceptionAdvice {
       MissingServletRequestParameterException ex, HttpServletRequest request) {
     log.error("MissingServletRequestParameterException: {}", ex.getMessage(), ex);
     return ResponseEntity
-        .status(HttpStatus.BAD_REQUEST)
+        .status(ApiStatus.VALIDATION_PARAMETER_MISSING.getHttpStatus())
         .body(ErrorResponse.of(
-            ApiStatus.MISSING_SERVLET_REQUEST_PARAMETER,
+            ApiStatus.VALIDATION_PARAMETER_MISSING,
             request.getMethod(),
             request.getRequestURI()));
   }
@@ -118,9 +117,9 @@ public class ExceptionAdvice {
       ConstraintViolationException ex, HttpServletRequest request) {
     log.error("ConstraintViolationException: {}", ex.getMessage(), ex);
     return ResponseEntity
-        .status(HttpStatus.BAD_REQUEST)
+        .status(ApiStatus.VALIDATION_CONSTRAINT_VIOLATED.getHttpStatus())
         .body(ErrorResponse.of(
-            ApiStatus.CONSTRAINT_VIOLATION,
+            ApiStatus.VALIDATION_CONSTRAINT_VIOLATED,
             request.getMethod(),
             request.getRequestURI()));
   }
@@ -137,9 +136,9 @@ public class ExceptionAdvice {
       MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
     log.error("MethodArgumentTypeMismatchException: {}", ex.getMessage(), ex);
     return ResponseEntity
-        .status(HttpStatus.BAD_REQUEST)
+        .status(ApiStatus.VALIDATION_PARAMETER_TYPE_MISMATCH.getHttpStatus())
         .body(ErrorResponse.of(
-            ApiStatus.METHOD_ARGUMENT_TYPE_MISMATCH,
+            ApiStatus.VALIDATION_PARAMETER_TYPE_MISMATCH,
             request.getMethod(),
             request.getRequestURI()));
   }
@@ -156,9 +155,9 @@ public class ExceptionAdvice {
       NoHandlerFoundException ex, HttpServletRequest request) {
     log.warn("NoHandlerFoundException: {} {}", request.getMethod(), request.getRequestURI());
     return ResponseEntity
-        .status(HttpStatus.NOT_FOUND)
+        .status(ApiStatus.SYSTEM_NO_HANDLER_FOUND.getHttpStatus())
         .body(ErrorResponse.of(
-            ApiStatus.NO_HANDLER_FOUND,
+            ApiStatus.SYSTEM_NO_HANDLER_FOUND,
             request.getMethod(),
             request.getRequestURI()));
   }
@@ -175,9 +174,9 @@ public class ExceptionAdvice {
       HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
     log.error("HttpRequestMethodNotSupportedException: {}", ex.getMessage(), ex);
     return ResponseEntity
-        .status(HttpStatus.METHOD_NOT_ALLOWED)
+        .status(ApiStatus.SYSTEM_METHOD_NOT_SUPPORTED.getHttpStatus())
         .body(ErrorResponse.of(
-            ApiStatus.HTTP_REQUEST_METHOD_NOT_SUPPORTED,
+            ApiStatus.SYSTEM_METHOD_NOT_SUPPORTED,
             request.getMethod(),
             request.getRequestURI()));
   }
@@ -194,9 +193,9 @@ public class ExceptionAdvice {
       HttpMediaTypeNotSupportedException ex, HttpServletRequest request) {
     log.error("HttpMediaTypeNotSupportedException: {}", ex.getMessage(), ex);
     return ResponseEntity
-        .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+        .status(ApiStatus.SYSTEM_MEDIA_TYPE_NOT_SUPPORTED.getHttpStatus())
         .body(ErrorResponse.of(
-            ApiStatus.HTTP_MEDIA_TYPE_NOT_SUPPORTED,
+            ApiStatus.SYSTEM_MEDIA_TYPE_NOT_SUPPORTED,
             request.getMethod(),
             request.getRequestURI()));
   }
@@ -213,9 +212,9 @@ public class ExceptionAdvice {
       HttpMessageNotReadableException ex, HttpServletRequest request) {
     log.error("HttpMessageNotReadableException: {}", ex.getMessage(), ex);
     return ResponseEntity
-        .status(HttpStatus.BAD_REQUEST)
+        .status(ApiStatus.VALIDATION_MESSAGE_NOT_READABLE.getHttpStatus())
         .body(ErrorResponse.of(
-            ApiStatus.HTTP_MESSAGE_NOT_READABLE_EXCEPTION,
+            ApiStatus.VALIDATION_MESSAGE_NOT_READABLE,
             request.getMethod(),
             request.getRequestURI()));
   }

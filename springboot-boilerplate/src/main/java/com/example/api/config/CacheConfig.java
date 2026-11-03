@@ -1,5 +1,6 @@
 package com.example.api.config;
 
+import com.example.api.common.type.RedisKeys;
 import java.time.Duration;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -30,6 +31,9 @@ public class CacheConfig {
   public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
     RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
         .entryTtl(Duration.ofMinutes(30))
+        // Spring 기본 접두사는 "{캐시 이름}::" 라 다른 키와 구분자(::)와 네임스페이스가 다르다.
+        // RedisKeys 규칙에 맞춰 "APP:CACHE:{캐시 이름}:" 로 통일한다
+        .computePrefixWith(cacheName -> RedisKeys.CACHE_PREFIX + cacheName + RedisKeys.DELIMITER)
         .serializeKeysWith(
             RedisSerializationContext.SerializationPair.fromSerializer(
                 new StringRedisSerializer()))

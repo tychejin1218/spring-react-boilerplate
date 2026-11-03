@@ -2,12 +2,13 @@ package com.example.api.auth.service;
 
 import com.example.api.auth.dto.AuthDto;
 import com.example.api.common.component.RedisComponent;
+import com.example.api.common.exception.ApiException;
+import com.example.api.common.type.ApiStatus;
 import com.example.api.common.type.RedisKeys;
 import com.example.api.config.jwt.JwtTokenProvider;
 import com.example.api.domain.entity.Member;
-import com.example.api.domain.entity.MemberRole;
 import com.example.api.domain.repository.MemberRepository;
-import java.util.Optional;
+import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,16 +38,18 @@ public class TempAuthService {
    */
   public AuthDto.TokenResponse issueToken(AuthDto.TempTokenRequest request) {
     String subject = request.getEmail();
-    Optional<Member> member = memberRepository.findByEmail(subject);
-    String role = member.map(m -> m.getRole().name()).orElse(MemberRole.ROLE_USER.name());
-    Long memberId = member.map(Member::getId).orElse(null);
+    // Refresh 토큰 Redis 키가 회원 번호 기준이라 가입된 회원만 발급한다
+    Member member = memberRepository.findByEmail(subject)
+        .orElseThrow(() -> new ApiException(ApiStatus.MEMBER_NOT_FOUND));
 
-    String accessToken = jwtTokenProvider.createAccessToken(subject, memberId, role);
-    String refreshToken = jwtTokenProvider.createRefreshToken(subject);
+    String accessToken =
+        jwtTokenProvider.createAccessToken(subject, member.getId(), member.getRole().name());
+    String refreshToken =
+        jwtTokenProvider.createRefreshToken(subject, member.getId(), Instant.now());
 
-    String redisKey = RedisKeys.REFRESH_TOKEN.getKey() + subject;
-    redisComponent.setStringValue(
-        redisKey, refreshToken, RedisKeys.REFRESH_TOKEN.getTtl(), TimeUnit.SECONDS);
+    String redisKey = RedisKeys.REFRESH_TOKEN.key(member.getId());
+    redisComponent.setStringValue(redisKey, refreshToken,
+        jwtTokenProvider.getSessionIdleTimeoutMs(), TimeUnit.MILLISECONDS);
 
     log.info("[TempAuth] 임시 토큰 발급: subject={}", subject);
 

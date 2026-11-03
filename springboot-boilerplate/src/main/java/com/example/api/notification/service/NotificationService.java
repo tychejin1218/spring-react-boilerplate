@@ -1,5 +1,6 @@
 package com.example.api.notification.service;
 
+import com.example.api.common.type.RedisKeys;
 import com.example.api.notification.dto.NotificationDto;
 import java.io.IOException;
 import java.util.Map;
@@ -24,8 +25,6 @@ import tools.jackson.databind.ObjectMapper;
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
-
-  private static final String CHANNEL_PREFIX = "notifications:";
   private static final long SSE_TIMEOUT_MS = 30 * 60 * 1000L;
 
   private final StringRedisTemplate stringRedisTemplate;
@@ -74,7 +73,7 @@ public class NotificationService {
 
     listeners.put(email, listener);
     listenerContainer.addMessageListener(listener,
-        new ChannelTopic(CHANNEL_PREFIX + email));
+        new ChannelTopic(RedisKeys.NOTIFICATION_CHANNEL.key(email)));
 
     emitter.onCompletion(() -> cleanup(email));
     emitter.onTimeout(() -> cleanup(email));
@@ -95,7 +94,7 @@ public class NotificationService {
   public void publish(String email, NotificationDto.TodoCompleted payload) {
     try {
       String json = objectMapper.writeValueAsString(payload);
-      stringRedisTemplate.convertAndSend(CHANNEL_PREFIX + email, json);
+      stringRedisTemplate.convertAndSend(RedisKeys.NOTIFICATION_CHANNEL.key(email), json);
     } catch (Exception e) {
       log.error("알림 발행 실패 (email={}): {}", email, e.getMessage());
     }

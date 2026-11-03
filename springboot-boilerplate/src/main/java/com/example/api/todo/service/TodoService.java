@@ -19,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -77,7 +76,7 @@ public class TodoService {
   @Transactional
   public TodoDto.TodoResponse insertTodo(String email, TodoDto.CreateRequest request) {
     Member member = memberRepository.findByEmail(email)
-        .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, ApiStatus.UNAUTHORIZED));
+        .orElseThrow(() -> new ApiException(ApiStatus.AUTH_UNAUTHORIZED));
     Todo todo = todoRepository.save(Todo.of(request.getTitle(), member));
     todoCreateCounter.increment();
     return TodoDto.TodoResponse.from(todo);
@@ -138,6 +137,6 @@ public class TodoService {
    */
   private Todo findTodo(Long id, String email) {
     return todoRepository.findByIdAndMemberEmail(id, email)
-        .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, ApiStatus.NOT_FOUND));
+        .orElseThrow(() -> new ApiException(ApiStatus.TODO_NOT_FOUND));
   }
 }

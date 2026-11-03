@@ -10,7 +10,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -49,7 +48,7 @@ public class FileService {
    */
   public FileDto.PresignedUrlResponse getPresignedUrl(String fileName, String contentType) {
     if (!ALLOWED_CONTENT_TYPES.contains(contentType)) {
-      throw new ApiException(HttpStatus.BAD_REQUEST, ApiStatus.INVALID_REQUEST);
+      throw new ApiException(ApiStatus.FILE_CONTENT_TYPE_INVALID);
     }
     String key = UUID.randomUUID() + "/" + fileName;
     PutObjectRequest putObjectRequest = PutObjectRequest.builder()

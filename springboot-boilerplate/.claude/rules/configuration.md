@@ -77,8 +77,17 @@ redis:
 ```
 
 - Lettuce 클라이언트 (클러스터: topology refresh 60초, REPLICA_PREFERRED 읽기)
-- `RedisComponent`로 문자열 get/set/delete, TTL 카운터(`increment`) 처리
+- `RedisComponent`로 문자열 get/set/delete, TTL 카운터(`increment`), 원자적 교체(`compareAndSet`) 처리
 - `RedisKeys` enum으로 키 이름 + TTL 관리
+
+### Redis 키 규칙
+
+- 형식: `{NAMESPACE}:{도메인}:{용도}:{식별자...}` (예: `APP:AUTH:REFRESH_TOKEN:3`)
+- 키는 반드시 `RedisKeys.XXX.key(식별자...)` 로 만든다. `getKey() + id` 처럼 문자열을 직접 잇지 않는다.
+- 구분자는 `:` 하나. 식별자 안의 `:` 는 `key()` 가 `_` 로 바꾼다 (IPv6 주소 등).
+- `NAMESPACE`(기본 `APP`)는 서비스 이름으로 바꾼다. Redis 하나를 여러 서비스가 같이 쓸 때 키가 섞이지 않게 한다.
+- 식별자에는 이메일 같은 개인정보 대신 회원 번호를 쓴다. 키는 모니터링 화면과 로그에 그대로 보인다.
+- `@Cacheable` 캐시 키는 `CacheConfig` 가 `APP:CACHE:{캐시 이름}:{캐시 키}` 로 맞춘다 (Spring 기본값 `{이름}::` 대신).
 
 ## 설정 암호화 (Jasypt)
 

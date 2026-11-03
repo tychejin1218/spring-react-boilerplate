@@ -54,6 +54,12 @@ mail:
   password-reset-url: ${MAIL_PASSWORD_RESET_URL:http://localhost:5173/reset-password}
 
 # Rate Limit 설정
+# 세션 만료 정책. 환경별 yml 이나 환경변수로 재정의한다
+# access-token-validity-ms(환경별 yml)는 session-idle-timeout-ms 보다 짧아야 미활동 만료가 동작한다
+jwt:
+  session-idle-timeout-ms: ${JWT_SESSION_IDLE_TIMEOUT_MS:1800000}          # 미활동 만료 30분
+  session-absolute-timeout-ms: ${JWT_SESSION_ABSOLUTE_TIMEOUT_MS:43200000} # 최초 로그인 기준 절대 만료 12시간
+
 rate-limit:
   # true 이면 X-Forwarded-For 첫 값을 클라이언트 IP 로 사용한다.
   # 신뢰할 수 있는 리버스 프록시(ALB, nginx) 뒤에서만 켠다. 기본은 remoteAddr 사용.

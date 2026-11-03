@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.longThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -15,6 +16,10 @@ import com.example.api.common.exception.ApiException;
 import com.example.api.config.jwt.JwtTokenProvider;
 import com.example.api.domain.entity.Member;
 import com.example.api.domain.repository.MemberRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import java.time.Instant;
+import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
@@ -74,7 +79,8 @@ class AuthServiceMockTest {
     given(passwordEncoder.matches("password123", "encodedPassword")).willReturn(true);
     given(jwtTokenProvider.createAccessToken("test@example.com", 1L, "ROLE_USER")).willReturn(
         "accessToken");
-    given(jwtTokenProvider.createRefreshToken("test@example.com")).willReturn("refreshToken");
+    given(jwtTokenProvider.createRefreshToken(eq("test@example.com"), eq(1L), any(Instant.class)))
+        .willReturn("refreshToken");
 
     // when
     AuthDto.TokenResponse response = authService.login(request);
@@ -125,40 +131,47 @@ class AuthServiceMockTest {
 
   @Test
   @Order(4)
-  @DisplayName("로그아웃 - 성공")
+  @DisplayName("로그아웃 - Refresh 토큰 삭제, Access 토큰은 남은 시간만큼 차단 목록 등록")
   void logout_success() {
     // given
     AuthDto.RefreshRequest request = AuthDto.RefreshRequest.builder()
-        .refreshToken("validToken")
+        .refreshToken("validRefresh")
         .build();
-    given(jwtTokenProvider.validateToken("validToken")).willReturn(true);
-    given(jwtTokenProvider.getSubject("validToken")).willReturn("test@example.com");
+    given(jwtTokenProvider.getValidClaims("validRefresh"))
+        .willReturn(claims("test@example.com", "refresh-jti", 60_000));
+    given(jwtTokenProvider.getValidClaims("validAccess"))
+        .willReturn(claims("test@example.com", "access-jti", 60_000));
 
     // when
-    authService.logout(request);
+    authService.logout(request, "validAccess");
 
     // then
-    verify(redisComponent).deleteKey("APP:REFRESH_TOKEN:test@example.com");
+    verify(redisComponent).deleteKey("APP:AUTH:REFRESH_TOKEN:1");
+    verify(redisComponent).setStringValue(eq("APP:AUTH:ACCESS_TOKEN_DENY:access-jti"), eq("1"),
+        longThat(ms -> ms > 0 && ms <= 60_000), eq(TimeUnit.MILLISECONDS));
   }
 
   @Test
   @Order(5)
-  @DisplayName("로그아웃 - 유효하지 않은 토큰")
+  @DisplayName("로그아웃 - 토큰이 만료되거나 잘못돼도 예외 없이 끝남")
   void logout_invalidToken() {
     // given
     AuthDto.RefreshRequest request = AuthDto.RefreshRequest.builder()
         .refreshToken("invalidToken")
         .build();
-    given(jwtTokenProvider.validateToken("invalidToken")).willReturn(false);
+    given(jwtTokenProvider.getValidClaims("invalidToken")).willReturn(null);
 
-    // when & then
-    assertThatThrownBy(() -> authService.logout(request))
-        .isInstanceOf(ApiException.class);
+    // when
+    authService.logout(request, null);
+
+    // then
+    verify(redisComponent, never()).deleteKey(any());
+    verify(redisComponent, never()).setStringValue(any(), any(), anyLong(), any());
   }
 
   @Test
   @Order(6)
-  @DisplayName("토큰 재발급 - 성공")
+  @DisplayName("토큰 재발급 - 성공 (authTime 승계, compare-and-set 으로 교체하며 미활동 TTL 연장)")
   void refresh_success() {
     // given
     AuthDto.RefreshRequest request = AuthDto.RefreshRequest.builder()
@@ -170,14 +183,20 @@ class AuthServiceMockTest {
         .name("테스트")
         .password("encodedPassword")
         .build();
-    given(jwtTokenProvider.validateToken("validToken")).willReturn(true);
-    given(jwtTokenProvider.getSubject("validToken")).willReturn("test@example.com");
-    given(redisComponent.getStringValue("APP:REFRESH_TOKEN:test@example.com"))
+    Instant authTime = Instant.now().minusSeconds(600);
+    given(jwtTokenProvider.getValidClaims("validToken"))
+        .willReturn(claims("test@example.com", "jti", 60_000));
+    given(redisComponent.getStringValue("APP:AUTH:REFRESH_TOKEN:1"))
         .willReturn("validToken");
-    given(memberRepository.findByEmail("test@example.com")).willReturn(Optional.of(member));
+    given(jwtTokenProvider.getAuthTime("validToken")).willReturn(authTime);
+    given(memberRepository.findById(1L)).willReturn(Optional.of(member));
     given(jwtTokenProvider.createAccessToken("test@example.com", 1L, "ROLE_USER")).willReturn(
         "newAccessToken");
-    given(jwtTokenProvider.createRefreshToken("test@example.com")).willReturn("newRefreshToken");
+    given(jwtTokenProvider.createRefreshToken("test@example.com", 1L, authTime))
+        .willReturn("newRefreshToken");
+    given(jwtTokenProvider.getSessionIdleTimeoutMs()).willReturn(1_800_000L);
+    given(redisComponent.compareAndSet("APP:AUTH:REFRESH_TOKEN:1", "validToken",
+        "newRefreshToken", 1_800_000L, TimeUnit.MILLISECONDS)).willReturn(true);
 
     // when
     AuthDto.TokenResponse response = authService.refresh(request);
@@ -185,22 +204,17 @@ class AuthServiceMockTest {
     // then
     assertThat(response.getAccessToken()).isEqualTo("newAccessToken");
     assertThat(response.getRefreshToken()).isEqualTo("newRefreshToken");
-    verify(redisComponent).setStringValue(
-        eq("APP:REFRESH_TOKEN:test@example.com"),
-        eq("newRefreshToken"),
-        anyLong(),
-        any(TimeUnit.class));
   }
 
   @Test
   @Order(7)
-  @DisplayName("토큰 재발급 - 유효하지 않은 토큰")
+  @DisplayName("토큰 재발급 - 유효하지 않은 토큰 (서명 오류 또는 절대 만료 초과)")
   void refresh_invalidToken() {
     // given
     AuthDto.RefreshRequest request = AuthDto.RefreshRequest.builder()
         .refreshToken("invalidToken")
         .build();
-    given(jwtTokenProvider.validateToken("invalidToken")).willReturn(false);
+    given(jwtTokenProvider.getValidClaims("invalidToken")).willReturn(null);
 
     // when & then
     assertThatThrownBy(() -> authService.refresh(request))
@@ -209,15 +223,16 @@ class AuthServiceMockTest {
 
   @Test
   @Order(8)
-  @DisplayName("토큰 재발급 - Redis 저장 토큰 없음 (로그아웃 상태)")
+  @DisplayName("토큰 재발급 - Redis 저장 토큰 없음 (미활동 만료 또는 로그아웃)")
   void refresh_storedTokenBlank() {
     // given
     AuthDto.RefreshRequest request = AuthDto.RefreshRequest.builder()
         .refreshToken("validToken")
         .build();
-    given(jwtTokenProvider.validateToken("validToken")).willReturn(true);
-    given(jwtTokenProvider.getSubject("validToken")).willReturn("test@example.com");
-    given(redisComponent.getStringValue("APP:REFRESH_TOKEN:test@example.com")).willReturn(null);
+    given(jwtTokenProvider.getValidClaims("validToken"))
+        .willReturn(claims("test@example.com", "jti", 60_000));
+    given(jwtTokenProvider.getAuthTime("validToken")).willReturn(Instant.now());
+    given(redisComponent.getStringValue("APP:AUTH:REFRESH_TOKEN:1")).willReturn(null);
 
     // when & then
     assertThatThrownBy(() -> authService.refresh(request))
@@ -233,17 +248,72 @@ class AuthServiceMockTest {
     AuthDto.RefreshRequest request = AuthDto.RefreshRequest.builder()
         .refreshToken("oldToken")
         .build();
-    given(jwtTokenProvider.validateToken("oldToken")).willReturn(true);
-    given(jwtTokenProvider.getSubject("oldToken")).willReturn("test@example.com");
+    given(jwtTokenProvider.getValidClaims("oldToken"))
+        .willReturn(claims("test@example.com", "jti", 60_000));
+    given(jwtTokenProvider.getAuthTime("oldToken")).willReturn(Instant.now());
     // Redis에는 이미 교체된 새 토큰이 저장되어 있음
-    given(redisComponent.getStringValue("APP:REFRESH_TOKEN:test@example.com"))
+    given(redisComponent.getStringValue("APP:AUTH:REFRESH_TOKEN:1"))
         .willReturn("newToken");
 
     // when & then
     assertThatThrownBy(() -> authService.refresh(request))
         .isInstanceOf(ApiException.class);
     // 재사용 감지 시 Redis 키 삭제로 모든 세션 무효화
-    verify(redisComponent).deleteKey("APP:REFRESH_TOKEN:test@example.com");
+    verify(redisComponent).deleteKey("APP:AUTH:REFRESH_TOKEN:1");
+  }
+
+  @Test
+  @Order(20)
+  @DisplayName("토큰 재발급 - 동시에 들어온 다른 요청이 먼저 교체하면 실패 (세션은 유지)")
+  void refresh_concurrentReplaceFails() {
+    // given
+    AuthDto.RefreshRequest request = AuthDto.RefreshRequest.builder()
+        .refreshToken("validToken")
+        .build();
+    Member member = Member.builder().id(1L).email("test@example.com").name("테스트")
+        .password("encodedPassword").build();
+    given(jwtTokenProvider.getValidClaims("validToken"))
+        .willReturn(claims("test@example.com", "jti", 60_000));
+    given(redisComponent.getStringValue("APP:AUTH:REFRESH_TOKEN:1"))
+        .willReturn("validToken");
+    given(jwtTokenProvider.getAuthTime("validToken")).willReturn(Instant.now());
+    given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+    given(redisComponent.compareAndSet(any(), any(), any(), anyLong(), any())).willReturn(false);
+
+    // when & then
+    assertThatThrownBy(() -> authService.refresh(request))
+        .isInstanceOf(ApiException.class);
+    // 먼저 성공한 요청의 새 토큰을 지우면 안 된다
+    verify(redisComponent, never()).deleteKey(any());
+  }
+
+  @Test
+  @Order(21)
+  @DisplayName("토큰 재발급 - 회원 번호, authTime 이 없는 이전 형식 토큰은 만료 처리")
+  void refresh_legacyTokenWithoutAuthTime() {
+    // given
+    AuthDto.RefreshRequest request = AuthDto.RefreshRequest.builder()
+        .refreshToken("legacyToken")
+        .build();
+    given(jwtTokenProvider.getValidClaims("legacyToken")).willReturn(Jwts.claims()
+        .subject("test@example.com")
+        .expiration(new Date(System.currentTimeMillis() + 60_000))
+        .build());
+    given(jwtTokenProvider.getAuthTime("legacyToken")).willReturn(null);
+
+    // when & then
+    assertThatThrownBy(() -> authService.refresh(request))
+        .isInstanceOf(ApiException.class);
+    verify(redisComponent, never()).compareAndSet(any(), any(), any(), anyLong(), any());
+  }
+
+  private static Claims claims(String subject, String jti, long validForMs) {
+    return Jwts.claims()
+        .subject(subject)
+        .add("mid", 1L)
+        .id(jti)
+        .expiration(new Date(System.currentTimeMillis() + validForMs))
+        .build();
   }
 
   @Test
@@ -344,7 +414,7 @@ class AuthServiceMockTest {
         .name("테스트")
         .password("oldEncodedPassword")
         .build();
-    given(redisComponent.getStringValue("APP:PASSWORD_RESET:validToken"))
+    given(redisComponent.getStringValue("APP:AUTH:PASSWORD_RESET:validToken"))
         .willReturn("test@example.com");
     given(memberRepository.findByEmail("test@example.com")).willReturn(Optional.of(member));
     given(passwordEncoder.encode("newPassword123")).willReturn("newEncodedPassword");
@@ -358,7 +428,7 @@ class AuthServiceMockTest {
 
     // then
     verify(passwordEncoder).encode("newPassword123");
-    verify(redisComponent).deleteKey("APP:PASSWORD_RESET:validToken");
+    verify(redisComponent).deleteKey("APP:AUTH:PASSWORD_RESET:validToken");
   }
 
   @Test
@@ -370,7 +440,7 @@ class AuthServiceMockTest {
         .token("invalidToken")
         .newPassword("newPassword123")
         .build();
-    given(redisComponent.getStringValue("APP:PASSWORD_RESET:invalidToken")).willReturn(null);
+    given(redisComponent.getStringValue("APP:AUTH:PASSWORD_RESET:invalidToken")).willReturn(null);
 
     // when & then
     assertThatThrownBy(() -> authService.resetPassword(request))
@@ -386,7 +456,7 @@ class AuthServiceMockTest {
         .token("validToken")
         .newPassword("newPassword123")
         .build();
-    given(redisComponent.getStringValue("APP:PASSWORD_RESET:validToken"))
+    given(redisComponent.getStringValue("APP:AUTH:PASSWORD_RESET:validToken"))
         .willReturn("notfound@example.com");
     given(memberRepository.findByEmail("notfound@example.com")).willReturn(Optional.empty());
 

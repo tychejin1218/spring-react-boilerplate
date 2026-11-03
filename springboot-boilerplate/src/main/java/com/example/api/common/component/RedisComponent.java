@@ -1,10 +1,12 @@
 package com.example.api.common.component;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,6 +22,15 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Component
 public class RedisComponent {
+
+  /** 값이 ARGV[1] 과 같으면 ARGV[2] 로 바꾸고 PX(밀리초) TTL 을 다시 건다. 성공 1, 실패 0 */
+  private static final RedisScript<Long> COMPARE_AND_SET_SCRIPT = RedisScript.of("""
+      if redis.call('GET', KEYS[1]) == ARGV[1] then
+        redis.call('SET', KEYS[1], ARGV[2], 'PX', ARGV[3])
+        return 1
+      end
+      return 0
+      """, Long.class);
 
   private final StringRedisTemplate stringRedisTemplate;
 
@@ -52,6 +63,31 @@ public class RedisComponent {
     } catch (Exception e) {
       log.error("[getStringValue] 실패 - key: {}, message: {}", key, e.getMessage(), e);
       return null;
+    }
+  }
+
+  /**
+   * 값이 예상과 같을 때만 새 값으로 교체 (compare-and-set)
+   *
+   * <p>조회와 교체를 Lua 스크립트 하나로 실행해 원자적으로 처리한다.
+   * Refresh 토큰 교체처럼 동시에 두 요청이 들어와도 한쪽만 성공해야 하는 곳에 쓴다.
+   *
+   * @param key      Redis 키
+   * @param expected 현재 저장돼 있어야 하는 값
+   * @param newValue 교체할 값
+   * @param duration 새 TTL
+   * @param unit     TTL 단위
+   * @return 교체했으면 true, 값이 달랐거나 키가 없거나 오류면 false
+   */
+  public boolean compareAndSet(String key, String expected, String newValue, long duration,
+      TimeUnit unit) {
+    try {
+      Long result = stringRedisTemplate.execute(COMPARE_AND_SET_SCRIPT, List.of(key),
+          expected, newValue, String.valueOf(unit.toMillis(duration)));
+      return Long.valueOf(1L).equals(result);
+    } catch (Exception e) {
+      log.error("[compareAndSet] 실패 - key: {}, message: {}", key, e.getMessage(), e);
+      return false;
     }
   }
 

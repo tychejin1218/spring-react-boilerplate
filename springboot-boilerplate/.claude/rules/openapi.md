@@ -173,7 +173,7 @@ public static class MemberResponse {
         schema = @Schema(implementation = XxxDto.XxxResponse.class),
         examples = @ExampleObject(value = """
             {
-              "statusCode": "200",
+              "statusCode": "OK",
               "message": "성공",
               "data": [{"id": 1, "name": "홍길동", "email": "hong@example.com"}]
             }
@@ -196,7 +196,7 @@ BaseResponse<List<XxxDto.XxxResponse>> getXxxList(String name);
             schema = @Schema(implementation = XxxDto.XxxResponse.class),
             examples = @ExampleObject(value = """
                 {
-                  "statusCode": "200",
+                  "statusCode": "OK",
                   "message": "성공",
                   "data": {"id": 1, "name": "홍길동"}
                 }
@@ -211,8 +211,8 @@ BaseResponse<List<XxxDto.XxxResponse>> getXxxList(String name);
             schema = @Schema(implementation = ErrorResponse.class),
             examples = @ExampleObject(value = """
                 {
-                  "statusCode": "404",
-                  "message": "요청한 항목을 찾을 수 없습니다",
+                  "statusCode": "RESOURCE_NOT_FOUND",
+                  "message": "존재하지 않는 정보입니다.",
                   "method": "GET",
                   "path": "/xxx/1",
                   "timestamp": "20260219120000"

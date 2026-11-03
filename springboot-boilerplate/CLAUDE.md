@@ -4,7 +4,7 @@ Spring Boot 백엔드 API 서비스
 
 - **Java 25** / **Spring Boot 4.1.2** / **Gradle 9.3.0**
 - **DB**: MySQL 8.0+ - Read/Write 분리 (`LazyConnectionDataSourceProxy`, AWS RDS Aurora 는 선택)
-- **ORM/Query**: JPA + QueryDSL 5.1.0 + MyBatis 4.1.0
+- **ORM/Query**: JPA + QueryDSL 7.7 (OpenFeign fork, 패키지명은 com.querydsl 그대로) + MyBatis 4.1.0
 - **캐시**: Redis (AWS ElastiCache 클러스터는 선택)
 - **설정 암호화**: Jasypt (PBEWITHHMACSHA512ANDAES_256, `./gradlew jasyptEncrypt`)
 - **코드 품질**: Checkstyle 12.3.1 (Google Style) + PMD 7.21.0 + JaCoCo 0.8.14
@@ -81,9 +81,10 @@ src/main/java/com/example/api/
 3. 조회 메서드: `@Transactional(readOnly = true)` (Reader DS 라우팅)
 4. 변경 메서드: `@Transactional`
 5. 컨트롤러 응답: `BaseResponse.ok(data)` 또는 `BaseResponse.ok()`
-6. 예외: `throw new ApiException(HttpStatus.NOT_FOUND, ApiStatus.NOT_FOUND)` 형태 (HTTP 상태코드 + 응답코드 명시)
+6. 예외: `throw new ApiException(ApiStatus.TODO_NOT_FOUND)` 형태. HTTP 상태는 `ApiStatus` enum 에 묶여 있으므로 지정하지 않는다. 응답 코드 명명 규칙은 `.claude/rules/api-response.md`
 7. Entity는 `domain/entity/`에, JPA Repository는 `domain/repository/`에 배치
-8. **`System.out.println` 사용 금지** — 서비스·테스트 코드 모두 `@Slf4j` + `log.*` 사용
+8. Redis 키: `RedisKeys.XXX.key(식별자...)` 로만 만든다. 형식과 규칙은 `.claude/rules/configuration.md` 의 "Redis 키 규칙"
+9. **`System.out.println` 사용 금지** — 서비스·테스트 코드 모두 `@Slf4j` + `log.*` 사용
    - 일반 흐름: `log.info` / 디버그 출력: `log.debug` / 경고: `log.warn` / 오류: `log.error`
 
 ### DTO 패턴

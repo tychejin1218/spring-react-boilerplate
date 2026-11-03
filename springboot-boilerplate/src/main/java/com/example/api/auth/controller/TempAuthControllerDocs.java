@@ -35,7 +35,7 @@ public interface TempAuthControllerDocs {
           schema = @Schema(implementation = AuthDto.TokenResponse.class),
           examples = @ExampleObject(value = """
               {
-                "statusCode": "200",
+                "statusCode": "OK",
                 "message": "성공",
                 "data": {
                   "accessToken": "eyJhbGciOiJIUzI1NiJ9...",

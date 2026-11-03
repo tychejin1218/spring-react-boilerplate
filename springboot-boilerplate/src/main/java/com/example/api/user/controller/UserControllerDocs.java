@@ -39,7 +39,7 @@ public interface UserControllerDocs {
               schema = @Schema(implementation = UserDto.MeResponse.class),
               examples = @ExampleObject(value = """
                   {
-                    "statusCode": "200",
+                    "statusCode": "OK",
                     "message": "성공",
                     "data": {
                       "id": 1,

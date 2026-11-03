@@ -1,5 +1,6 @@
 package com.example.api.config.security;
 
+import com.example.api.common.component.RedisComponent;
 import com.example.api.config.jwt.JwtTokenProvider;
 import com.example.api.config.web.TraceIdFilter;
 import java.util.Arrays;
@@ -53,6 +54,7 @@ public class SecurityConfig {
   private String corsAllowedOrigins;
 
   private final JwtTokenProvider jwtTokenProvider;
+  private final RedisComponent redisComponent;
   private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
   private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
@@ -81,7 +83,7 @@ public class SecurityConfig {
         })
         .addFilterBefore(new LoggingFilter(), UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(
-            new JwtAuthenticationFilter(jwtTokenProvider),
+            new JwtAuthenticationFilter(jwtTokenProvider, redisComponent),
             UsernamePasswordAuthenticationFilter.class);
 
     return http.build();

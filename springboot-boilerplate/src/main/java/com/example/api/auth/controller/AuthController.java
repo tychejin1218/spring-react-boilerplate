@@ -5,9 +5,12 @@ import com.example.api.auth.service.AuthService;
 import com.example.api.common.response.BaseResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController implements AuthControllerDocs {
+
+  private static final String BEARER_PREFIX = "Bearer ";
 
   private final AuthService authService;
 
@@ -54,8 +59,12 @@ public class AuthController implements AuthControllerDocs {
   @Override
   @PostMapping("/logout")
   public BaseResponse<Void> logout(
-      @RequestBody @Valid AuthDto.RefreshRequest request) {
-    authService.logout(request);
+      @RequestBody @Valid AuthDto.RefreshRequest request,
+      @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) {
+    String accessToken = StringUtils.startsWith(authorization, BEARER_PREFIX)
+        ? authorization.substring(BEARER_PREFIX.length())
+        : null;
+    authService.logout(request, accessToken);
     return BaseResponse.ok();
   }
 

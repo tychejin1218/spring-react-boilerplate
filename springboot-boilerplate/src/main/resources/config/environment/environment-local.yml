@@ -34,8 +34,8 @@ mail:
 # JWT 설정
 jwt:
   secret: local-jwt-secret-key-must-be-at-least-256-bits-long-for-hs256
-  access-token-validity-ms: 7200000    # 2시간
-  refresh-token-validity-ms: 604800000 # 7일
+  access-token-validity-ms: 900000     # 15분 (session-idle-timeout-ms 30분보다 짧게)
+  # 미활동 만료, 절대 만료는 application.yml 의 jwt.session-* 기본값(30분, 12시간)을 쓴다
 
 # SpringDoc 설정
 springdoc:
