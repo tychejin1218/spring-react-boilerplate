@@ -36,6 +36,7 @@ configurations {
 }
 
 ext {
+    querydslVersion = '7.7'
     coverageEnabled = project.hasProperty("coverage")
     // 커버리지 최소 기준 (BUNDLE 라인 기준). -PcoverageMinimum=0.6 처럼 재정의 가능
     coverageMinimum = project.hasProperty("coverageMinimum")
@@ -71,10 +72,12 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'software.aws.rds:aws-mysql-jdbc:1.1.15'
 
-    // QueryDSL
-    implementation 'com.querydsl:querydsl-core'
-    implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
-    annotationProcessor "com.querydsl:querydsl-apt:5.1.0:jakarta"
+    // QueryDSL (OpenFeign fork)
+    // 원본 com.querydsl 5.x 는 2024년 이후 릴리스가 멈춰 Hibernate 6/7 대응과 보안 패치가 늦다.
+    // OpenFeign 이 이어받아 유지보수하는 포크로 교체한다. 패키지명(com.querydsl.*)은 그대로라 코드 변경이 없다.
+    implementation "io.github.openfeign.querydsl:querydsl-core:${querydslVersion}"
+    implementation "io.github.openfeign.querydsl:querydsl-jpa:${querydslVersion}"
+    annotationProcessor "io.github.openfeign.querydsl:querydsl-apt:${querydslVersion}:jpa"
     annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
     annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
 
