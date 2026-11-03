@@ -46,7 +46,7 @@ disable-model-invocation: true
 - `@Mock`: 의존성 (Repository, Mapper) Mock 처리
 - `given(...).willReturn(...)` BDD 스타일
 - `verify(...)`: Mock 메서드 호출 여부 검증
-- 예외 Mock: `given(...).willThrow(new ApiException(HttpStatus.NOT_FOUND, ApiStatus.NOT_FOUND))`
+- 예외 Mock: `given(...).willThrow(new ApiException(ApiStatus.RESOURCE_NOT_FOUND))`
 
 ### 통합 테스트 (Service / Repository / Mapper)
 - `@BeforeEach`: JPA Repository로 테스트 데이터 삽입 후 반드시 `.flush()` 호출
@@ -57,7 +57,7 @@ disable-model-invocation: true
 - `@AutoConfigureMockMvc` 사용 금지 — Spring Boot 4.x에서 패키지 변경으로 미동작
 - `MockMvcBuilders.webAppContextSetup(wac).build()` 방식으로 직접 설정
 - `@MockitoBean`으로 Service 계층 모킹 (`@MockBean` 사용 금지)
-- BaseResponse 구조 검증: `jsonPath("$.statusCode").value("200")`
+- BaseResponse 구조 검증: `jsonPath("$.statusCode").value("OK")`
 - 데이터 검증: `jsonPath("$.data.필드명").value(기댓값)`
 
 ### 예외 테스트

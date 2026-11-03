@@ -47,7 +47,7 @@ MyBatis 사용 시 `@Alias` 필수. 상세: [naming-conventions.md](springboot-b
 ### Service — 메서드명 `getXXX` / `getXXXList` / `insertXXX` / `updateXXX` / `deleteXXX`
 - 조회: `@Transactional(readOnly = true)` 필수 → Reader DataSource 라우팅
 - 변경: `@Transactional` 필수 → Writer DataSource 라우팅
-- 예외: `throw new ApiException(HttpStatus.NOT_FOUND, ApiStatus.NOT_FOUND)`
+- 예외: `throw new ApiException(ApiStatus.RESOURCE_NOT_FOUND)`
 
 ### Controller — 메서드명 Service와 동일
 - 응답: `BaseResponse.ok(data)` 또는 `BaseResponse.ok()`

@@ -31,6 +31,8 @@ flowchart LR
 | MinIO | 첨부 이미지 저장 (운영에서는 AWS S3) | http://localhost:9001 (minioadmin / minioadmin) |
 | MailHog | 발송 메일을 가로채서 보여 주는 로컬 메일 서버 | http://localhost:8025 |
 
+Redis 키는 `APP:{도메인}:{용도}:{식별자}` 형식이다 (예: `APP:AUTH:REFRESH_TOKEN:3`, `APP:CACHE:todo:list:...`). 규칙은 `springboot-boilerplate/.claude/rules/configuration.md` 의 "Redis 키 규칙"을 본다.
+
 로컬 인프라는 `springboot-boilerplate/docker-compose.yml` 로 띄운다. 처음 실행할 때 `docker/init.sql` 이 테이블과 샘플 데이터를 만든다.
 샘플 계정은 `user1@example.com`, `user2@example.com`, `admin@example.com` 이고 비밀번호는 init.sql 주석에 있다.
 
@@ -60,7 +62,7 @@ flowchart TB
 ```
 - **인증:** 공개 경로(로그인, 회원가입, Swagger 등)는 `SecurityConfig` 의 `PERMIT_ALL_PATTERN_LIST` 에 있다. 나머지는 유효한 Access Token 이 필요하다.
 - **권한:** 관리자 API 는 `@PreAuthorize("hasRole('ADMIN')")` 로 막는다.
-- **응답 형식:** 성공은 `BaseResponse<T>`, 실패는 `ExceptionAdvice` 가 `ApiStatus` 코드와 메시지로 감싼다. 형식은 `springboot-boilerplate/.claude/rules/api-response.md` 를 본다.
+- **응답 형식:** 성공은 `BaseResponse<T>`, 실패는 `ExceptionAdvice` 가 `ApiStatus` 코드와 메시지로 감싼다. `statusCode` 에는 `OK`, `AUTH_LOGIN_FAILED`, `TODO_NOT_FOUND` 처럼 enum 이름이 들어가고, HTTP 상태도 enum 에 묶여 있다. 규칙은 `springboot-boilerplate/.claude/rules/api-response.md` 를 본다.
 
 ### 3-2. DB 읽기와 쓰기 분리
 
@@ -123,10 +125,20 @@ sequenceDiagram
 
 | 토큰 | 유효 기간 (local) | 보관 위치 | 용도 |
 |------|-------------------|-----------|------|
-| Access Token | 2시간 | 브라우저 localStorage (Zustand persist) | 모든 API 의 `Authorization: Bearer` 헤더 |
-| Refresh Token | 7일 | 브라우저 localStorage, 서버 Redis 에도 회원당 1개 | Access Token 재발급 |
+| Access Token | 15분 | 브라우저 localStorage (Zustand persist) | 모든 API 의 `Authorization: Bearer` 헤더 |
+| Refresh Token | 아래 세션 정책을 따름 | 브라우저 localStorage, 서버 Redis 에도 회원당 1개 | Access Token 재발급 |
 
-유효 기간은 `config/environment/environment-<profile>.yml` 의 `jwt.*` 로 바꾼다.
+모든 토큰에는 고유 ID(jti)가 들어간다. 같은 순간에 발급해도 토큰이 서로 달라서 재사용 감지와 차단 목록이 정확하게 동작한다.
+
+**세션 만료 정책**
+
+| 정책 | 기본값 | 동작 |
+|------|--------|------|
+| 미활동 만료 | 30분 | Refresh Token 의 Redis TTL. 토큰을 재발급할 때마다 다시 30분으로 늘어난다. 30분 동안 아무 요청이 없으면 재발급이 실패해 다시 로그인해야 한다 |
+| 절대 만료 | 12시간 | 최초 로그인 시각(`authTime`) 기준 상한. Refresh Token 의 만료 시각을 `authTime + 12시간` 으로 잡고 재발급해도 `authTime` 을 이어받는다. 계속 활동해도 12시간이 지나면 다시 로그인해야 한다 |
+
+- 값은 `application.yml` 의 `jwt.session-idle-timeout-ms`, `jwt.session-absolute-timeout-ms` 이고 환경변수 `JWT_SESSION_IDLE_TIMEOUT_MS`, `JWT_SESSION_ABSOLUTE_TIMEOUT_MS` 로 바꾼다.
+- Access Token 유효 기간은 미활동 만료보다 짧아야 한다. 길면 Access Token 만으로 계속 요청할 수 있어 미활동 만료가 의미 없어진다. 앱이 시작할 때 이 조건이 깨져 있으면 WARN 로그를 남긴다.
 
 ### 4-3. 토큰 갱신 (Refresh Token Rotation)
 
@@ -138,20 +150,25 @@ sequenceDiagram
   FE->>API: GET /todos (만료된 Access Token)
   API-->>FE: 401
   FE->>API: POST /auth/token/refresh (Refresh Token)
+  API->>API: 서명, 절대 만료 확인
   API->>R: 저장된 Refresh Token 과 비교
-  alt 일치
-    API->>R: 새 Refresh Token 으로 교체
-    API-->>FE: 새 Access Token + 새 Refresh Token
-    FE->>API: GET /todos 재시도
-  else 불일치 (이미 쓴 토큰이 다시 옴)
+  alt 저장값 없음 (미활동 만료 또는 로그아웃)
+    API-->>FE: 401, 로그인 화면으로
+  else 저장값과 다름 (이미 쓴 토큰이 다시 옴)
     API->>R: 그 회원의 Refresh Token 삭제
     API-->>FE: 401, 강제 로그아웃
+  else 일치
+    API->>R: compare-and-set 으로 새 토큰 교체, TTL 30분 연장
+    API-->>FE: 새 Access Token + 새 Refresh Token
+    FE->>API: GET /todos 재시도
   end
 ```
 
 - 갱신할 때마다 Refresh Token 도 새로 바뀐다. 예전 토큰이 다시 들어오면 탈취로 보고 그 회원의 세션을 모두 끊는다.
-- 그래서 FE 는 동시에 여러 요청이 401 을 받아도 **갱신 요청을 한 번만** 보내고 나머지는 그 결과를 기다린다. 두 번 보내면 두 번째가 재사용으로 판정되어 로그아웃된다.
-- 로그아웃은 Redis 의 Refresh Token 을 지운다. Access Token 은 만료될 때까지 유효하므로 짧게 유지한다.
+- 교체는 Redis Lua 스크립트로 "저장값이 같을 때만 바꾸기"를 한 번에 실행한다. 같은 토큰으로 두 요청이 동시에 와도 하나만 성공한다.
+- FE 는 동시에 여러 요청이 401 을 받아도 **갱신 요청을 한 번만** 보내고 나머지는 그 결과를 기다린다.
+- 로그아웃은 Redis 의 Refresh Token 을 지우고, 현재 Access Token 을 남은 유효 시간 동안 차단 목록(`APP:AUTH:ACCESS_TOKEN_DENY:<jti>`)에 올린다. 인증 필터가 매 요청 이 목록을 확인하므로 로그아웃한 Access Token 은 바로 401 이 된다. 토큰이 이미 만료됐어도 로그아웃은 항상 성공으로 응답한다.
+- 차단 목록 조회 중 Redis 에 장애가 나면 차단하지 않고 통과시킨다. 서비스 전체가 멈추는 것보다, Access Token 유효 기간 15분 동안의 위험을 감수하는 편이 낫다고 본 선택이다.
 
 ### 4-4. 비밀번호 재설정
 

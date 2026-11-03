@@ -28,7 +28,7 @@ allowed-tools: ["Read", "Glob", "Grep", "Write", "Edit", "Bash"]
 
 - 네이밍: Controller/Service `getXXX`/`getXXXList`, Repository/Mapper `selectXXX`/`selectXXXList`
 - `@Transactional(readOnly = true)` / `@Transactional` 정확히 적용
-- `BaseResponse.ok()` 응답 래핑 / `ApiException(HttpStatus.XXX, ApiStatus.XXX)` 예외 패턴
+- `BaseResponse.ok()` 응답 래핑 / `ApiException(ApiStatus.XXX)` (HTTP 상태는 ApiStatus 에 정의) 예외 패턴
 - DTO: outer class 내 static inner class + `@Alias`
 - Javadoc: 모든 public 메서드에 한글 명사형
 

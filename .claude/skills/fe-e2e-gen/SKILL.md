@@ -140,7 +140,7 @@ test.describe('API 데이터 표시', () => {
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
-          statusCode: '200',
+          statusCode: 'OK',
           message: '성공',
           data: [{ id: 1, name: '항목 1' }],
         }),
@@ -168,7 +168,7 @@ test.describe('API 에러 처리', () => {
         status: 500,
         contentType: 'application/json',
         body: JSON.stringify({
-          statusCode: '900',
+          statusCode: 'SYSTEM_INTERNAL_ERROR',
           message: '내부 오류가 발생했습니다.',
           method: 'GET',
           path: '/api/endpoint',

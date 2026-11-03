@@ -11,7 +11,7 @@ class XxxServiceMockTest { ... }
   실제 DB 없이 비즈니스 로직만 빠르게 검증할 수 있어 피드백 루프가 짧습니다.
 - `given(...).willReturn(...)` BDD 스타일을 사용합니다. `when/thenReturn`보다 의도가 명확합니다.
 - `verify(...)`로 Mock 메서드 호출 여부를 검증합니다. 호출 자체가 핵심 동작일 때 유용합니다.
-- 예외 Mock: `given(...).willThrow(new ApiException(HttpStatus.NOT_FOUND, ApiStatus.NOT_FOUND))`
+- 예외 Mock: `given(...).willThrow(new ApiException(ApiStatus.RESOURCE_NOT_FOUND))`
 
 ## 통합 테스트 (Service / Repository / Mapper)
 
@@ -57,7 +57,7 @@ class XxxControllerTest {
 ```java
 mockMvc.perform(get("/api/xxx/{id}", 1L))
     .andExpect(status().isOk())
-    .andExpect(jsonPath("$.statusCode").value("200"))
+    .andExpect(jsonPath("$.statusCode").value("OK"))
     .andExpect(jsonPath("$.data.필드명").value(기댓값));
 ```
 

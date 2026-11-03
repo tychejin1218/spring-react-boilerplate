@@ -51,7 +51,7 @@ effort: high
   - 조회 메서드: `@Transactional(readOnly = true)` 필수
   - 변경 메서드: `@Transactional` 필수
 - **응답**: `BaseResponse.ok(data)` 또는 `BaseResponse.ok()`만 사용
-- **예외**: `throw new ApiException(HttpStatus.XXX, ApiStatus.XXX)` 패턴
+- **예외**: `throw new ApiException(ApiStatus.XXX)` 패턴. 던지는 곳에서 HttpStatus 를 지정하면 지적한다 (HTTP 상태는 ApiStatus enum 에 정의)
 - **DTO**: outer class 내 static inner class + `@Alias` (record 사용 금지)
 - **Checkstyle**: Google Java Style (2칸 들여쓰기)
 - **Javadoc**: 모든 public 메서드에 한글 명사형 Javadoc 필수
