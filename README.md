@@ -49,6 +49,19 @@ GitHub Actions 워크플로(`.github/workflows/`)가 PR 과 `main` 푸시에서 
 `fe-ci.yml` 은 `react-boilerplate/**` 변경 시 ESLint, Prettier, `tsc`, Vitest, `build:prd` 를 실행하고 별도 job 에서 Playwright E2E(chromium, MSW 모드)를 실행합니다.
 같은 브랜치에서 새 실행이 시작되면 진행 중인 이전 실행은 자동으로 취소됩니다.
 
+## 통합 테스트 (ego lite)
+
+CI 의 Playwright E2E 는 MSW 목업으로 화면만 확인합니다. 실제 BE, MySQL, Redis, MinIO, MailHog 를 함께 확인하려면
+로컬 인프라와 BE(9091), FE(5173, MSW 꺼짐)를 띄운 뒤 Claude Code 에서 아래를 실행합니다.
+
+```
+/qa-scenario all            # 전체 (세션 미활동 만료 시나리오 제외)
+/qa-scenario QA-AUTH-04     # 지정한 시나리오만
+```
+
+시나리오는 [docs/qa/scenarios.md](./docs/qa/scenarios.md), 결과는 `.qa-reports/<시각>/report.md` 에 남습니다(git 제외).
+테스트 계정은 `qa-` 접두사로 만들고 실행이 끝나면 자동으로 지웁니다.
+
 ---
 
 ## 개발 방식 (Claude Code)

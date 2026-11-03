@@ -61,6 +61,9 @@ spring-react-boilerplate/
 | 기타 | | `/be-perf`, `/be-refactor`, `/be-api-doc`, `/be-cleanup`, `/be-commit` |
 | 자동 호출 에이전트 | `fe-debugger` | `be-debugger`, `be-mybatis-specialist`, `be-schema-designer`, `be-performance-inspector` |
 
+FE 와 BE 를 함께 다루는 공통 스킬:
+- `/qa-scenario [all | ID...]`: `docs/qa/scenarios.md` 의 통합 테스트 시나리오를 실제 로컬 인프라에 붙여 ego lite 로 실행하고 결과를 `.qa-reports/` 에 남긴다. 발견한 버그는 보고만 하고 고치지 않는다.
+
 Hooks(스크립트는 루트 `.claude/hooks/`, 등록은 루트와 각 하위 프로젝트의 `.claude/settings.json`):
 - `fe-format.sh`: `react-boilerplate/` 소스 편집 후 Prettier + ESLint --fix (node_modules 설치 필요)
 - `be-java-notice.sh`: `springboot-boilerplate/` Java 편집 후 포맷/정적 분석 필요 안내

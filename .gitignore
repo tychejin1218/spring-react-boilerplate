@@ -1,2 +1,5 @@
 .idea/
 .DS_Store
+
+# /qa-scenario 실행 결과 (스크린샷, 보고서)
+.qa-reports/

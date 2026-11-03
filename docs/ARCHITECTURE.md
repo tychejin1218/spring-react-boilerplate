@@ -263,6 +263,7 @@ sequenceDiagram
 | FE 정적 분석 | ESLint, Prettier, tsc | `npm run lint`, `npm run format:check` |
 | FE 단위 테스트 | Vitest, Testing Library, MSW | `npm run test:run` |
 | FE E2E | Playwright (MSW 모드) | `npx playwright test` |
+| 통합 테스트 | ego lite, 실제 BE 와 인프라 | Claude Code 에서 `/qa-scenario all` (시나리오: `docs/qa/scenarios.md`) |
 
 `.github/workflows/be-ci.yml`, `fe-ci.yml` 이 PR 과 main 푸시 때 위 검사를 실행한다.
 
