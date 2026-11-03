@@ -111,16 +111,15 @@ src/
 | `/fe-scaffold <feature명>` | 새 feature 디렉토리 구조 일괄 생성 (`fe-feature-scaffolder` 에이전트 호출) | `/fe-scaffold product` |
 | `/fe-vitest-gen <파일경로>` | Vitest 단위 테스트 자동 생성 | `/fe-vitest-gen src/features/auth/hooks/useLogin.ts` |
 | `/fe-e2e-gen <페이지명>` | Playwright E2E 테스트 자동 생성 | `/fe-e2e-gen LoginPage` |
-| `/fe-review <파일명>` | `fe-code-reviewer` 에이전트로 코드 리뷰 | `/fe-review src/features/todo/pages/TodoPage.tsx` |
-| `/fe-explain <파일명>` | 코드 흐름·패턴 설명 | `/fe-explain src/shared/apis/instance.ts` |
 | `/fe-check [파일명]` | ESLint + Prettier 포맷 체크 및 자동 수정 | `/fe-check` |
+
+코드 리뷰와 설명은 스킬 없이 말로 요청한다. 기준은 `.claude/rules/` 가 자동으로 로드된다 (예: "TodoPage 리뷰해줘").
 
 ### Agents — 대화 맥락에 따라 자동 호출
 
 | 에이전트 | 자동 호출 트리거 |
 |---------|---------------|
 | `fe-debugger` | FE 에러 메시지·스택 트레이스·콘솔 에러 공유 시 |
-| `fe-code-reviewer` | FE 코드 변경 후 리뷰 요청 시 |
 | `fe-feature-scaffolder` | 새 기능·페이지·feature 추가 요청 시 |
 
 ### Hooks — 파일 저장 시 자동 실행

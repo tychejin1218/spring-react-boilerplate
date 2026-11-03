@@ -82,9 +82,8 @@ cd spring-react-boilerplate/springboot-boilerplate && claude
 cd spring-react-boilerplate/react-boilerplate && claude
 ```
 
-스킬과 에이전트는 `fe-` / `be-` 접두사로 구분합니다 (예: `/fe-check`, `/be-review`). 전체 목록은 루트 `CLAUDE.md` 참고.
-에이전트 팀을 쓸 때는 팀원을 `fe-*` / `be-*` 에이전트 타입으로 만들어야 수정 범위 제한 hook이 동작합니다.
-에이전트 팀은 루트 `.claude/settings.json` 의 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` 로 켜는 실험 기능이라, Claude Code 업데이트 후 동작이 바뀌면 이 설정부터 확인합니다.
+스킬과 에이전트는 `fe-` / `be-` 접두사로 구분합니다 (예: `/fe-check`, `/be-crud`). 전체 목록은 루트 `CLAUDE.md` 참고.
+스킬은 절차가 길거나 도구를 묶는 작업(정적 분석, 생성, 테스트 생성, QA)에만 두고, 리뷰나 설명처럼 말로 시켜도 되는 작업은 `.claude/rules/` 의 규칙에 맡깁니다.
 
 `.claude/settings.json` 의 `permissions.deny` 는 비밀이 들어갈 수 있는 파일(`.env.local`, `.env.*.local`, `*.pem`, `*.key`, prd 설정)과 빌드 산출물만 막습니다.
 커밋된 설정 파일(`react-boilerplate/env/.env.dev` 등, BE 의 dev/stg yml)은 환경변수 이름과 공개 값만 담고 있어 막지 않습니다.

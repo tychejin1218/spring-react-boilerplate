@@ -116,23 +116,17 @@ Gradle 명령은 `cd springboot-boilerplate && ./gradlew ...` 형태로 실행�
 | 스킬 | 역할 |
 |------|------|
 | `/be-crud <Entity 파일>` | `be-crud-generator` 에이전트로 DTO·Repository·Service·Controller·Test 생성 |
-| `/be-review <파일명>` | `be-code-reviewer` 에이전트로 버그·성능·보안·컨벤션 코드 리뷰 |
-| `/be-perf <파일명>` | `be-performance-inspector` 에이전트로 N+1·readOnly 누락·페이징·쿼리 비효율 감지 |
-| `/be-refactor <파일명>` | 리팩토링 (분석 → 계획 승인 → 실행) |
-| `/be-api-doc <파일명>` | Swagger ControllerDocs 어노테이션 추가 |
-| `/be-explain <파일명>` | 코드 흐름·로직 설명 |
 | `/be-check [파일명]` | Google Style 포맷 정렬 + Checkstyle/PMD 정적 분석 |
 | `/be-test <파일명>` | 테스트 코드 생성 (Mock·통합·MockMvc·Repository·Mapper 전 유형 지원) |
-| `/be-cleanup <파일명>` | import 정리 + 임시 코드 제거 |
-| `/be-commit [JIRA키]` | git diff 기반 커밋 메시지 생성 후 커밋 (사용자 확인 필수) |
+
+코드 리뷰, 설명, 리팩토링, 성능 점검, ControllerDocs 추가는 스킬 없이 말로 요청한다. 기준은 `.claude/rules/` 가 자동으로 로드된다
+(예: "TodoService 리뷰해줘", "TodoController 에 ControllerDocs 붙여줘").
 
 ### 에이전트 — 대화 맥락에 따라 자동 호출
 
 | 에이전트 | 자동 호출 트리거 |
 |---------|---------------|
 | `be-debugger` | BE 에러 메시지·스택 트레이스 공유 시 |
-| `be-mybatis-specialist` | 복잡한 MyBatis 동적 쿼리·Bulk·resultMap 작성 요청 시 |
-| `be-schema-designer` | 새 테이블 설계·Entity 생성 요청 시 |
 
 ### Hooks
 

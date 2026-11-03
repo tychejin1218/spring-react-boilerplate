@@ -21,7 +21,7 @@ spring-react-boilerplate/
 
 | 작업 범위 | 시작 위치 | 로드되는 것 |
 |-----------|-----------|-------------|
-| FE + BE 를 함께 다루는 작업, 에이전트 팀 | 루트 (`claude`) | 루트 CLAUDE.md, 루트 `.claude/settings.json`(hooks, permissions), 하위 CLAUDE.md 는 해당 파일을 다룰 때 로드 |
+| FE + BE 를 함께 다루는 작업 | 루트 (`claude`) | 루트 CLAUDE.md, 루트 `.claude/settings.json`(hooks, permissions), 하위 CLAUDE.md 는 해당 파일을 다룰 때 로드 |
 | BE 만 | `cd springboot-boilerplate && claude` | 루트 + BE CLAUDE.md, `springboot-boilerplate/.claude/settings.json` |
 | FE 만 | `cd react-boilerplate && claude` | 루트 + FE CLAUDE.md, `react-boilerplate/.claude/settings.json` |
 
@@ -54,16 +54,15 @@ spring-react-boilerplate/
 | 구분 | FE | BE |
 |------|----|----|
 | 정적 분석 | `/fe-check` | `/be-check` |
-| 코드 리뷰 | `/fe-review` (`fe-code-reviewer`) | `/be-review` (`be-code-reviewer`) |
-| 코드 설명 | `/fe-explain` | `/be-explain` |
 | 생성 | `/fe-scaffold` (`fe-feature-scaffolder`) | `/be-crud` (`be-crud-generator`) |
 | 테스트 생성 | `/fe-vitest-gen`, `/fe-e2e-gen` | `/be-test` |
-| 기타 | | `/be-perf`, `/be-refactor`, `/be-api-doc`, `/be-cleanup`, `/be-commit` |
-| 자동 호출 에이전트 | `fe-debugger` | `be-debugger`, `be-mybatis-specialist`, `be-schema-designer`, `be-performance-inspector` |
+| 자동 호출 에이전트 | `fe-debugger` | `be-debugger` |
+
+스킬과 에이전트는 절차가 길거나 도구를 묶어야 하는 작업에만 둔다. 코드 설명, 리뷰, 리팩토링, 성능 점검처럼 말로 시켜도
+같은 결과가 나오는 작업은 스킬로 만들지 않는다. 그 기준은 `.claude/rules/` 가 제공한다.
 
 스킬 자동 호출 기준 (BE, FE 공통):
-- 파일을 만들거나 고치는 스킬, 커밋하는 스킬은 `disable-model-invocation: true` 로 사용자가 `/이름` 으로 부를 때만 실행한다 (`/be-crud`, `/be-api-doc`, `/be-refactor`, `/be-cleanup`, `/be-commit`, `/be-test`, `/fe-scaffold`, `/fe-vitest-gen`, `/fe-e2e-gen`, `/qa-scenario`)
-- 읽기만 하는 스킬은 대화 맥락에 따라 자동으로 실행될 수 있다 (`/be-review`, `/fe-review`, `/be-explain`, `/fe-explain`, `/be-perf`)
+- 파일을 만들거나 고치는 스킬은 `disable-model-invocation: true` 로 사용자가 `/이름` 으로 부를 때만 실행한다 (`/be-crud`, `/be-test`, `/fe-scaffold`, `/fe-vitest-gen`, `/fe-e2e-gen`, `/qa-scenario`)
 - 예외: `/be-check`, `/fe-check` 는 포맷을 고치지만 코드 변경 후 항상 실행하도록 자동 호출을 허용한다
 
 FE 와 BE 를 함께 다루는 공통 스킬:
@@ -73,23 +72,16 @@ Hooks(스크립트는 루트 `.claude/hooks/`, 등록은 루트와 각 하위 �
 - `fe-format.sh`: `react-boilerplate/` 소스 편집 후 Prettier + ESLint --fix (node_modules 설치 필요)
 - `be-java-notice.sh`: `springboot-boilerplate/` Java 편집 후 포맷/정적 분석 필요 안내
 - `be-commit-gate.sh`: BE 변경이 스테이징된 `git commit` 전 Checkstyle + PMD 실행, 실패 시 차단
-- `team-scope-guard.sh`: 에이전트 팀 팀원의 수정 범위 강제 (아래 참고, 루트 settings 에만 등록)
 
 hook 스크립트는 파일 경로를 항상 저장소 루트 기준으로 정규화하므로 루트 세션과 하위 세션 양쪽에서 동작한다.
 
 시크릿과 빌드 산출물(`build/`, `dist/`, `node_modules/`) 보호는 각 `settings.json`의 `permissions.deny` Read 규칙으로 처리한다 (`.claudeignore`는 Claude Code가 지원하지 않음).
 워크트리 세션에서는 루트 settings 의 `worktree.symlinkDirectories` 로 `react-boilerplate/node_modules` 를 메인 체크아웃과 공유한다.
 
-## 에이전트 팀 사용 시 규칙
+## FE 와 BE 를 함께 고칠 때
 
-- 팀원은 반드시 `fe-*` 또는 `be-*` 에이전트 정의로 생성한다 (예: "fe-feature-scaffolder 타입으로 팀원을 만들어"). 이 접두사로 `team-scope-guard.sh`가 수정 범위를 강제한다.
-  - `fe-*` 팀원: `react-boilerplate/` 하위만 수정
-  - `be-*` 팀원: `springboot-boilerplate/` 하위만 수정 (`springboot-boilerplate/docker-compose.yml` 포함)
-- 루트 파일(`CLAUDE.md`, `.claude/`, `README.md`)은 리드만 수정한다
-- 작업 시작 전 담당 프로젝트의 CLAUDE.md와 `.claude/rules/`를 먼저 읽는다
-- 태스크 시작 시 TaskUpdate로 status를 in_progress로, 완료 시 completed로 변경한다
-- 작업 완료 후 해당 프로젝트의 TASKS.md 체크박스를 업데이트한다
-- API 스펙 변경은 BE에서 먼저 확정하고 FE에 반영한다
+- API 스펙 변경은 BE 에서 먼저 확정하고 FE 에 반영한다 (응답 코드는 `ApiStatus` enum 이름, FE 는 `shared/constants/apiStatus.ts`)
+- 루트 파일(`CLAUDE.md`, `.claude/`, `README.md`, `docs/`)은 FE, BE 작업과 분리해 따로 고친다
 
 ## 인프라
 
