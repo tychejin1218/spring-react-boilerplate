@@ -15,6 +15,7 @@ spring-react-boilerplate/
 ## 전체 동작 설명
 
 구성 요소, 요청 처리 순서, 인증, 캐시, 알림, 파일 업로드, 환경 설정은 [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) 에 정리되어 있다.
+백엔드 개발자가 FE 코드를 읽고 변경을 검토하는 방법은 [docs/FRONTEND_FOR_BACKEND_DEVS.md](./docs/FRONTEND_FOR_BACKEND_DEVS.md) 를 본다 (Spring 대응표, 다르게 동작하는 것, 리뷰 체크 항목).
 
 ## 프로젝트 소개
 

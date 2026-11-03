@@ -3,6 +3,8 @@
 React + Vite + TypeScript 기반의 프론트엔드 보일러플레이트입니다. 인증(로그인/회원가입/이메일 인증/비밀번호 재설정)을 기본으로 제공하고,
 할 일 관리·관리자 페이지·파일 업로드·SSE 알림은 참고용 **예제 기능**으로 포함되어 있어 필요 없으면 제거할 수 있습니다 (아래 "예제 기능 제거 방법" 참고).
 
+Spring 백엔드 개발자가 이 코드를 읽는 방법은 [docs/FRONTEND_FOR_BACKEND_DEVS.md](../docs/FRONTEND_FOR_BACKEND_DEVS.md) 를 참고하세요.
+
 ---
 
 ## 기술 스택

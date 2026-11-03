@@ -2,6 +2,7 @@
 
 이 문서는 보일러플레이트가 "어떻게 돌아가는지"를 한곳에서 설명한다.
 실행 방법은 루트 README 와 각 프로젝트 README 를, 코딩 규칙은 각 프로젝트의 CLAUDE.md 와 `.claude/rules/` 를 본다.
+FE 코드를 Spring 개념에 대응해 읽는 방법은 [FRONTEND_FOR_BACKEND_DEVS.md](FRONTEND_FOR_BACKEND_DEVS.md) 에 있다.
 
 ## 1. 이 보일러플레이트의 성격
 

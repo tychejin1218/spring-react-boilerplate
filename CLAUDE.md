@@ -39,6 +39,7 @@ spring-react-boilerplate/
 - FE 규칙: [react-boilerplate/CLAUDE.md](react-boilerplate/CLAUDE.md)
 - BE 규칙: [springboot-boilerplate/CLAUDE.md](springboot-boilerplate/CLAUDE.md)
 - 전체 동작 설명 (인증, 캐시, 알림, 파일 업로드 흐름): [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- 백엔드 개발자를 위한 FE 읽는 법 (Spring 대응표, 리뷰 체크 항목): [docs/FRONTEND_FOR_BACKEND_DEVS.md](docs/FRONTEND_FOR_BACKEND_DEVS.md). FE 변경을 설명할 때 이 문서의 대응 관계와 용어를 쓴다
 
 ## 공통 규칙
 
