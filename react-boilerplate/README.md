@@ -57,9 +57,9 @@ src/
 │   ├── apis/                   # Axios 인스턴스(instance.ts), Query Keys, fileApi.ts([예제] presigned URL 업로드)
 │   ├── components/             # common/ (ErrorBoundary, SuspenseBoundary), ui/ (Button, Input, FormField, EmptyState, LoadingSpinner, Toast, Dialog)
 │   ├── constants/              # 공통 상수
-│   ├── hooks/                  # 공통 훅 (useDialog, useToast, useRetryCountdown)
-│   ├── types/                  # 공통 타입 (api.ts, env.d.ts)
-│   └── utils/token.ts          # JWT 유틸리티
+│   ├── hooks/                  # 공통 훅 (useDialog, useToast, useRetryCountdown, useLeaveConfirm)
+│   ├── types/                  # 공통 타입 (api.ts, env.d.ts, react-query.d.ts: Query meta 타입)
+│   └── utils/                  # token.ts(JWT), apiError.ts(오류 안내 문구), notifyApiError.ts(공통 오류 토스트), sessionExpired.ts(세션 만료 1회 처리)
 │
 ├── mocks/                      # MSW 브라우저/서버 설정, handlers.ts(통합 등록), fileHandlers.ts([예제])
 ├── test/setup.ts               # Vitest 전역 설정
@@ -164,7 +164,9 @@ MSW 핸들러는 `src/features/*/mocks/` 디렉터리에 기능별로 관리됩�
 - **비밀번호 재설정** (`/password/reset-request`, `/password/reset?token=`): 재설정 메일 발송 및 새 비밀번호 설정
 - **인증 가드**: `RouteGuard` 컴포넌트로 비인증 접근 차단, `requiredRole` 로 역할 제한
 - **토큰 갱신**: 401 응답 시 Refresh 토큰으로 자동 갱신 후 원 요청 재시도 (아래 "Axios 인터셉터 동작")
+- **세션 만료**: 토큰 갱신 실패 시 동시에 실패한 요청이 여러 개여도 안내 토스트 1회 + 로그인 페이지 이동 1회 (아래 "오류 처리")
 - **공통 UI**: `useToast`(토스트), `useDialog`(alert/confirm/custom 다이얼로그), `SuspenseBoundary`, `ErrorBoundary`
+- **이탈 확인**: `useLeaveConfirm(isDirty)` 로 작성 중인 폼을 벗어날 때 확인 (예: 회원가입 화면)
 
 ### 할 일 관리 (예제)
 - **목록 조회** (`/todos`): 페이지네이션, 상태 필터(전체/미완료/완료), 정렬(최신순/제목순)
@@ -310,11 +312,24 @@ todo 를 지우면 `queryKeys.ts` 가 비게 되므로, 새 feature 의 쿼리 �
 | 시점 | 동작 |
 |------|------|
 | 요청 전 | Zustand `accessToken`을 `Authorization: Bearer {token}` 헤더에 자동 주입 |
-| 401 응답 | Refresh 토큰으로 `POST /auth/token/refresh` 호출 후 새 토큰으로 원 요청을 1회 재시도. 동시에 여러 요청이 401 을 받아도 갱신은 한 번만 수행(single-flight, 백엔드의 Refresh Token Rotation 재사용 감지 대응). 갱신 실패·갱신 요청 자체의 401·재시도 후 재401·Refresh 토큰 없음이면 `clearUser()` 후 `/` 로 리다이렉트 |
-| 403 응답 | 에러 토스트 + 콘솔 에러 (`ERROR_MESSAGES.FORBIDDEN`) |
+| 401 응답 | Refresh 토큰으로 `POST /auth/token/refresh` 호출 후 새 토큰으로 원 요청을 1회 재시도. 동시에 여러 요청이 401 을 받아도 갱신은 한 번만 수행(single-flight, 백엔드의 Refresh Token Rotation 재사용 감지 대응). 갱신 실패·갱신 요청 자체의 401·재시도 후 재401·Refresh 토큰 없음이면 `handleSessionExpired()` (세션 만료 1회 처리). 로그인 요청과 Authorization 헤더 없는 요청의 401 은 화면으로 그대로 넘김 |
+| 403 응답 | 에러 토스트 + 콘솔 에러 (BE 메시지, 없으면 `ERROR_MESSAGES.FORBIDDEN`) |
 | 429 응답 | 콘솔 에러만. 요청 횟수 제한은 로그인, 회원가입에만 걸리고 두 화면이 `useRetryCountdown` 으로 재시도 대기를 직접 보여 주므로 토스트를 띄우지 않음 |
-| 500 응답 | 에러 토스트 + 콘솔 에러 (`ERROR_MESSAGES.SERVER_ERROR`) |
+| 5xx 응답 | 에러 토스트 + 콘솔 에러 (`ERROR_MESSAGES.SERVER_ERROR`, 관리자 문의 안내) |
 
-토스트는 컴포넌트 밖이므로 `useToastStore.getState().add()` 로 직접 호출하며, 여러 요청이 동시에 실패해도 같은 메시지는 2초 안에 한 번만 표시합니다. 401 은 토큰 갱신 흐름이 처리하므로 토스트를 띄우지 않습니다.
+reject 값은 BE `ErrorResponse` 본문에 `httpStatus` 를 붙인 객체입니다. 본문이 JSON 이 아니거나 응답이 없으면(네트워크 오류, 타임아웃) axios 오류를 그대로 넘깁니다.
+
+### 오류 처리
+
+| 구성 | 역할 |
+|------|------|
+| `shared/utils/apiError.ts` | `getErrorPresentation(error)` 순수 함수. 오류를 `guide`(4xx, BE 메시지) / `adminContact`(5xx, 관리자 문의) / `network`(응답 없음) / `unknown` 으로 분류하고 사용자 문구를 정한다. axios 영문 메시지(`Network Error` 등)는 노출하지 않는다. 화면에서는 `getErrorMessage(err, '화면별 실패 문구')` |
+| `shared/utils/notifyApiError.ts` | 공통 에러 토스트. 같은 문구는 2초 안에 한 번, 이미 알린 오류 객체는 다시 알리지 않음, 세션 만료 중에는 알리지 않음 |
+| `QueryProvider` | `QueryCache`/`MutationCache` 의 `onError` 로 모든 조회/변경 오류를 한 번씩 알림. 화면이 오류를 직접 그리면 `meta: { skipErrorNotify: true }` 로 제외 (`SuspenseBoundary` 아래 `useSuspenseQuery`, 인라인 재시도 UI 등) |
+| `shared/utils/sessionExpired.ts` | `handleSessionExpired()`: 사용자 정보 삭제 + 세션 만료 토스트 1회(BE 메시지, 없으면 `ERROR_MESSAGES.SESSION_EXPIRED`) + 로그인 페이지 이동 1회. 처리 직후 3초간은 다른 오류 알림을, 그 뒤 재로그인 전까지는 401 알림을 숨긴다. 로그인 성공(`useLoginSuccess`) 시 가드를 초기화 |
+
+알림 책임은 한 곳씩 나눈다. 403/5xx 는 `useQuery` 를 거치지 않는 직접 호출(로그인·회원가입 화면, 파일 업로드)까지 덮기 위해 인터셉터가 알리고, 나머지(4xx, 네트워크 오류)는 QueryCache/MutationCache 가 알린다. 인터셉터가 알린 오류가 QueryCache 로 다시 들어와도 같은 오류 객체라 한 번만 표시된다. `useQuery` 없이 직접 호출하는 화면은 `setError` 로 직접 안내한다.
+
+세션 만료 이동은 `router.tsx` 가 `registerSessionExpiredNavigator` 로 등록한 `router.navigate` 를 쓴다 (새로고침 없이 이동해 토스트가 유지됨).
 
 모든 API 함수는 `api` 인스턴스를 사용하므로 별도 토큰 처리 없이 자동 적용됩니다. 토큰 갱신 요청만 인터셉터 재진입을 피하기 위해 별도 `axios.post` 로 호출합니다.

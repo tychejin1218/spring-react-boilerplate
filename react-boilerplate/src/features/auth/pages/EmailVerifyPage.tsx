@@ -4,7 +4,7 @@ import { getVerifyEmail, postResendVerification } from '@/features/auth/apis/aut
 import AuthCard from '@/features/auth/components/AuthCard';
 import useLoginSuccess from '@/features/auth/hooks/useLoginSuccess';
 import Button from '@/shared/components/ui/Button';
-import type { ErrorResponse } from '@/shared/types/api';
+import { getErrorMessage } from '@/shared/utils/apiError';
 
 const EmailVerifyPage = () => {
   const [searchParams] = useSearchParams();
@@ -32,8 +32,8 @@ const EmailVerifyPage = () => {
         const { accessToken, refreshToken } = res.data;
         onLoginSuccess(accessToken, refreshToken);
       })
-      .catch((err: ErrorResponse) => {
-        setError(err?.message ?? '인증 링크가 유효하지 않거나 만료되었습니다.');
+      .catch((err: unknown) => {
+        setError(getErrorMessage(err, '인증 링크가 유효하지 않거나 만료되었습니다.'));
       });
   }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -47,8 +47,7 @@ const EmailVerifyPage = () => {
       await postResendVerification(email);
       setResendMessage('인증 메일을 재발송했습니다. 받은편지함을 확인해주세요.');
     } catch (err) {
-      const apiErr = err as ErrorResponse;
-      setError(apiErr?.message ?? '재발송에 실패했습니다.');
+      setError(getErrorMessage(err, '재발송에 실패했습니다.'));
     } finally {
       setResendLoading(false);
     }

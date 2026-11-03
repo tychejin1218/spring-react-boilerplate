@@ -5,6 +5,7 @@ import Layout from '@/app/layout/Layout';
 import RouteGuard from '@/features/auth/components/RouteGuard';
 import RouterErrorFallback from '@/shared/components/common/RouterErrorFallback';
 import SuspenseBoundary from '@/shared/components/common/SuspenseBoundary';
+import { registerSessionExpiredNavigator } from '@/shared/utils/sessionExpired';
 
 // 페이지 컴포넌트 lazy loading
 const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage'));
@@ -99,5 +100,9 @@ const router = createBrowserRouter([
     element: withSuspense(NotFoundPage),
   },
 ]);
+
+// 세션 만료 시 instance.ts(컴포넌트 밖)에서도 새로고침 없이 로그인 페이지로 이동하도록 라우터를 등록한다.
+// 전체 새로고침(window.location)을 쓰면 세션 만료 토스트가 함께 사라진다
+registerSessionExpiredNavigator((to) => void router.navigate(to, { replace: true }));
 
 export default router;

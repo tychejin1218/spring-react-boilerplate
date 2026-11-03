@@ -5,7 +5,9 @@ import { postRegister } from '@/features/auth/apis/authApi';
 import AuthCard from '@/features/auth/components/AuthCard';
 import { registerFormSchema, type RegisterFormValues } from '@/features/auth/types/authForm';
 import type { ErrorResponse } from '@/shared/types/api';
+import { getErrorMessage } from '@/shared/utils/apiError';
 import { API_STATUS_CODES } from '@/shared/constants/apiStatus';
+import { useLeaveConfirm } from '@/shared/hooks/useLeaveConfirm';
 import useRetryCountdown from '@/shared/hooks/useRetryCountdown';
 import Button from '@/shared/components/ui/Button';
 import FormField from '@/shared/components/ui/FormField';
@@ -16,22 +18,25 @@ const RegisterPage = () => {
     register,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<RegisterFormValues>({ resolver: zodResolver(registerFormSchema), defaultValues: { email: '', name: '', password: '' } });
   const { retrySeconds, startCountdown } = useRetryCountdown();
 
   const navigate = useNavigate();
+  // 입력 중에 [로그인] 링크나 뒤로가기로 벗어나면 입력한 내용이 사라지므로 확인을 받는다
+  const { leaveWithoutConfirm } = useLeaveConfirm(isDirty);
 
   const onSubmit = async (values: RegisterFormValues) => {
     try {
       await postRegister(values);
-      void navigate(`/verify-email?email=${encodeURIComponent(values.email)}`);
+      // 가입이 끝났으므로 폼이 dirty 여도 확인 없이 이동한다
+      leaveWithoutConfirm(() => void navigate(`/verify-email?email=${encodeURIComponent(values.email)}`));
     } catch (err) {
       const apiErr = err as ErrorResponse;
       if (apiErr?.statusCode === API_STATUS_CODES.SYSTEM_RATE_LIMIT_EXCEEDED) {
         startCountdown(60);
       }
-      setError('root', { message: apiErr?.message ?? '회원가입에 실패했습니다.' });
+      setError('root', { message: getErrorMessage(err, '회원가입에 실패했습니다.') });
     }
   };
 

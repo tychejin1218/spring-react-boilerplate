@@ -5,7 +5,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { postPasswordReset } from '@/features/auth/apis/authApi';
 import AuthCard from '@/features/auth/components/AuthCard';
 import { passwordResetFormSchema, type PasswordResetFormValues } from '@/features/auth/types/authForm';
-import type { ErrorResponse } from '@/shared/types/api';
+import { getErrorMessage } from '@/shared/utils/apiError';
 import Button from '@/shared/components/ui/Button';
 import FormField from '@/shared/components/ui/FormField';
 import Input from '@/shared/components/ui/Input';
@@ -27,8 +27,7 @@ const PasswordResetPage = () => {
       await postPasswordReset({ token, newPassword });
       setSuccess(true);
     } catch (err) {
-      const apiErr = err as ErrorResponse;
-      setError('root', { message: apiErr?.message ?? '비밀번호 재설정에 실패했습니다.' });
+      setError('root', { message: getErrorMessage(err, '비밀번호 재설정에 실패했습니다.') });
     }
   };
 

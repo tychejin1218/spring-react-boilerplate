@@ -79,9 +79,9 @@ src/
 │   ├── apis/              # Axios 인스턴스(instance.ts), QueryKey 팩토리, fileApi.ts([예제] presigned URL 업로드)
 │   ├── components/        # common/ (ErrorBoundary, SuspenseBoundary), ui/ (Button, Input, FormField, EmptyState, LoadingSpinner, Toast, Dialog)
 │   ├── constants/         # 상수 (messages.ts)
-│   ├── hooks/             # 공통 훅 (useDialog, useToast 등)
-│   ├── types/             # 공통 타입 (api.ts, env.d.ts)
-│   └── utils/             # 유틸 함수 (token.ts)
+│   ├── hooks/             # 공통 훅 (useDialog, useToast, useLeaveConfirm 등)
+│   ├── types/             # 공통 타입 (api.ts, env.d.ts, react-query.d.ts)
+│   └── utils/             # 유틸 함수 (token.ts, apiError.ts, notifyApiError.ts, sessionExpired.ts)
 ├── mocks/                 # MSW 진입점 (handlers.ts, browser.ts, server.ts, fileHandlers.ts)
 └── test/                  # 테스트 설정 (setup.ts)
 
@@ -116,7 +116,10 @@ export default TodoItem;
 - 버튼·입력은 `shared/components/ui/` 의 `Button`(variant/size/loading), `Input`, `FormField`(label + 에러 `role="alert"`)를 사용한다. 빈 목록은 `EmptyState`
 - 인증 화면은 `features/auth/components/AuthCard.tsx` 로 감싼다
 - 폼은 `useForm` + `zodResolver(schema)`. 스키마는 피처의 `types/` 에 두고 (`auth/types/authForm.ts`), 서버 에러는 `setError('root', ...)` 로 표시한다
-- 전역 API 에러(403/500)는 `instance.ts` 인터셉터가 토스트로 알리므로 화면에서 중복 토스트를 띄우지 않는다. 429 는 해당 화면이 직접 처리한다
+- 전역 API 에러(403/5xx)는 `instance.ts` 인터셉터가, 그 밖의 조회/변경 오류는 `QueryProvider` 의 QueryCache/MutationCache 가 토스트로 알리므로 화면에서 중복 토스트를 띄우지 않는다. 화면이 오류를 직접 그리는 쿼리/mutation 은 `meta: { skipErrorNotify: true }` 로 공통 알림에서 뺀다. 429 는 해당 화면이 직접 처리한다
+- 오류 문구는 `getErrorMessage(err, '화면별 실패 문구')` (`shared/utils/apiError.ts`) 로 만든다. `err.message` 를 그대로 쓰면 axios 영문 메시지가 노출된다
+- 세션 만료(토큰 갱신 실패)는 `shared/utils/sessionExpired.ts` 가 한 번만 처리한다 (토스트 + 로그인 페이지 이동). 로그인 성공 시 `useLoginSuccess` 가 가드를 초기화한다
+- 작성 중인 폼에서 벗어날 때 확인이 필요하면 `useLeaveConfirm(formState.isDirty)` 를 쓰고, 저장 성공 후 이동은 `leaveWithoutConfirm(() => navigate(...))` 로 감싼다 (예: `RegisterPage`)
 
 ### Hooks 패턴 (TanStack Query)
 

@@ -6,6 +6,7 @@ import AuthCard from '@/features/auth/components/AuthCard';
 import useLoginSuccess from '@/features/auth/hooks/useLoginSuccess';
 import { loginFormSchema, type LoginFormValues } from '@/features/auth/types/authForm';
 import type { ErrorResponse } from '@/shared/types/api';
+import { getErrorMessage } from '@/shared/utils/apiError';
 import { API_STATUS_CODES } from '@/shared/constants/apiStatus';
 import useRetryCountdown from '@/shared/hooks/useRetryCountdown';
 import Button from '@/shared/components/ui/Button';
@@ -32,7 +33,7 @@ const LoginPage = () => {
       if (apiErr?.statusCode === API_STATUS_CODES.SYSTEM_RATE_LIMIT_EXCEEDED) {
         startCountdown(60);
       }
-      setError('root', { message: apiErr?.message ?? '로그인에 실패했습니다.' });
+      setError('root', { message: getErrorMessage(err, '로그인에 실패했습니다.') });
     }
   };
 
