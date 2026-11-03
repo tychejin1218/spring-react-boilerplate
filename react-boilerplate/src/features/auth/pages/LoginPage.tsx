@@ -29,7 +29,7 @@ const LoginPage = () => {
       onLoginSuccess(accessToken, refreshToken);
     } catch (err) {
       const apiErr = err as ErrorResponse;
-      if (apiErr?.statusCode === API_STATUS_CODES.RATE_LIMIT_EXCEEDED) {
+      if (apiErr?.statusCode === API_STATUS_CODES.SYSTEM_RATE_LIMIT_EXCEEDED) {
         startCountdown(60);
       }
       setError('root', { message: apiErr?.message ?? '로그인에 실패했습니다.' });

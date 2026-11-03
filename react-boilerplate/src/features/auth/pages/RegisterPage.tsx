@@ -28,7 +28,7 @@ const RegisterPage = () => {
       void navigate(`/verify-email?email=${encodeURIComponent(values.email)}`);
     } catch (err) {
       const apiErr = err as ErrorResponse;
-      if (apiErr?.statusCode === API_STATUS_CODES.RATE_LIMIT_EXCEEDED) {
+      if (apiErr?.statusCode === API_STATUS_CODES.SYSTEM_RATE_LIMIT_EXCEEDED) {
         startCountdown(60);
       }
       setError('root', { message: apiErr?.message ?? '회원가입에 실패했습니다.' });

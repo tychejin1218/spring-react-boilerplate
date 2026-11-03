@@ -50,7 +50,7 @@ export const todoHandlers = [
     const id = Number(params.id);
     const todo = todos.find((t) => t.id === id);
     if (!todo) {
-      return HttpResponse.json(err('804', '존재하지 않는 항목입니다.', 'PATCH', `/todos/${id}`), {
+      return HttpResponse.json(err('TODO_NOT_FOUND', '존재하지 않는 할 일입니다.', 'PATCH', `/todos/${id}`), {
         status: 404,
       });
     }
@@ -63,7 +63,7 @@ export const todoHandlers = [
     const { imageUrl } = (await request.json()) as { imageUrl: string };
     const todo = todos.find((t) => t.id === id);
     if (!todo) {
-      return HttpResponse.json(err('804', '존재하지 않는 항목입니다.', 'PATCH', `/todos/${id}`), {
+      return HttpResponse.json(err('TODO_NOT_FOUND', '존재하지 않는 할 일입니다.', 'PATCH', `/todos/${id}`), {
         status: 404,
       });
     }
@@ -74,7 +74,7 @@ export const todoHandlers = [
   http.delete(`${BASE}/todos/:id`, ({ params }) => {
     const id = Number(params.id);
     if (!todos.find((t) => t.id === id)) {
-      return HttpResponse.json(err('804', '존재하지 않는 항목입니다.', 'DELETE', `/todos/${id}`), {
+      return HttpResponse.json(err('TODO_NOT_FOUND', '존재하지 않는 할 일입니다.', 'DELETE', `/todos/${id}`), {
         status: 404,
       });
     }

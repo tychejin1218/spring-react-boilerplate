@@ -48,7 +48,7 @@ describe('PasswordResetRequestPage', () => {
     });
   });
 
-  it('존재하지 않는 이메일로 제출 시 에러 메시지가 표시된다', async () => {
+  it('가입되지 않은 이메일도 같은 안내 메시지가 표시된다 (가입 여부를 드러내지 않음)', async () => {
     const user = userEvent.setup();
     renderWithRouter(<PasswordResetRequestPage />);
 
@@ -56,7 +56,7 @@ describe('PasswordResetRequestPage', () => {
     await user.click(screen.getByRole('button', { name: '재설정 메일 발송' }));
 
     await waitFor(() => {
-      expect(screen.getByText('존재하지 않는 이메일입니다.')).toBeInTheDocument();
+      expect(screen.getByText(/비밀번호 재설정 메일을 발송했습니다/)).toBeInTheDocument();
     });
   });
 

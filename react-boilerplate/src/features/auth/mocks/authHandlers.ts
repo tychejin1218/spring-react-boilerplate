@@ -25,7 +25,7 @@ export const authHandlers = [
     };
 
     if (registeredEmails.has(email)) {
-      return HttpResponse.json(err('803', '이미 사용 중인 이메일입니다.', 'POST', '/auth/register'), { status: 409 });
+      return HttpResponse.json(err('MEMBER_EMAIL_DUPLICATED', '이미 가입된 이메일입니다.', 'POST', '/auth/register'), { status: 409 });
     }
 
     registeredEmails.add(email);
@@ -42,7 +42,7 @@ export const authHandlers = [
     const email = token.startsWith('mock-token-') ? token.replace('mock-token-', '') : null;
 
     if (!email || !registeredEmails.has(email)) {
-      return HttpResponse.json(err('801', '유효하지 않거나 만료된 인증 토큰입니다.', 'GET', '/auth/verify-email'), { status: 400 });
+      return HttpResponse.json(err('AUTH_VERIFY_TOKEN_INVALID', '인증 링크가 만료되었거나 유효하지 않습니다.', 'GET', '/auth/verify-email'), { status: 400 });
     }
 
     return HttpResponse.json(ok({ accessToken: makeFakeToken(email, 'ROLE_USER'), refreshToken: makeFakeToken(email) }));
@@ -52,7 +52,7 @@ export const authHandlers = [
     const { email } = (await request.json()) as { email: string };
 
     if (!registeredEmails.has(email)) {
-      return HttpResponse.json(err('804', '존재하지 않는 이메일입니다.', 'POST', '/auth/resend-verification'), { status: 404 });
+      return HttpResponse.json(err('MEMBER_NOT_FOUND', '존재하지 않는 회원입니다.', 'POST', '/auth/resend-verification'), { status: 404 });
     }
 
     return HttpResponse.json(ok(null));
@@ -66,7 +66,7 @@ export const authHandlers = [
 
     const user = mockUsers[email];
     if (!user || user.password !== password) {
-      return HttpResponse.json(err('805', '이메일 또는 비밀번호가 올바르지 않습니다.', 'POST', '/auth/login'), { status: 401 });
+      return HttpResponse.json(err('AUTH_LOGIN_FAILED', '이메일 또는 비밀번호가 올바르지 않습니다.', 'POST', '/auth/login'), { status: 401 });
     }
 
     return HttpResponse.json(ok({ accessToken: makeFakeToken(email, user.role), refreshToken: makeFakeToken(email) }));
@@ -74,25 +74,21 @@ export const authHandlers = [
 
   http.post(`${BASE}/auth/logout`, () => HttpResponse.json(ok(null))),
 
-  http.post(`${BASE}/auth/password/reset-request`, async ({ request }) => {
-    const { email } = (await request.json()) as { email: string };
-
-    if (!registeredEmails.has(email)) {
-      return HttpResponse.json(err('806', '존재하지 않는 이메일입니다.', 'POST', '/auth/password/reset-request'), { status: 404 });
-    }
-
-    return HttpResponse.json(ok(null));
-  }),
+  // BE 와 같이 가입 여부와 관계없이 항상 성공으로 응답한다 (계정 존재 여부를 드러내지 않음)
+  http.post(`${BASE}/auth/password/reset-request`, () => HttpResponse.json(ok(null))),
 
   http.post(`${BASE}/auth/password/reset`, async ({ request }) => {
     const { token, newPassword } = (await request.json()) as { token: string; newPassword: string };
 
     if (!token || token === 'invalid-token') {
-      return HttpResponse.json(err('807', '유효하지 않거나 만료된 토큰입니다.', 'POST', '/auth/password/reset'), { status: 400 });
+      return HttpResponse.json(
+        err('AUTH_PASSWORD_RESET_TOKEN_INVALID', '비밀번호 재설정 링크가 만료되었거나 유효하지 않습니다.', 'POST', '/auth/password/reset'),
+        { status: 400 },
+      );
     }
 
     if (newPassword.length < 8) {
-      return HttpResponse.json(err('808', '비밀번호는 8자 이상이어야 합니다.', 'POST', '/auth/password/reset'), { status: 400 });
+      return HttpResponse.json(err('VALIDATION_METHOD_ARGUMENT_INVALID', '비밀번호는 8자 이상이어야 합니다.', 'POST', '/auth/password/reset'), { status: 400 });
     }
 
     return HttpResponse.json(ok(null));
