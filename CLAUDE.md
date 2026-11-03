@@ -45,7 +45,7 @@ spring-react-boilerplate/
 
 - 이모지 사용 금지 (응답, 코드, 문서 모두)
 - 응답, 주석, 문서는 한국어로 작성
-- 커밋과 푸시는 사용자가 명시적으로 요청할 때만 수행
+- 커밋과 푸시는 사용자가 명시적으로 요청할 때만 수행. `git commit --no-verify` 로 pre-commit 검사를 건너뛰지 않는다
 - 빌드/테스트 명령은 해당 프로젝트 디렉토리에서 실행 (루트 세션: `cd springboot-boilerplate && ./gradlew ...`, `cd react-boilerplate && npm run ...`; 하위에서 시작한 세션은 `cd` 생략)
 
 ## Claude Code 도구 (루트 `.claude/`)
@@ -73,10 +73,14 @@ FE 와 BE 를 함께 다루는 공통 스킬:
 Hooks(스크립트는 루트 `.claude/hooks/`, 등록은 루트와 각 하위 프로젝트의 `.claude/settings.json`):
 - `fe-format.sh`: `react-boilerplate/` 소스 편집 후 Prettier + ESLint --fix (node_modules 설치 필요)
 - `be-java-notice.sh`: `springboot-boilerplate/` Java 편집 후 포맷/정적 분석 필요 안내
-- `be-commit-gate.sh`: BE 변경이 스테이징된 `git commit` 전 Checkstyle + PMD 실행, 실패 시 차단
 - `skill-confirm.sh`: 파일을 만들거나 고치는 스킬 실행 전 승인 대화상자 표시 (`Skill` 도구 PreToolUse)
 
 hook 스크립트는 파일 경로를 항상 저장소 루트 기준으로 정규화하므로 루트 세션과 하위 세션 양쪽에서 동작한다.
+
+커밋 전 정적 검사는 Claude Code hook 이 아니라 git hook(`.githooks/pre-commit`)이 한다. 누가 어디서 커밋하든(Claude, 터미널, IntelliJ) 같은 검사가 돈다:
+- BE Java, Gradle, MyBatis XML 이 스테이징되면 `./gradlew checkstyleMain pmdMain`
+- FE `src/`, `e2e/` 의 ts, tsx, css, json 이 스테이징되면 `npm run lint`, `npm run format:check`, `tsc --noEmit`
+- 테스트는 돌리지 않는다 (인프라가 필요해 CI 에 둔다). 클론 후 `git config core.hooksPath .githooks` 를 한 번 실행해야 한다
 
 시크릿과 빌드 산출물(`build/`, `dist/`, `node_modules/`) 보호는 각 `settings.json`의 `permissions.deny` Read 규칙으로 처리한다 (`.claudeignore`는 Claude Code가 지원하지 않음).
 워크트리 세션에서는 루트 settings 의 `worktree.symlinkDirectories` 로 `react-boilerplate/node_modules` 를 메인 체크아웃과 공유한다.

@@ -1,0 +1,43 @@
+#!/bin/bash
+# git pre-commit hook: 스테이징된 파일이 속한 프로젝트의 정적 검사를 실행하고 실패하면 커밋을 막는다.
+#
+# 연결: git config core.hooksPath .githooks  (클론 후 한 번. README "로컬 개발 환경" 참고)
+# 건너뛰기: git commit --no-verify  (CI 에서 같은 검사가 다시 돌므로 급할 때만)
+#
+# 테스트는 돌리지 않는다. BE 테스트는 MySQL, Redis 가 필요하고 FE Playwright 는 브라우저가 필요해
+# 커밋마다 돌리기엔 무거우므로 CI(.github/workflows/) 에 둔다.
+
+set -u
+
+root=$(git rev-parse --show-toplevel)
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+[ -z "$staged" ] && exit 0
+
+fail=0
+
+# BE: Java, Gradle 스크립트, MyBatis XML 이 바뀐 경우만 (문서나 yml 만 바뀌면 건너뛴다)
+if echo "$staged" | grep -q -E '^springboot-boilerplate/(.*\.(java|gradle)|src/main/resources/mapper/.*\.xml)$'; then
+  echo "[pre-commit] springboot-boilerplate: Checkstyle + PMD"
+  if ! (cd "$root/springboot-boilerplate" && ./gradlew -q checkstyleMain pmdMain); then
+    echo "[pre-commit] BE 정적 분석 실패. springboot-boilerplate 에서 ./gradlew checkstyleMain pmdMain 오류를 수정한 뒤 다시 커밋하세요." >&2
+    fail=1
+  fi
+fi
+
+if echo "$staged" | grep -q -E '^react-boilerplate/(src|e2e)/.*\.(ts|tsx|css|json)$'; then
+  echo "[pre-commit] react-boilerplate: ESLint + Prettier + tsc"
+  if [ ! -d "$root/react-boilerplate/node_modules" ]; then
+    echo "[pre-commit] react-boilerplate/node_modules 가 없어 FE 검사를 건너뜁니다. npm install 후 다시 커밋하면 검사됩니다." >&2
+  else
+    # IntelliJ 나 GUI 에서 커밋하면 PATH 에 nvm 의 node 가 없을 수 있어 .nvmrc 기준으로 불러온다
+    if ! command -v npm >/dev/null 2>&1 && [ -s "$HOME/.nvm/nvm.sh" ]; then
+      . "$HOME/.nvm/nvm.sh" && nvm use "$(cat "$root/react-boilerplate/.nvmrc")" >/dev/null 2>&1
+    fi
+  fi
+  if [ -d "$root/react-boilerplate/node_modules" ] && ! (cd "$root/react-boilerplate" && npm run -s lint && npm run -s format:check && npx tsc -p tsconfig.app.json --noEmit); then
+    echo "[pre-commit] FE 검사 실패. react-boilerplate 에서 npm run lint:fix, npm run format 으로 고친 뒤 다시 커밋하세요." >&2
+    fail=1
+  fi
+fi
+
+exit $fail

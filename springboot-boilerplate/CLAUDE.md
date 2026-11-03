@@ -133,7 +133,8 @@ Gradle 명령은 `cd springboot-boilerplate && ./gradlew ...` 형태로 실행�
 스크립트는 루트 `.claude/hooks/`에 있고, 루트에서 시작한 세션은 루트 `.claude/settings.json`, 이 디렉토리에서 시작한 세션은 `springboot-boilerplate/.claude/settings.json`에 등록되어 있다:
 - `be-java-notice.sh`: `.java` 편집 후 포맷 정렬·정적 분석 필요 안내
 - `skill-confirm.sh`: `/be-crud`, `/be-test` 는 Claude 가 스스로 골라도 실행 전에 승인을 받는다
-- `be-commit-gate.sh`: BE 변경이 스테이징된 `git commit` 전 `checkstyleMain pmdMain` 실행, 실패 시 커밋 차단
+
+커밋 전 `checkstyleMain pmdMain` 은 루트 `.githooks/pre-commit`(git hook)이 실행한다. 클론 후 `git config core.hooksPath .githooks` 가 필요하다.
 
 ## JetBrains MCP (선택)
 

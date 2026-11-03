@@ -35,7 +35,15 @@ cd springboot-boilerplate
 docker-compose up -d
 ```
 
-### 2. 백엔드 / 프론트엔드 실행
+### 2. git hook 연결 (클론 후 한 번)
+
+```bash
+git config core.hooksPath .githooks
+```
+
+커밋 전에 바뀐 프로젝트의 정적 검사가 돕니다 (BE: Checkstyle + PMD, FE: ESLint + Prettier + tsc). 테스트는 CI 에서만 돕니다.
+
+### 3. 백엔드 / 프론트엔드 실행
 
 각 프로젝트 README 참고:
 - [springboot-boilerplate/README.md](./springboot-boilerplate/README.md)
@@ -46,6 +54,8 @@ docker-compose up -d
 ## CI
 
 GitHub Actions 워크플로(`.github/workflows/`)가 PR 과 `main` 푸시에서 변경된 프로젝트의 품질 게이트를 실행합니다.
+커밋 시점에는 루트 `.githooks/pre-commit` 이 스테이징된 프로젝트의 정적 검사(BE Checkstyle/PMD, FE ESLint/Prettier/tsc)만 빠르게 돌리고, 인프라가 필요한 테스트는 CI 가 맡습니다.
+
 `be-ci.yml` 은 `springboot-boilerplate/**` 변경 시 MySQL/Redis 서비스 컨테이너를 띄워 `./gradlew checkstyleMain pmdMain` 과 `./gradlew test -Pcoverage`(JaCoCo 최소 50%)를 실행하고 커버리지 리포트를 아티팩트로 올립니다.
 `fe-ci.yml` 은 `react-boilerplate/**` 변경 시 ESLint, Prettier, `tsc`, Vitest, `build:prd` 를 실행하고 별도 job 에서 Playwright E2E(chromium, MSW 모드)를 실행합니다.
 같은 브랜치에서 새 실행이 시작되면 진행 중인 이전 실행은 자동으로 취소됩니다.
@@ -104,13 +114,14 @@ mkdir -p .claude/skills .claude/agents .claude/hooks
 cp -r /path/to/spring-react-boilerplate/.claude/skills/be-* .claude/skills/
 cp /path/to/spring-react-boilerplate/.claude/agents/be-*.md .claude/agents/
 cp /path/to/spring-react-boilerplate/.claude/hooks/common.sh /path/to/spring-react-boilerplate/.claude/hooks/skill-confirm.sh /path/to/spring-react-boilerplate/.claude/hooks/be-*.sh .claude/hooks/
+cp -r /path/to/spring-react-boilerplate/.githooks . && git config core.hooksPath .githooks
 sed -i '' 's#/../.claude/hooks/#/.claude/hooks/#g' .claude/settings.json
 ```
 
 그 뒤에 손으로 정리할 것:
 - 루트 `CLAUDE.md` 의 "공통 규칙" 절을 하위 `CLAUDE.md` 맨 앞에 옮깁니다 (이모지 금지, 한국어, 커밋 정책).
 - 하위 `CLAUDE.md` 와 스킬 문서에서 `cd springboot-boilerplate && ` 접두사와 `springboot-boilerplate/` 경로를 지웁니다 (단독 프로젝트에서는 현재 디렉토리가 곧 프로젝트).
-- hook 스크립트는 경로를 저장소 루트 기준으로 보고 `springboot-boilerplate/` 로 시작하는지 검사합니다. 단독 저장소에서는 `common.sh` 의 `hook_project_of` 에서 `springboot-boilerplate/*` 패턴을 `*` 로, `be-commit-gate.sh` 의 `grep -q '^springboot-boilerplate/'` 를 `grep -q .` 로 바꿉니다.
+- hook 스크립트는 경로를 저장소 루트 기준으로 보고 `springboot-boilerplate/` 로 시작하는지 검사합니다. 단독 저장소에서는 `common.sh` 의 `hook_project_of` 에서 `springboot-boilerplate/*` 패턴을 `*` 로, `.githooks/pre-commit` 의 `^springboot-boilerplate/` 를 `^` 로 바꾸고 FE 블록은 지웁니다.
 - `.github/workflows/be-ci.yml` 을 가져가면 `paths` 필터와 `working-directory`, 아티팩트 경로에서 `springboot-boilerplate/` 를 지웁니다.
 - `/qa-scenario` 는 FE 와 BE 를 함께 쓰는 스킬이라 가져가지 않습니다.
 
