@@ -51,7 +51,8 @@ spring:
 mail:
   from: ${MAIL_FROM:noreply@example.com}
   verify-url: ${MAIL_VERIFY_URL:http://localhost:5173/verify-email}
-  password-reset-url: ${MAIL_PASSWORD_RESET_URL:http://localhost:5173/reset-password}
+  # 메일 링크 경로는 FE 라우트(react-boilerplate/src/app/router/router.tsx)와 같아야 한다
+  password-reset-url: ${MAIL_PASSWORD_RESET_URL:http://localhost:5173/password/reset}
 
 # Rate Limit 설정
 # SpringDoc (API 문서, Swagger UI) 은 기본으로 끈다.

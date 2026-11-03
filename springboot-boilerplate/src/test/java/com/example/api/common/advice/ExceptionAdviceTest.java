@@ -24,6 +24,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -317,6 +318,25 @@ class ExceptionAdviceTest {
             .isEqualTo(ApiStatus.VALIDATION_MESSAGE_NOT_READABLE.getCode()),
         () -> assertThat(response.getBody().getMessage())
             .isEqualTo(ApiStatus.VALIDATION_MESSAGE_NOT_READABLE.getMessage())
+    );
+  }
+
+  @Test
+  @Order(20)
+  @DisplayName("메서드 수준 권한 거부(@PreAuthorize) - 500 이 아니라 403 PERMISSION_FORBIDDEN 응답")
+  void handleAccessDeniedException_returns403() {
+    // given
+    AuthorizationDeniedException ex = new AuthorizationDeniedException("Access Denied");
+
+    // when
+    ResponseEntity<ErrorResponse> response =
+        exceptionAdvice.handleAccessDeniedException(ex, request);
+
+    // then
+    assertAll(
+        () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN),
+        () -> assertThat(response.getBody()).isNotNull(),
+        () -> assertThat(response.getBody().getStatusCode()).isEqualTo("PERMISSION_FORBIDDEN")
     );
   }
 }

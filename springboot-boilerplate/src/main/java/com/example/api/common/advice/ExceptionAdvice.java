@@ -8,6 +8,7 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -63,6 +64,29 @@ public class ExceptionAdvice {
         .body(ErrorResponse.of(
             ex.getApiStatus().getCode(),
             ex.getMessage(),
+            request.getMethod(),
+            request.getRequestURI()));
+  }
+
+  /**
+   * 메서드 수준 권한 거부 처리 ({@code @PreAuthorize} 등)
+   *
+   * <p>URL 수준 권한 검사는 보안 필터의 {@code JwtAccessDeniedHandler} 가 403 으로 응답하지만,
+   * {@code @PreAuthorize} 는 컨트롤러 메서드를 호출할 때 검사해서 예외가 이 클래스로 온다.
+   * 처리기가 없으면 {@link #handleException} 이 500 으로 응답하므로 403 으로 바꿔 준다.
+   *
+   * @param ex      권한 거부 예외 ({@code AuthorizationDeniedException} 포함)
+   * @param request HTTP 요청
+   * @return 오류 응답
+   */
+  @ExceptionHandler(AccessDeniedException.class)
+  public ResponseEntity<ErrorResponse> handleAccessDeniedException(
+      AccessDeniedException ex, HttpServletRequest request) {
+    log.warn("AccessDeniedException: {} {}", request.getMethod(), request.getRequestURI());
+    return ResponseEntity
+        .status(ApiStatus.PERMISSION_FORBIDDEN.getHttpStatus())
+        .body(ErrorResponse.of(
+            ApiStatus.PERMISSION_FORBIDDEN,
             request.getMethod(),
             request.getRequestURI()));
   }

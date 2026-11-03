@@ -29,7 +29,7 @@ spring:
 mail:
   from: noreply@boilerplate.local
   verify-url: http://localhost:5173/verify-email
-  password-reset-url: http://localhost:5173/reset-password
+  password-reset-url: http://localhost:5173/password/reset  # FE 라우트와 같아야 함
 
 # JWT 설정
 jwt:
