@@ -40,6 +40,7 @@ jwt:
 # SpringDoc 설정
 springdoc:
   api-docs:
+    enabled: true
     path: /api-docs
     groups:
       enabled: true

@@ -12,7 +12,7 @@ paths:
 ## 의존성
 
 ```gradle
-implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1'
+implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.2.0'
 ```
 
 Spring Boot 4.x → springdoc-openapi 3.x 사용 (2.x는 Spring Boot 3.x 전용)
@@ -21,7 +21,8 @@ Spring Boot 4.x → springdoc-openapi 3.x 사용 (2.x는 Spring Boot 3.x 전용)
 
 ## 프로파일별 활성화
 
-Swagger는 `environment-{profile}.yml`에서 프로파일별로 제어한다.
+`application.yml` 에서 기본으로 끄고, `environment-{profile}.yml` 에서 켤 프로파일만 켠다.
+새 프로파일을 추가해도 명시적으로 켜기 전까지는 API 문서가 노출되지 않는다.
 
 | 프로파일 | Swagger UI | API Docs |
 |----------|-----------|---------|
@@ -31,9 +32,17 @@ Swagger는 `environment-{profile}.yml`에서 프로파일별로 제어한다.
 | prd | **비활성화** | **비활성화** |
 
 ```yaml
+# application.yml (기본값: 꺼짐)
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
 # environment-local.yml / environment-dev.yml / environment-stg.yml
 springdoc:
   api-docs:
+    enabled: true
     path: /api-docs
     groups:
       enabled: true

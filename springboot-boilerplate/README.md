@@ -18,7 +18,7 @@ JWT 인증, Redis 캐시, JPA/QueryDSL/MyBatis 다중 데이터 접근, Read/Wri
 | 인증 | JWT (JJWT 0.12.6) + Spring Security |
 | 설정 암호화 | Jasypt 3.0.5 (PBEWITHHMACSHA512ANDAES_256) |
 | 파일 스토리지 | AWS S3 (로컬: MinIO, 운영: IAM Role 기반 DefaultCredentialsProvider) |
-| API 문서 | SpringDoc OpenAPI 3.0 (Swagger UI) |
+| API 문서 | SpringDoc OpenAPI 3.2.0 (Swagger UI, local/dev/stg 만 활성) |
 | 코드 품질 | Checkstyle 12.3.1 (Google Style) + PMD 7.21.0 + JaCoCo 0.8.14 |
 
 ---

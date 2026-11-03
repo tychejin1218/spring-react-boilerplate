@@ -12,8 +12,9 @@ import org.springframework.context.annotation.Configuration;
 /**
  * SpringDoc OpenAPI 설정
  *
- * <p>프로파일별 활성화 여부는 {@code environment-{profile}.yml}의
- * {@code springdoc.swagger-ui.enabled}, {@code springdoc.api-docs.enabled}로 제어한다
+ * <p>프로파일별 활성화 여부는 {@code springdoc.api-docs.enabled}, {@code springdoc.swagger-ui.enabled}로
+ * 제어한다. application.yml 기본값은 꺼짐이고, local/dev/stg 의 {@code environment-{profile}.yml} 에서만 켠다.
+ * prd 는 꺼진 채로 둔다 (API 구조와 파라미터가 외부에 노출되지 않도록)
  *
  * <p>모듈별 {@link GroupedOpenApi} 빈을 등록하여 Swagger UI에서 그룹으로 분리한다
  * 새 모듈 추가 시 해당 모듈의 {@link GroupedOpenApi} 빈을 이 클래스에 추가한다

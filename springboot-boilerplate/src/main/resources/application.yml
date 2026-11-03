@@ -54,6 +54,15 @@ mail:
   password-reset-url: ${MAIL_PASSWORD_RESET_URL:http://localhost:5173/reset-password}
 
 # Rate Limit 설정
+# SpringDoc (API 문서, Swagger UI) 은 기본으로 끈다.
+# local/dev/stg 는 environment-{profile}.yml 에서 켜고, prd 는 끈 채로 둔다.
+# 새 프로파일을 추가해도 명시적으로 켜기 전까지는 API 문서가 노출되지 않는다.
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
 # 세션 만료 정책. 환경별 yml 이나 환경변수로 재정의한다
 # access-token-validity-ms(환경별 yml)는 session-idle-timeout-ms 보다 짧아야 미활동 만료가 동작한다
 jwt:
