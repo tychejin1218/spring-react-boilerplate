@@ -2,7 +2,6 @@
 name: fe-e2e-gen
 description: react-boilerplate 페이지의 Playwright E2E 테스트 코드를 자동 생성하고 실행까지 검증합니다.
 argument-hint: "<page-name>"
-disable-model-invocation: true
 allowed-tools: Read, Write, Bash, Glob, Grep, Edit, Agent, AskUserQuestion
 ---
 

@@ -84,6 +84,7 @@ cd spring-react-boilerplate/react-boilerplate && claude
 
 스킬과 에이전트는 `fe-` / `be-` 접두사로 구분합니다 (예: `/fe-check`, `/be-crud`). 전체 목록은 루트 `CLAUDE.md` 참고.
 스킬은 절차가 길거나 도구를 묶는 작업(정적 분석, 생성, 테스트 생성, QA)에만 두고, 리뷰나 설명처럼 말로 시켜도 되는 작업은 `.claude/rules/` 의 규칙에 맡깁니다.
+파일을 만드는 스킬은 Claude 가 상황에 맞게 제안하되 실행 전에 승인 대화상자가 뜹니다(`skill-confirm.sh` hook). `/qa-scenario` 만 직접 실행합니다.
 
 `.claude/settings.json` 의 `permissions.deny` 는 비밀이 들어갈 수 있는 파일(`.env.local`, `.env.*.local`, `*.pem`, `*.key`, prd 설정)과 빌드 산출물만 막습니다.
 커밋된 설정 파일(`react-boilerplate/env/.env.dev` 등, BE 의 dev/stg yml)은 환경변수 이름과 공개 값만 담고 있어 막지 않습니다.
@@ -101,7 +102,7 @@ cp -r springboot-boilerplate /path/to/new-project && cd /path/to/new-project
 mkdir -p .claude/skills .claude/agents .claude/hooks
 cp -r /path/to/spring-react-boilerplate/.claude/skills/be-* .claude/skills/
 cp /path/to/spring-react-boilerplate/.claude/agents/be-*.md .claude/agents/
-cp /path/to/spring-react-boilerplate/.claude/hooks/common.sh /path/to/spring-react-boilerplate/.claude/hooks/be-*.sh .claude/hooks/
+cp /path/to/spring-react-boilerplate/.claude/hooks/common.sh /path/to/spring-react-boilerplate/.claude/hooks/skill-confirm.sh /path/to/spring-react-boilerplate/.claude/hooks/be-*.sh .claude/hooks/
 sed -i '' 's#/../.claude/hooks/#/.claude/hooks/#g' .claude/settings.json
 ```
 

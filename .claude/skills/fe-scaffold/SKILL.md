@@ -2,7 +2,6 @@
 name: fe-scaffold
 description: react-boilerplate 에 새 feature 디렉토리 구조(types, apis, hooks, mocks, pages)를 fe-feature-scaffolder 에이전트로 생성합니다.
 argument-hint: "<feature명>"
-disable-model-invocation: true
 ---
 
 # FE Feature 스캐폴딩

@@ -61,9 +61,10 @@ spring-react-boilerplate/
 스킬과 에이전트는 절차가 길거나 도구를 묶어야 하는 작업에만 둔다. 코드 설명, 리뷰, 리팩토링, 성능 점검처럼 말로 시켜도
 같은 결과가 나오는 작업은 스킬로 만들지 않는다. 그 기준은 `.claude/rules/` 가 제공한다.
 
-스킬 자동 호출 기준 (BE, FE 공통):
-- 파일을 만들거나 고치는 스킬은 `disable-model-invocation: true` 로 사용자가 `/이름` 으로 부를 때만 실행한다 (`/be-crud`, `/be-test`, `/fe-scaffold`, `/fe-vitest-gen`, `/fe-e2e-gen`, `/qa-scenario`)
-- 예외: `/be-check`, `/fe-check` 는 포맷을 고치지만 코드 변경 후 항상 실행하도록 자동 호출을 허용한다
+스킬 호출 기준 (BE, FE 공통):
+- 파일을 만들거나 고치는 스킬(`/be-crud`, `/be-test`, `/fe-scaffold`, `/fe-vitest-gen`, `/fe-e2e-gen`)은 Claude 가 대화 맥락에 맞으면 스스로 고를 수 있다. 대신 `skill-confirm.sh` hook 이 실행 전에 승인 대화상자를 띄우므로, 사용자가 허용해야 실행된다
+- `/qa-scenario` 는 브라우저와 DB 를 건드리고 몇 분이 걸리므로 `disable-model-invocation: true` 로 사용자가 `/qa-scenario` 로 직접 부를 때만 실행한다
+- `/be-check`, `/fe-check` 는 코드 변경 후 항상 실행해야 하므로 승인 없이 자동 실행한다
 
 FE 와 BE 를 함께 다루는 공통 스킬:
 - `/qa-scenario [all | ID...]`: `docs/qa/scenarios.md` 의 통합 테스트 시나리오를 실제 로컬 인프라에 붙여 ego lite 로 실행하고 결과를 `.qa-reports/` 에 남긴다. 발견한 버그는 보고만 하고 고치지 않는다.
@@ -72,6 +73,7 @@ Hooks(스크립트는 루트 `.claude/hooks/`, 등록은 루트와 각 하위 �
 - `fe-format.sh`: `react-boilerplate/` 소스 편집 후 Prettier + ESLint --fix (node_modules 설치 필요)
 - `be-java-notice.sh`: `springboot-boilerplate/` Java 편집 후 포맷/정적 분석 필요 안내
 - `be-commit-gate.sh`: BE 변경이 스테이징된 `git commit` 전 Checkstyle + PMD 실행, 실패 시 차단
+- `skill-confirm.sh`: 파일을 만들거나 고치는 스킬 실행 전 승인 대화상자 표시 (`Skill` 도구 PreToolUse)
 
 hook 스크립트는 파일 경로를 항상 저장소 루트 기준으로 정규화하므로 루트 세션과 하위 세션 양쪽에서 동작한다.
 

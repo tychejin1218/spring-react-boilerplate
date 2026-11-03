@@ -2,7 +2,6 @@
 name: be-crud
 description: springboot-boilerplate 전용. Entity 파일 기반으로 DTO, Repository, Service, Controller, 테스트를 자동 생성합니다.
 argument-hint: "<Entity 파일 경로>"
-disable-model-invocation: true
 ---
 
 # BE Entity 기반 CRUD 레이어 생성

@@ -104,7 +104,7 @@ src/
 
 스킬과 에이전트는 모노레포 루트 `.claude/`에 있으며 FE 전용은 `fe-` 접두사가 붙는다.
 
-### Skills (`/xxx`) — 명시적 호출
+### Skills (`/xxx`)
 
 | 스킬 | 역할 | 사용법 |
 |------|------|------|
@@ -128,5 +128,7 @@ src/
 (루트에서 시작한 세션은 루트 `.claude/settings.json`, 이 디렉토리에서 시작한 세션은 `react-boilerplate/.claude/settings.json`에 등록되어 있다):
 1. **Prettier** — 코드 포매팅 자동 적용
 2. **ESLint --fix** — 자동 수정 가능한 린트 에러 해결
+
+`skill-confirm.sh` hook 은 `/fe-scaffold`, `/fe-vitest-gen`, `/fe-e2e-gen` 을 Claude 가 스스로 골라도 실행 전에 승인을 받게 한다.
 
 `react-boilerplate/node_modules`가 설치되어 있어야 동작한다 (`npm install`). 워크트리 세션은 루트 settings 의 `worktree.symlinkDirectories` 로 메인 체크아웃의 node_modules 를 공유한다.

@@ -2,7 +2,6 @@
 name: be-test
 description: springboot-boilerplate 의 지정된 클래스의 JUnit 5 테스트 코드를 생성합니다. Service(Mock/통합), Controller(MockMvc), Repository, Mapper 테스트 중 적합한 유형을 선택하여 작성합니다.
 argument-hint: "<클래스명>"
-disable-model-invocation: true
 ---
 
 # BE 테스트 코드 생성

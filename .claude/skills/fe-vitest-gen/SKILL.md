@@ -2,7 +2,6 @@
 name: fe-vitest-gen
 description: react-boilerplate 소스 파일의 Vitest 단위 테스트 코드를 자동 생성하고 실행까지 검증합니다.
 argument-hint: "[src/path/to/file.ts(x)]"
-disable-model-invocation: true
 allowed-tools: Read, Write, Bash, Glob, Grep, Edit, Agent
 ---
 
