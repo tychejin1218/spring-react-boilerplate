@@ -15,7 +15,7 @@ const Input = ({ invalid = false, className = '', ref, ...rest }: Props) => (
   <input
     ref={ref}
     aria-invalid={invalid || undefined}
-    className={`rounded border px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none ${
+    className={`rounded border bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none ${
       invalid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
     } ${className}`}
     {...rest}

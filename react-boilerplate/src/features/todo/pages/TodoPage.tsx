@@ -74,7 +74,11 @@ const TodoPage = () => {
             </button>
           ))}
         </div>
-        <select value={sort} onChange={handleSortChange} className="mb-1 rounded border border-gray-200 px-2 py-1 text-xs text-gray-600 focus:outline-none">
+        <select
+          value={sort}
+          onChange={handleSortChange}
+          className="mb-1 rounded border border-gray-200 bg-white px-2 py-1 text-xs text-gray-600 focus:outline-none"
+        >
           <option value="id">최신순</option>
           <option value="title">제목순</option>
         </select>
