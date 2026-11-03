@@ -202,13 +202,22 @@ Playwright E2E(`react-boilerplate/e2e/`)와의 차이:
 
 기본 미활동 만료는 30분이라 그대로는 확인할 수 없다. 시간을 줄여 BE 를 따로 띄워야 하므로 `all` 실행에서 제외한다.
 
-**준비 (사람이 직접)**
-- BE 를 환경변수 `JWT_SESSION_IDLE_TIMEOUT_MS=60000` 과 `-Djwt.access-token-validity-ms=30000` 으로 재시작한다 (미활동 1분, Access Token 30초).
+**준비 (사람이 직접, 또는 지정 실행 시 스킬이)**
+- 미활동 40초, Access Token 15초로 BE 를 띄운다. FE 도 이 BE 를 가리키게 띄운다 (스킬 문서의 "다른 포트의 서버를 대상으로 실행할 때").
+
+```bash
+./gradlew bootRun --args='--server.port=9095 --spring.profiles.active=local --cors.allowed-origins=http://localhost:5174 --jwt.session-idle-timeout-ms=40000 --jwt.access-token-validity-ms=15000'
+```
 
 **단계**
-1. 로그인한 뒤 70초 동안 아무 요청도 하지 않는다.
-2. 할 일을 하나 추가한다.
+1. 로그인한 뒤 45초 동안 아무 요청도 하지 않는다.
+2. 할 일 추가와 필터 탭 클릭을 연달아 한다 (여러 요청이 동시에 실패하는 상황).
+3. 다시 로그인하고, 10초마다 필터 탭을 눌러 요청을 보내며 60초 이상 지낸다.
 
 **기대 결과**
-- 2번에서 토큰 재발급이 실패하고 로그인 화면으로 돌아간다.
-- 같은 방식으로 30초마다 요청을 보내며 70초를 넘기면 로그인이 유지된다 (활동 중에는 연장됨).
+- 2번: "세션이 만료되었습니다. 다시 로그인해주세요." 안내가 **한 번만** 뜨고 로그인 화면으로 이동한다. 다른 오류 토스트가 함께 쌓이지 않는다.
+- 2번 후 localStorage `user-store` 의 토큰이 비어 있다.
+- 3번: 60초가 지나도 로그인이 유지된다 (활동 중에는 재발급할 때마다 미활동 만료가 연장됨).
+
+**부수 효과**
+- 3번 중 `qa.sh redis TTL APP:AUTH:REFRESH_TOKEN:<회원 번호>` 가 40 이하의 양수로 계속 다시 늘어난다.
