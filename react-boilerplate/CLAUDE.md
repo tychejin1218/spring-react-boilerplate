@@ -90,106 +90,17 @@ src/
 
 ## 코드 작성 규칙
 
-### 컴포넌트 구조
+세부 규칙은 `.claude/rules/` 에 있고, 해당 경로의 파일을 다룰 때 자동으로 로드된다.
 
-- 함수형 컴포넌트 + 화살표 함수 사용
-- Props 타입은 `interface Props { ... }` 로 정의 (파일 상단, export 불필요)
-- 기본 export: `export default ComponentName`
-- 컴포넌트 파일은 `.tsx`, 순수 로직 파일은 `.ts`
-
-```tsx
-// 올바른 컴포넌트 구조
-interface Props {
-  todo: Todo;
-  onComplete: (id: number) => void;
-}
-
-const TodoItem = ({ todo, onComplete }: Props) => {
-  return <li>{todo.title}</li>;
-};
-
-export default TodoItem;
-```
-
-### UI 컴포넌트와 폼
-
-- 버튼·입력은 `shared/components/ui/` 의 `Button`(variant/size/loading), `Input`, `FormField`(label + 에러 `role="alert"`)를 사용한다. 빈 목록은 `EmptyState`
-- 인증 화면은 `features/auth/components/AuthCard.tsx` 로 감싼다
-- 폼은 `useForm` + `zodResolver(schema)`. 스키마는 피처의 `types/` 에 두고 (`auth/types/authForm.ts`), 서버 에러는 `setError('root', ...)` 로 표시한다
-- 전역 API 에러(403/5xx)는 `instance.ts` 인터셉터가, 그 밖의 조회/변경 오류는 `QueryProvider` 의 QueryCache/MutationCache 가 토스트로 알리므로 화면에서 중복 토스트를 띄우지 않는다. 화면이 오류를 직접 그리는 쿼리/mutation 은 `meta: { skipErrorNotify: true }` 로 공통 알림에서 뺀다. 429 는 해당 화면이 직접 처리한다
-- 오류 문구는 `getErrorMessage(err, '화면별 실패 문구')` (`shared/utils/apiError.ts`) 로 만든다. `err.message` 를 그대로 쓰면 axios 영문 메시지가 노출된다
-- 세션 만료(토큰 갱신 실패)는 `shared/utils/sessionExpired.ts` 가 한 번만 처리한다 (토스트 + 로그인 페이지 이동). 로그인 성공 시 `useLoginSuccess` 가 가드를 초기화한다
-- 작성 중인 폼에서 벗어날 때 확인이 필요하면 `useLeaveConfirm(formState.isDirty)` 를 쓰고, 저장 성공 후 이동은 `leaveWithoutConfirm(() => navigate(...))` 로 감싼다 (예: `RegisterPage`)
-
-### Hooks 패턴 (TanStack Query)
-
-- `useQuery`: 데이터 조회 — `queryKey`는 QueryKey 팩토리(`queryKeys.ts`) 사용
-- `useMutation`: 데이터 변경 — `onSuccess`에서 관련 쿼리 `invalidateQueries`
-- 훅 파일은 `use{Feature}s.ts` 형태로 피처 단위로 모아서 관리
-
-```ts
-// 조회 훅
-export const useTodos = () =>
-  useQuery({
-    queryKey: todoKeys.all.queryKey,
-    queryFn: getTodos,
-    select: (data) => data.data,
-  });
-
-// 변경 훅
-export const useCreateTodo = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (data: CreateTodoRequest) => postTodo(data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: todoKeys.all.queryKey }),
-  });
-};
-```
-
-### API 함수 패턴
-
-- `src/shared/apis/instance.ts`의 `api` 인스턴스 사용 (Axios 인터셉터 적용됨)
-- 반환 타입 명시: `Promise<ApiResponse<T>>`
-- `.then((res) => res.data)`로 axios 응답 래퍼 제거
-
-```ts
-// API 함수 패턴
-export const getTodos = (): Promise<ApiResponse<Todo[]>> =>
-  api.get<ApiResponse<Todo[]>>('/todos').then((res) => res.data);
-
-export const postTodo = (data: CreateTodoRequest): Promise<ApiResponse<Todo>> =>
-  api.post<ApiResponse<Todo>>('/todos', data).then((res) => res.data);
-```
-
-### MSW Handler 패턴
-
-- 핸들러는 피처별로 분리: `features/{feature}/mocks/{feature}Handlers.ts`
-- `src/mocks/handlers.ts`에서 통합하여 내보내기
-- `ok()`, `err()` 헬퍼는 `src/mocks/response.ts` 사용
-
-```ts
-// MSW 핸들러 패턴
-export const todoHandlers = [
-  http.get(`${BASE}/todos`, () => HttpResponse.json(ok(todos))),
-  http.post(`${BASE}/todos`, async ({ request }) => {
-    const { title } = (await request.json()) as { title: string };
-    const todo: Todo = { id: nextId++, title, completed: false };
-    return HttpResponse.json(ok(todo));
-  }),
-];
-```
-
-### 라우터 패턴
-
-- 모든 페이지 컴포넌트는 `lazy()` + `withSuspense()` 헬퍼로 감싸기
-- 인증 필요 라우트: `RouteGuard` 컴포넌트(`features/auth/components/RouteGuard.tsx`)로 감싸기. 역할 제한은 `<RouteGuard requiredRole="ROLE_ADMIN" />`
-- 예제 기능(todo, admin, notification, 파일 업로드) 라우트는 `router.tsx` 상단의 `[예제: ...]` 블록에 모여 있다 (제거 방법은 README "예제 기능 제거 방법")
-- 에러 처리: `errorElement: <RouterErrorFallback />`
+| 파일 | 내용 | 로드 시점 |
+|------|------|-----------|
+| [architecture-rules.md](.claude/rules/architecture-rules.md) | 레이어 의존 규칙, API 함수·Query 훅 패턴, 라우터, 새 도메인 추가 순서 | `src/` 파일 |
+| [naming-styling.md](.claude/rules/naming-styling.md) | 파일·함수 이름, export 방식, Tailwind 스타일, 접근성 | `src/` 파일 |
+| [components-forms.md](.claude/rules/components-forms.md) | 컴포넌트 구조, 공통 UI, 폼, 오류 알림, 세션 만료, 이탈 확인 | 페이지, 컴포넌트, 훅 |
+| [mocks.md](.claude/rules/mocks.md) | MSW 핸들러 작성 규칙 | `src/mocks/`, `features/*/mocks/` |
+| [testing-rules.md](.claude/rules/testing-rules.md) | Vitest, Playwright 규칙 | 테스트 파일, `e2e/` |
 
 ## Claude Code 자동화 도구
-
-상세 아키텍처 규칙: [.claude/rules/architecture-rules.md](.claude/rules/architecture-rules.md) (src/ 파일 편집 시 자동 로드)
-테스트 규칙: [.claude/rules/testing-rules.md](.claude/rules/testing-rules.md) (테스트 파일 편집 시 자동 로드)
 
 스킬과 에이전트는 모노레포 루트 `.claude/`에 있으며 FE 전용은 `fe-` 접두사가 붙는다.
 

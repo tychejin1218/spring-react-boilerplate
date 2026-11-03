@@ -13,7 +13,7 @@ model: sonnet
 ## 사전 준비
 
 작업 시작 전 반드시 아래를 읽으세요:
-- `react-boilerplate/CLAUDE.md`, `react-boilerplate/.claude/rules/architecture-rules.md`
+- `react-boilerplate/CLAUDE.md`, `react-boilerplate/.claude/rules/architecture-rules.md`, `naming-styling.md`, `components-forms.md`, `mocks.md` (같은 디렉토리)
 - `src/features/todo/` — 참조 구현체 (전체 디렉토리)
   - `types/todo.ts` — 타입 정의 패턴
   - `apis/todoApi.ts` — API 함수 패턴

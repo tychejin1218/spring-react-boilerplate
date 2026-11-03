@@ -101,17 +101,6 @@ redis:
 - `S3Config` 에서 `aws.s3.endpoint` 가 있으면(로컬 MinIO) `access-key`/`secret-key` 정적 자격증명 사용
 - endpoint 가 없으면 `DefaultCredentialsProvider` 체인 사용 → ECS/EKS/EC2 의 IAM Role 로 자동 인증
 
-## Bastion 터널링
-
-VPN 없이 로컬에서 AWS 리소스 접근 시 JVM 옵션:
-
-```
--Dbastion=true
--Dssh-host=x.x.x.x
--Dssh-user=ec2-user
--Dkey-path=/home/.ssh/key/bastion.pem
-```
-
 ## 정적 분석 도구
 
 ### Checkstyle
@@ -130,9 +119,8 @@ VPN 없이 로컬에서 AWS 리소스 접근 시 JVM 옵션:
 ### JaCoCo
 
 - 버전: 0.8.14
-- `-Pcoverage` 옵션으로 활성화
-- HTML/XML 리포트 생성
-- 커버리지 측정 제외: config, entity, dto, Application 클래스
+- 테스트는 항상 실행되고, `-Pcoverage` 를 주면 리포트 생성과 최소 커버리지(기본 0.50) 검증이 추가된다
+- 리포트 경로와 측정 제외 대상은 [testing.md](testing.md) 의 "JaCoCo 커버리지"
 
 ```bash
 ./gradlew checkstyleMain           # Checkstyle 실행
@@ -143,19 +131,13 @@ VPN 없이 로컬에서 AWS 리소스 접근 시 JVM 옵션:
 
 ## 빌드 설정 참고
 
-- 테스트는 `-Pcoverage` 옵션 시에만 실행
 - 컴파일러 옵션: `-Xlint:unchecked`, `-Xlint:deprecation`
 - QueryDSL Q클래스 생성 경로: `src/main/generated` (clean 시 삭제)
 - Maven Repository: `mavenCentral()`
 
 ## Swagger (SpringDoc OpenAPI)
 
-상세 내용은 [openapi.md](openapi.md) 참조.
-
-- 의존성: `springdoc-openapi-starter-webmvc-ui:3.0.1`
-- 활성화: local / dev / stg — 비활성화: prd
-- 설정 위치: `config/environment/environment-{profile}.yml`
-- Config 클래스: `config/OpenApiConfig.java`
+의존성 버전, 프로파일별 활성화(local/dev/stg 켜짐, prd 꺼짐), `OpenApiConfig` 구조는 [openapi.md](openapi.md) 를 본다.
 
 ## AWS SDK 의존성
 

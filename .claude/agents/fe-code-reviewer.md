@@ -12,7 +12,7 @@ effort: high
 ## 사전 준비
 
 리뷰 전 반드시 아래를 읽으세요:
-- `react-boilerplate/CLAUDE.md`, `react-boilerplate/.claude/rules/architecture-rules.md`
+- `react-boilerplate/CLAUDE.md`, `react-boilerplate/.claude/rules/architecture-rules.md`, `naming-styling.md`, `components-forms.md`, `mocks.md` (같은 디렉토리)
 - 대상 파일 전체
 - 관련 타입 정의 파일 (`types/` 디렉토리)
 - `react-boilerplate/src/features/todo/` — 참조 구현체 (패턴 비교용)

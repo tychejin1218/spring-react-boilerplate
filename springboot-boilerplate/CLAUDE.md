@@ -40,23 +40,23 @@ Controller → Service → Repository(QueryDSL) / Mapper(MyBatis) → Database
 
 ```
 src/main/java/com/example/api/
-├── common/              # 공통 (예외, 응답, 상수, 유틸)
-│   ├── advice/          # ExceptionAdvice (전역 예외 핸들러)
-│   ├── exception/       # ApiException
-│   ├── response/        # BaseResponse<T>, ErrorResponse
-│   ├── type/            # ApiStatus enum (응답코드 정의)
-│   └── constants/       # Constants (BASE_PACKAGE 등)
-├── config/              # 설정 (DataSource, Redis, WebMvc 등)
-├── domain/              # 도메인 공통
+├── common/              # advice(ExceptionAdvice), component(Redis/S3), constants, controller(Health),
+│                        # exception(ApiException), response(BaseResponse/ErrorResponse/PageResponse), type(ApiStatus/RedisKeys)
+├── config/              # MainDataSourceConfig(R/W 분리 + JPA + MyBatis + QueryDSL), redis/, security/, jwt/, aws/, web/,
+│                        # AsyncConfig, CacheConfig, JasyptConfig, OpenApiConfig, WebMvcConfig
+├── domain/
 │   ├── entity/          # JPA Entity (모든 Entity 여기에)
 │   └── repository/      # JPA Repository (JpaRepository 상속)
-└── {패키지}/              # 기능 패키지 (sample 참조)
-    ├── controller/      # REST Controller
-    ├── service/         # 비즈니스 로직
-    ├── dto/             # DTO (outer class 내 static inner class)
-    ├── repository/      # QueryDSL Custom Repository
-    └── mapper/          # MyBatis Mapper 인터페이스
+├── sample/              # 기능 패키지 템플릿
+│   ├── controller/      # REST Controller + ControllerDocs(Swagger 어노테이션)
+│   ├── service/         # 비즈니스 로직
+│   ├── dto/             # DTO (outer class 내 static inner class)
+│   ├── repository/      # QueryDSL Repository (필요시)
+│   └── mapper/          # MyBatis Mapper 인터페이스 (필요시)
+└── admin, auth, file, notification, todo, user/   # 기능 패키지 (sample 과 같은 구조)
 ```
+
+전체 파일 목록은 유지하지 않는다. 실제 파일은 디렉토리를 직접 탐색한다.
 
 ### Read/Write DataSource 분리
 
@@ -149,10 +149,14 @@ JetBrains MCP가 없는 환경에서는 포맷 정렬 단계를 건너뛰고 `./
 
 ### 상세 문서
 
-`.claude/rules/` 디렉토리 참조:
-- [패키지 구성 가이드](.claude/rules/package.md) - 새 패키지 추가 시 필독
-- [아키텍처](.claude/rules/architecture.md) | [네이밍](.claude/rules/naming-conventions.md)
-- [API 응답 & 예외](.claude/rules/api-response.md) | [데이터 접근](.claude/rules/data-access.md)
-- [설정 & 인프라](.claude/rules/configuration.md) | [OpenAPI](.claude/rules/openapi.md) | [테스트](.claude/rules/testing.md) | [주석](.claude/rules/commenting.md)
-- [DB 네이밍 컨벤션](.claude/rules/db-conventions.md) - 테이블·컬럼·인덱스 네이밍 및 DDL 작성 규칙
-- [날짜/시간 처리](.claude/rules/datetime.md) - UTC/KST 변환, ZonedDateTime 패턴
+`.claude/rules/` 의 규칙은 해당 경로의 파일을 다룰 때 자동으로 로드된다:
+- [아키텍처](.claude/rules/architecture.md) | [네이밍](.claude/rules/naming-conventions.md) | [주석](.claude/rules/commenting.md) - 모든 Java 파일
+- [API 응답 & 예외](.claude/rules/api-response.md) - controller, service
+- [OpenAPI](.claude/rules/openapi.md) - controller, dto, OpenApiConfig
+- [데이터 접근](.claude/rules/data-access.md) - repository, mapper, MyBatis XML
+- [DB 네이밍 컨벤션](.claude/rules/db-conventions.md) - entity, SQL
+- [날짜/시간 처리](.claude/rules/datetime.md) - entity, dto, service
+- [설정 & 인프라](.claude/rules/configuration.md) - build.gradle, yml, config
+- [테스트](.claude/rules/testing.md) - src/test
+
+새 기능 패키지를 만드는 절차는 규칙이 아니라 작업 순서라 `/be-crud` 스킬 쪽에 둔다: [new-package-guide.md](../.claude/skills/be-crud/new-package-guide.md)

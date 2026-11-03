@@ -18,7 +18,7 @@ Entity 파일을 읽어 DTO, Repository, Service, Controller, Test를 생성하�
 
 작업 시작 전 반드시 아래를 읽으세요:
 - 대상 Entity 파일 — 필드·타입·관계 파악
-- `springboot-boilerplate/.claude/rules/package.md` — 패키지 생성 전체 절차
+- `.claude/skills/be-crud/new-package-guide.md` — 패키지 생성 전체 절차
 - `springboot-boilerplate/src/main/java/com/example/api/sample/` — 참조 구현체 (sample 패키지 전체)
 - `springboot-boilerplate/src/main/java/com/example/api/common/` — BaseResponse, ApiException, ApiStatus
 
@@ -27,7 +27,7 @@ Entity 파일을 읽어 DTO, Repository, Service, Controller, Test를 생성하�
 Entity와 JPA Repository는 이미 존재하므로 아래 파일만 생성하세요:
 
 1. **DTO** — `{패키지}/dto/{패키지명}Dto.java`
-2. **QueryDSL Repository** — `{패키지}/repository/{패키지명}Repository.java`
+2. **QueryDSL Repository** — `{패키지}/repository/{패키지명}Repository.java` (JPA Repository 와 이름이 겹치면 `{패키지명}QueryRepository.java`)
 3. **Service** — `{패키지}/service/{패키지명}Service.java`
 4. **Controller** — `{패키지}/controller/{패키지명}Controller.java`
 5. **Service Mock 단위 테스트** — `springboot-boilerplate/src/test/java/.../service/{패키지명}ServiceMockTest.java`
@@ -42,7 +42,8 @@ MyBatis 사용 시 `@Alias` 필수. 상세: [naming-conventions.md](springboot-b
 ### QueryDSL Repository — 메서드명 `selectXXX` (단건) / `selectXXXList` (목록)
 
 `Projections.fields()`로 DTO 직접 매핑, `BooleanBuilder`로 동적 WHERE 조합.
-상세: [package.md](springboot-boilerplate/.claude/rules/package.md)
+JPA Repository 와 클래스 이름이 같아지면 `{패키지명}QueryRepository` 로 짓는다.
+상세: [new-package-guide.md](.claude/skills/be-crud/new-package-guide.md), [data-access.md](springboot-boilerplate/.claude/rules/data-access.md)
 
 ### Service — 메서드명 `getXXX` / `getXXXList` / `insertXXX` / `updateXXX` / `deleteXXX`
 - 조회: `@Transactional(readOnly = true)` 필수 → Reader DataSource 라우팅

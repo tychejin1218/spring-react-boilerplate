@@ -1,13 +1,10 @@
----
-paths:
-  - "springboot-boilerplate/src/main/java/**/*.java"
-  - "src/main/java/**/*.java"
-  - "springboot-boilerplate/src/main/resources/mapper/**/*.xml"
-  - "src/main/resources/mapper/**/*.xml"
----
 # 새 패키지 생성 가이드
 
 새 기능 패키지 추가 시 `sample` 패키지를 참조하여 아래 순서대로 진행한다.
+
+이 문서는 작업 절차다. `/be-crud` (`be-crud-generator` 에이전트)가 읽고, 직접 패키지를 만들 때도 이 순서를 따른다.
+각 단계의 규칙 원본은 `springboot-boilerplate/.claude/rules/` 에 있다 (DTO: naming-conventions.md, 데이터 접근: data-access.md,
+ControllerDocs: openapi.md, 예외: api-response.md). 둘이 다르면 rules 를 따르고 이 문서를 고친다.
 
 ## 1. Entity 생성
 
@@ -49,7 +46,7 @@ public class {패키지명}Dto {
     // 검색·필터 조건 필드 + @Valid 어노테이션
   }
 
-  @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
+  @Getter @Builder @NoArgsConstructor @AllArgsConstructor
   @Alias("XxxResponse")  // MyBatis 사용 시 필수
   public static class XxxResponse {
     // 응답 필드
@@ -80,7 +77,7 @@ public interface {EntityName}Repository extends JpaRepository<{EntityName}, Long
 
 ### 3-2. QueryDSL Repository (동적 쿼리, 복잡한 조건)
 
-**위치**: `{패키지}/repository/{패키지명}Repository.java`
+**위치**: `{패키지}/repository/{패키지명}Repository.java` (JPA Repository 와 이름이 같아지면 `{패키지명}QueryRepository`, 예: `TodoQueryRepository`)
 
 ```java
 @Repository
@@ -242,9 +239,9 @@ public class {패키지명}Controller implements {패키지명}ControllerDocs {
 - Validation: `@Valid` + DTO 필드에 `@NotBlank`, `@NotNull` 등
 - 인터페이스 구현 메서드에 `@Override` 필수 (PMD 규칙)
 
-## 6. 코드 포맷 & 정적 분석 검증
+## 7. 코드 포맷 & 정적 분석 검증
 
-**IntelliJ에서 Google Java Style 자동정렬 적용 후** Checkstyle 검증:
+JetBrains MCP 가 있으면 Google Java Style 자동정렬 후 Checkstyle 검증 (없으면 정렬 단계를 건너뛰고 Checkstyle 결과로 직접 수정):
 
 ```bash
 # JetBrains MCP로 재포맷 (파일별 실행)
@@ -275,5 +272,5 @@ mcp__jetbrains__reformat_file(projectPath, path)
 | 11 | Controller 응답 → `BaseResponse.ok()` |  |
 | 12 | 예외 → `ApiException(ApiStatus.XXX)` |  |
 | 13 | Javadoc 작성 (한글, 명사형 종결) |  |
-| 14 | IntelliJ `reformat_file` 적용 |  |
+| 14 | `reformat_file` 적용 (JetBrains MCP 가 있을 때) |  |
 | 15 | Checkstyle + PMD 통과 |  |

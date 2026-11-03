@@ -13,6 +13,7 @@ paths:
 | `XXXService` | 비즈니스 로직 | `SampleService` |
 | `XXXDto` | 데이터 전송 객체 (inner static class 포함) | `SampleDto` |
 | `XXXRepository` | JPA Repository 또는 QueryDSL 커스텀 Repository | `MemberRepository`, `SampleRepository` |
+| `XXXQueryRepository` | QueryDSL Repository 이름이 JPA Repository 와 겹칠 때 | `TodoQueryRepository` (JPA 는 `TodoRepository`) |
 | `XXXMapper` | MyBatis 매퍼 인터페이스 | `SampleMapper` |
 
 ## Controller / Service 메서드 Prefix
@@ -72,13 +73,13 @@ DTO의 getter/setter/constructor는 직접 작성하지 않고 Lombok 어노테�
 
 `@Setter`는 **지양**하며, Jackson이 역직렬화해야 하는 경우에만 사용한다.
 - **사용**: `@RequestBody` Request DTO, 외부 JSON 파싱 DTO (Redis 등)
-- **미사용**: Response DTO (서비스에서 `from()` / builder로 직접 생성)
+- **미사용**: Response DTO (`from()` 또는 QueryDSL `Projections.fields()` 로 생성)
 
 | 클래스 유형 | 어노테이션 |
 |-----------|-----------|
 | Request DTO (`@RequestBody`) | `@Getter` `@Setter` `@Builder` `@NoArgsConstructor` `@AllArgsConstructor` |
 | 외부 JSON 파싱 DTO (Redis 등) | `@Getter` `@Setter` `@NoArgsConstructor` |
-| Response DTO (코드에서 직접 생성) | `@Getter` `@NoArgsConstructor` |
+| Response DTO | `@Getter` `@Builder` `@NoArgsConstructor` `@AllArgsConstructor` (MyBatis 사용 시 `@Alias`) |
 | 불변 Request (정적 팩토리 전용) | `@Getter` (생성자는 `private`, setter 없음) |
 
 ```java
@@ -101,15 +102,17 @@ public static class NodeResponse {
   private String name;
 }
 
-// Response DTO - 서비스에서 from() / builder로 직접 생성
+// Response DTO - from() 또는 QueryDSL Projections.fields() 로 생성
 @Getter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public static class MemberResponse {
   private Long id;
   private String name;
 
   public static MemberResponse from(Member member) {
-    return new MemberResponse(member.getId(), member.getName());
+    return MemberResponse.builder().id(member.getId()).name(member.getName()).build();
   }
 }
 
@@ -217,22 +220,13 @@ return BaseResponse.ok(sampleService.getMemberList(SampleDto.MemberListRequest.o
   ```
 - `POST`, `PUT`, `PATCH`, `DELETE` → Request Body (JSON, camelCase)
 
----
-
 ## Entity 네이밍
 
-- `@Table(name = "snake_case")` 테이블 매핑
-- `@Column(name = "snake_case")` 컬럼 매핑
-- PK: `@Id @GeneratedValue(strategy = GenerationType.IDENTITY)`
+테이블·컬럼 이름은 [db-conventions.md](db-conventions.md), Entity 어노테이션은 [data-access.md](data-access.md) 의 "Entity 작성 규칙" 을 따른다.
 
 ## 코드 스타일
 
-- **Google Java Style Guide** 준수 (Checkstyle 적용, 2-space 들여쓰기)
 - 의존성 주입: `@RequiredArgsConstructor` + `private final` 필드 (생성자 주입)
 - 로깅: `@Slf4j` (Lombok)
-- 접근 제어: Entity의 `@NoArgsConstructor(access = AccessLevel.PROTECTED)`, `@AllArgsConstructor(access = AccessLevel.PRIVATE)`
 - Jackson: `tools.jackson` 패키지 사용 (Jackson 3.x)
-
-## Javadoc 스타일
-
-클래스/메서드 Javadoc은 [주석 가이드](commenting.md) 참조.
+- 들여쓰기·줄 길이·import 순서 등은 Checkstyle(Google Style)이 검사하므로 `./gradlew checkstyleMain` 결과를 따른다
